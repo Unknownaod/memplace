@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Admin Panel — Middle Eastern Mixing</title>
+
+  <style>
+    :root {
+      --black: #0b0a08;
+      --black-2: #12100d;
+      --black-3: #191611;
+
+      --beige: #e7d7b5;
+      --beige-light: #f3e8cf;
+
+      --gold: #c8a45d;
+      --gold-light: #dfc27b;
+      --gold-dark: #92743b;
+
+      --border: rgba(200, 164, 93, 0.25);
+
+      --text-muted: #a99d87;
+
+      --danger: #a84c43;
+      --danger-light: #d27a70;
+
+      --success: #6d9b67;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top center,
+          rgba(200,164,93,.05),
+          transparent 35%
+        ),
+        var(--black);
+
+      color: var(--beige-light);
+
+      min-height: 100vh;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       TOP BAR
+    ========================================== */
+
+    .topbar {
+      height: 64px;
+
+      background: #090806;
+
+      border-bottom:
+        1px solid var(--border);
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      padding:
+        0 22px;
+
+      position: sticky;
+
+      top: 0;
+
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+
+      display: grid;
+
+      place-items: center;
+
+      font-weight: 900;
+
+      border-radius: 8px;
+    }
+
+    .brand-text h1 {
+      font-size: 15px;
+
+      letter-spacing: .8px;
+
+      text-transform: uppercase;
+    }
+
+    .brand-text span {
+      color: var(--gold);
+
+      font-size: 10px;
+    }
+
+    .top-actions {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+    }
+
+    .admin-badge {
+      border:
+        1px solid var(--border);
+
+      background:
+        rgba(200,164,93,.08);
+
+      color:
+        var(--gold);
+
+      padding:
+        7px 10px;
+
+      border-radius: 5px;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: .8px;
+    }
+
+    .user-display {
+      color:
+        var(--text-muted);
+
+      font-size: 11px;
+    }
+
+    .top-btn {
+      border:
+        1px solid var(--border);
+
+      background:
+        var(--black-3);
+
+      color:
+        var(--beige);
+
+      padding:
+        9px 12px;
+
+      border-radius: 6px;
+
+      font-size: 11px;
+
+      font-weight: 700;
+    }
+
+    .top-btn:hover {
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+    }
+
+    /* ==========================================
+       PAGE
+    ========================================== */
+
+    .page {
+      max-width: 1400px;
+
+      margin: 0 auto;
+
+      padding:
+        28px;
+    }
+
+    .page-header {
+      display: flex;
+
+      align-items: flex-end;
+
+      justify-content: space-between;
+
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+
+      font-weight: 900;
+    }
+
+    .page-subtitle {
+      color:
+        var(--text-muted);
+
+      font-size: 12px;
+
+      margin-top: 5px;
+    }
+
+    /* ==========================================
+       STAT GRID
+    ========================================== */
+
+    .stats {
+      display: grid;
+
+      grid-template-columns:
+        repeat(5, 1fr);
+
+      gap: 12px;
+
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background:
+        var(--black-2);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 8px;
+
+      padding:
+        16px;
+    }
+
+    .stat-label {
+      color:
+        var(--text-muted);
+
+      font-size: 9px;
+
+      text-transform: uppercase;
+
+      letter-spacing: 1px;
+
+      font-weight: 800;
+    }
+
+    .stat-value {
+      margin-top: 7px;
+
+      font-size: 25px;
+
+      font-weight: 900;
+
+      color:
+        var(--beige-light);
+    }
+
+    /* ==========================================
+       GRID
+    ========================================== */
+
+    .content-grid {
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1.5fr)
+        minmax(320px, .8fr);
+
+      gap: 16px;
+    }
+
+    .panel {
+      background:
+        var(--black-2);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 8px;
+
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding:
+        14px 16px;
+
+      border-bottom:
+        1px solid var(--border);
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 11px;
+
+      color:
+        var(--gold);
+
+      text-transform: uppercase;
+
+      letter-spacing: 1.2px;
+
+      font-weight: 900;
+    }
+
+    .panel-body {
+      padding:
+        16px;
+    }
+
+    /* ==========================================
+       SEARCH
+    ========================================== */
+
+    .search {
+      display: flex;
+
+      gap: 8px;
+
+      margin-bottom: 14px;
+    }
+
+    .search input {
+      flex: 1;
+
+      min-width: 0;
+
+      background:
+        var(--black-3);
+
+      color:
+        var(--beige-light);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 6px;
+
+      padding:
+        11px 12px;
+
+      outline: none;
+
+      font-size: 12px;
+    }
+
+    .search input:focus {
+      border-color:
+        var(--gold);
+    }
+
+    .gold-btn {
+      border: none;
+
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+
+      border-radius: 6px;
+
+      padding:
+        10px 15px;
+
+      font-size: 11px;
+
+      font-weight: 900;
+    }
+
+    .gold-btn:hover {
+      background:
+        var(--gold-light);
+    }
+
+    /* ==========================================
+       USER RESULTS
+    ========================================== */
+
+    .user-list {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 7px;
+    }
+
+    .user-item {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      background:
+        var(--black-3);
+
+      border:
+        1px solid rgba(200,164,93,.12);
+
+      border-radius: 6px;
+
+      padding:
+        10px;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+
+      border-radius: 50%;
+
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+
+      display: grid;
+
+      place-items: center;
+
+      font-size: 12px;
+
+      font-weight: 900;
+
+      flex-shrink: 0;
+
+      overflow: hidden;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+    }
+
+    .user-info {
+      flex: 1;
+
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 12px;
+
+      font-weight: 800;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+
+      white-space: nowrap;
+    }
+
+    .user-id {
+      color:
+        var(--text-muted);
+
+      font-family: monospace;
+
+      font-size: 9px;
+
+      margin-top: 3px;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+    }
+
+    .user-balance {
+      text-align: right;
+
+      font-size: 10px;
+
+      color:
+        var(--text-muted);
+    }
+
+    .user-balance strong {
+      display: block;
+
+      color:
+        var(--gold);
+
+      font-size: 12px;
+    }
+
+    /* ==========================================
+       USER DETAIL
+    ========================================== */
+
+    .empty {
+      color:
+        var(--text-muted);
+
+      text-align: center;
+
+      padding:
+        28px 10px;
+
+      font-size: 11px;
+    }
+
+    .detail {
+      display: none;
+    }
+
+    .detail.active {
+      display: block;
+    }
+
+    .detail-header {
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+      margin-bottom: 18px;
+    }
+
+    .detail-avatar {
+      width: 52px;
+      height: 52px;
+
+      border-radius: 50%;
+
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+
+      display: grid;
+
+      place-items: center;
+
+      font-size: 18px;
+
+      font-weight: 900;
+
+      overflow: hidden;
+    }
+
+    .detail-avatar img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+    }
+
+    .detail-name {
+      font-size: 15px;
+
+      font-weight: 900;
+    }
+
+    .detail-id {
+      color:
+        var(--text-muted);
+
+      font-family: monospace;
+
+      font-size: 9px;
+
+      margin-top: 4px;
+    }
+
+    .detail-row {
+      display: flex;
+
+      justify-content: space-between;
+
+      padding:
+        9px 0;
+
+      border-top:
+        1px solid rgba(255,255,255,.04);
+
+      font-size: 11px;
+    }
+
+    .detail-row span:first-child {
+      color:
+        var(--text-muted);
+    }
+
+    .detail-actions {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 7px;
+
+      margin-top: 15px;
+    }
+
+    .action-btn {
+      border:
+        1px solid var(--border);
+
+      background:
+        var(--black-3);
+
+      color:
+        var(--beige);
+
+      padding:
+        9px;
+
+      border-radius: 5px;
+
+      font-size: 10px;
+
+      font-weight: 800;
+    }
+
+    .action-btn:hover {
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+    }
+
+    .danger-btn {
+      border-color:
+        rgba(168,76,67,.5);
+
+      color:
+        var(--danger-light);
+    }
+
+    .danger-btn:hover {
+      background:
+        var(--danger);
+
+      color:
+        white;
+    }
+
+    /* ==========================================
+       GIVE PIXELS
+    ========================================== */
+
+    .pixel-form {
+      display: flex;
+
+      gap: 7px;
+
+      margin-top: 9px;
+    }
+
+    .pixel-form input {
+      width: 100%;
+
+      background:
+        var(--black-3);
+
+      border:
+        1px solid var(--border);
+
+      color:
+        var(--beige-light);
+
+      border-radius: 5px;
+
+      padding:
+        9px;
+
+      font-size: 11px;
+
+      outline: none;
+    }
+
+    /* ==========================================
+       BOARD MANAGEMENT
+    ========================================== */
+
+    .board-info {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 8px;
+    }
+
+    .board-box {
+      background:
+        var(--black-3);
+
+      border:
+        1px solid rgba(200,164,93,.12);
+
+      border-radius: 6px;
+
+      padding:
+        11px;
+    }
+
+    .board-box span {
+      display: block;
+
+      color:
+        var(--text-muted);
+
+      font-size: 9px;
+
+      text-transform: uppercase;
+
+      letter-spacing: .6px;
+    }
+
+    .board-box strong {
+      display: block;
+
+      margin-top: 5px;
+
+      font-size: 14px;
+    }
+
+    .reset-btn {
+      width: 100%;
+
+      margin-top: 10px;
+
+      border:
+        1px solid rgba(168,76,67,.55);
+
+      background:
+        rgba(168,76,67,.08);
+
+      color:
+        var(--danger-light);
+
+      padding:
+        11px;
+
+      border-radius: 6px;
+
+      font-size: 10px;
+
+      font-weight: 900;
+
+      text-transform: uppercase;
+
+      letter-spacing: .5px;
+    }
+
+    .reset-btn:hover {
+      background:
+        var(--danger);
+
+      color:
+        white;
+    }
+
+    /* ==========================================
+       LOGS
+    ========================================== */
+
+    .logs {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 6px;
+
+      max-height: 330px;
+
+      overflow-y: auto;
+    }
+
+    .log {
+      background:
+        var(--black-3);
+
+      border:
+        1px solid rgba(200,164,93,.1);
+
+      border-radius: 5px;
+
+      padding:
+        9px;
+    }
+
+    .log-top {
+      display: flex;
+
+      justify-content: space-between;
+
+      gap: 10px;
+    }
+
+    .log-action {
+      color:
+        var(--gold);
+
+      font-size: 10px;
+
+      font-weight: 900;
+    }
+
+    .log-time {
+      color:
+        var(--text-muted);
+
+      font-size: 9px;
+    }
+
+    .log-target {
+      color:
+        var(--text-muted);
+
+      font-size: 9px;
+
+      margin-top: 4px;
+    }
+
+    /* ==========================================
+       LOADING
+    ========================================== */
+
+    .loading {
+      color:
+        var(--text-muted);
+
+      text-align: center;
+
+      padding:
+        25px;
+
+      font-size: 11px;
+    }
+
+    /* ==========================================
+       ACCESS DENIED
+    ========================================== */
+
+    .access-denied {
+      display: none;
+
+      min-height:
+        calc(100vh - 64px);
+
+      align-items: center;
+
+      justify-content: center;
+
+      text-align: center;
+
+      padding: 30px;
+    }
+
+    .access-box {
+      max-width: 400px;
+
+      background:
+        var(--black-2);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 8px;
+
+      padding:
+        30px;
+    }
+
+    .access-icon {
+      font-size: 35px;
+
+      margin-bottom: 12px;
+    }
+
+    .access-box h2 {
+      font-size: 18px;
+
+      margin-bottom: 7px;
+    }
+
+    .access-box p {
+      color:
+        var(--text-muted);
+
+      font-size: 11px;
+
+      line-height: 1.6;
+
+      margin-bottom: 18px;
+    }
+
+    /* ==========================================
+       TOAST
+    ========================================== */
+
+    .toast {
+      position: fixed;
+
+      bottom: 22px;
+
+      left: 50%;
+
+      transform:
+        translateX(-50%)
+        translateY(15px);
+
+      background:
+        var(--gold);
+
+      color:
+        var(--black);
+
+      padding:
+        10px 15px;
+
+      border-radius: 6px;
+
+      font-size: 11px;
+
+      font-weight: 900;
+
+      z-index: 9999;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transition:
+        .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+
+      transform:
+        translateX(-50%)
+        translateY(0);
+    }
+
+    /* ==========================================
+       MOBILE
+    ========================================== */
+
+    @media (max-width: 1000px) {
+
+      .stats {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .content-grid {
+        grid-template-columns:
+          1fr;
+      }
+
+    }
+
+    @media (max-width: 600px) {
+
+      .page {
+        padding: 16px;
+      }
+
+      .topbar {
+        padding:
+          0 12px;
+      }
+
+      .brand-text {
+        display: none;
+      }
+
+      .user-display {
+        display: none;
+      }
+
+      .stats {
+        grid-template-columns:
+          1fr 1fr;
+      }
+
+      .page-header {
+        align-items: flex-start;
+      }
+
+      .detail-actions {
+        grid-template-columns:
+          1fr;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==========================================
+       TOP BAR
+  ========================================== -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-mark">
+        م
+      </div>
+
+      <div class="brand-text">
+
+        <h1>
+          Middle Eastern Mixing
+        </h1>
+
+        <span>
+          Community Canvas
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="top-actions">
+
+      <div class="admin-badge">
+        Admin
+      </div>
+
+      <div
+        class="user-display"
+        id="adminUsername"
+      >
+        —
+      </div>
+
+      <button
+        class="top-btn"
+        onclick="goToCanvas()"
+      >
+        Canvas
+      </button>
+
+      <button
+        class="top-btn"
+        onclick="logout()"
+      >
+        Disconnect
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- ==========================================
+       ACCESS DENIED
+  ========================================== -->
+
+  <section
+    class="access-denied"
+    id="accessDenied"
+  >
+
+    <div class="access-box">
+
+      <div class="access-icon">
+        🔒
+      </div>
+
+      <h2>
+        Access Denied
+      </h2>
+
+      <p>
+        You do not have permission to access
+        the Middle Eastern Mixing administration
+        panel.
+      </p>
+
+      <button
+        class="gold-btn"
+        onclick="goToCanvas()"
+      >
+        Return to Canvas
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ==========================================
+       ADMIN PAGE
+  ========================================== -->
+
+  <main
+    class="page"
+    id="adminPage"
+    style="display:none"
+  >
+
+    <div class="page-header">
+
+      <div>
+
+        <div class="page-title">
+          Administration
+        </div>
+
+        <div class="page-subtitle">
+          Manage the Middle Eastern Mixing
+          community canvas.
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================
+         STATISTICS
+    ========================================= -->
+
+    <section class="stats">
+
+      <div class="stat">
+
+        <div class="stat-label">
+          Users
+        </div>
+
+        <div
+          class="stat-value"
+          id="statUsers"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-label">
+          Board Pixels
+        </div>
+
+        <div
+          class="stat-value"
+          id="statPixels"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-label">
+          Pixels Placed
+        </div>
+
+        <div
+          class="stat-value"
+          id="statPlaced"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-label">
+          Banned Users
+        </div>
+
+        <div
+          class="stat-value"
+          id="statBanned"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-label">
+          Clans
+        </div>
+
+        <div
+          class="stat-value"
+          id="statClans"
+        >
+          —
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ========================================= -->
+
+    <div class="content-grid">
+
+
+      <!-- ======================================
+           USERS
+      ====================================== -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div class="panel-title">
+            User Management
+          </div>
+
+        </div>
+
+        <div class="panel-body">
+
+          <div class="search">
+
+            <input
+              type="text"
+              id="userSearch"
+              placeholder="Search username or Discord ID..."
+              autocomplete="off"
+            >
+
+            <button
+              class="gold-btn"
+              onclick="searchUsers()"
+            >
+              Search
+            </button>
+
+          </div>
+
+
+          <div
+            class="user-list"
+            id="userList"
+          >
+
+            <div class="loading">
+              Loading users...
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ======================================
+           USER DETAIL
+      ====================================== -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div class="panel-title">
+            Selected User
+          </div>
+
+        </div>
+
+        <div class="panel-body">
+
+          <div
+            class="empty"
+            id="noUserSelected"
+          >
+            Select a user to view their details.
+          </div>
+
+
+          <div
+            class="detail"
+            id="userDetail"
+          >
+
+            <div class="detail-header">
+
+              <div
+                class="detail-avatar"
+                id="detailAvatar"
+              >
+                ?
+              </div>
+
+              <div>
+
+                <div
+                  class="detail-name"
+                  id="detailName"
+                >
+                  —
+                </div>
+
+                <div
+                  class="detail-id"
+                  id="detailId"
+                >
+                  —
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="detail-row">
+
+              <span>
+                Balance
+              </span>
+
+              <span id="detailBalance">
+                —
+              </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+              <span>
+                Pixels Placed
+              </span>
+
+              <span id="detailPlaced">
+                —
+              </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+              <span>
+                Clan
+              </span>
+
+              <span id="detailClan">
+                None
+              </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+              <span>
+                Account Created
+              </span>
+
+              <span id="detailCreated">
+                —
+              </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+              <span>
+                Status
+              </span>
+
+              <span id="detailStatus">
+                —
+              </span>
+
+            </div>
+
+
+            <!-- GIVE PIXELS -->
+
+            <div
+              class="section-title"
+              style="margin-top:18px"
+            >
+              Give Pixels
+            </div>
+
+            <div class="pixel-form">
+
+              <input
+                type="number"
+                id="pixelAmount"
+                min="1"
+                max="100000"
+                placeholder="Amount"
+              >
+
+              <button
+                class="gold-btn"
+                onclick="givePixels()"
+              >
+                Give
+              </button>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="detail-actions">
+
+              <button
+                class="action-btn danger-btn"
+                id="banButton"
+                onclick="banSelectedUser()"
+              >
+                Ban User
+              </button>
+
+              <button
+                class="action-btn"
+                id="unbanButton"
+                onclick="unbanSelectedUser()"
+              >
+                Unban User
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ======================================
+           BOARD MANAGEMENT
+      ====================================== -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div class="panel-title">
+            Board Management
+          </div>
+
+        </div>
+
+        <div class="panel-body">
+
+          <div class="board-info">
+
+            <div class="board-box">
+
+              <span>
+                Board Size
+              </span>
+
+              <strong>
+                200 × 200
+              </strong>
+
+            </div>
+
+            <div class="board-box">
+
+              <span>
+                Total Cells
+              </span>
+
+              <strong>
+                40,000
+              </strong>
+
+            </div>
+
+            <div class="board-box">
+
+              <span>
+                Occupied
+              </span>
+
+              <strong id="boardOccupied">
+                —
+              </strong>
+
+            </div>
+
+            <div class="board-box">
+
+              <span>
+                Empty
+              </span>
+
+              <strong id="boardEmpty">
+                —
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="reset-btn"
+            onclick="resetBoard()"
+          >
+            Reset Entire Board
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- ======================================
+           ADMIN LOGS
+      ====================================== -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div class="panel-title">
+            Admin Activity
+          </div>
+
+        </div>
+
+        <div class="panel-body">
+
+          <div
+            class="logs"
+            id="logs"
+          >
+
+            <div class="loading">
+              Loading logs...
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <!-- ==========================================
+       TOAST
+  ========================================== -->
+
+  <div
+    class="toast"
+    id="toast"
+  ></div>
+
+
+<script>
+
+  /* ==========================================
+     STATE
+  ========================================== */
+
+  let currentAdmin = null;
+
+  let selectedUser = null;
+
+  let users = [];
+
+
+  /* ==========================================
+     TOAST
+  ========================================== */
+
+  let toastTimer = null;
+
+  function showToast(message) {
+
+    const toast =
+      document.getElementById("toast");
+
+    if (!toast) {
+      return;
+    }
+
+    toast.textContent =
+      message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer =
+      setTimeout(() => {
+
+        toast.classList.remove("show");
+
+      }, 2400);
+  }
+
+
+  /* ==========================================
+     AUTH CHECK
+  ========================================== */
+
+  async function checkAdmin() {
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/auth/me",
+          {
+            cache: "no-store"
+          }
+        );
+
+
+      if (!response.ok) {
+        throw new Error(
+          "Authentication failed"
+        );
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !data.authenticated ||
+        !data.user
+      ) {
+
+        showAccessDenied();
+
+        return false;
+      }
+
+
+      /*
+        The actual admin check is performed
+        by /api/admin.js.
+
+        We can safely display the panel here,
+        but every privileged API request is
+        still checked server-side.
+      */
+
+      currentAdmin =
+        data.user;
+
+
+      const username =
+        document.getElementById(
+          "adminUsername"
+        );
+
+
+      if (username) {
+
+        username.textContent =
+          currentAdmin.username ||
+          "Discord User";
+
+      }
+
+
+      document.getElementById(
+        "adminPage"
+      ).style.display =
+        "block";
+
+
+      return true;
+
+
+    } catch (error) {
+
+      console.error(
+        "Admin authentication error:",
+        error
+      );
+
+      showAccessDenied();
+
+      return false;
+    }
+  }
+
+
+  /* ==========================================
+     ACCESS DENIED
+  ========================================== */
+
+  function showAccessDenied() {
+
+    document.getElementById(
+      "adminPage"
+    ).style.display =
+      "none";
+
+    document.getElementById(
+      "accessDenied"
+    ).style.display =
+      "flex";
+  }
+
+
+  /* ==========================================
+     LOAD DASHBOARD
+  ========================================== */
+
+  async function loadDashboard() {
+
+    /*
+      The current admin API only exposes
+      modification actions.
+
+      Statistics will automatically populate
+      once the expanded admin API is installed.
+    */
+
+    loadUsers();
+
+    loadLogs();
+
+    loadStats();
+  }
+
+
+  /* ==========================================
+     LOAD USERS
+  ========================================== */
+
+  async function loadUsers(search = "") {
+
+    const list =
+      document.getElementById(
+        "userList"
+      );
+
+    list.innerHTML =
+      `<div class="loading">
+        Loading users...
+      </div>`;
+
+
+    /*
+      This expects the admin API to support:
+
+      action: "listUsers"
+    */
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              action:
+                "listUsers",
+              search
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        if (
+          response.status === 403
+        ) {
+
+          showAccessDenied();
+
+          return;
+        }
+
+        throw new Error(
+          data.error ||
+          "Failed to load users"
+        );
+      }
+
+
+      users =
+        Array.isArray(data.users)
+          ? data.users
+          : [];
+
+
+      renderUsers();
+
+
+    } catch (error) {
+
+      console.error(
+        "User loading error:",
+        error
+      );
+
+      list.innerHTML =
+        `<div class="empty">
+          ${escapeHtml(
+            error.message
+          )}
+        </div>`;
+    }
+  }
+
+
+  /* ==========================================
+     SEARCH USERS
+  ========================================== */
+
+  function searchUsers() {
+
+    const input =
+      document.getElementById(
+        "userSearch"
+      );
+
+    const search =
+      input
+        ? input.value.trim()
+        : "";
+
+    loadUsers(search);
+  }
+
+
+  document
+    .getElementById("userSearch")
+    .addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key === "Enter"
+        ) {
+
+          searchUsers();
+        }
+
+      }
+    );
+
+
+  /* ==========================================
+     RENDER USERS
+  ========================================== */
+
+  function renderUsers() {
+
+    const list =
+      document.getElementById(
+        "userList"
+      );
+
+
+    if (!users.length) {
+
+      list.innerHTML =
+        `<div class="empty">
+          No users found.
+        </div>`;
+
+      return;
+    }
+
+
+    list.innerHTML =
+      users
+        .map(user => {
+
+          const name =
+            user.username ||
+            "Discord User";
+
+          const initial =
+            name
+              .charAt(0)
+              .toUpperCase();
+
+
+          const avatar =
+            user.avatar
+              ? `
+                <img
+                  src="https://cdn.discordapp.com/avatars/${encodeURIComponent(
+                    user._id
+                  )}/${encodeURIComponent(
+                    user.avatar
+                  )}.png?size=64"
+                  alt=""
+                >
+              `
+              : initial;
+
+
+          return `
+            <button
+              class="user-item"
+              onclick="selectUser('${escapeJs(
+                user._id
+              )}')"
+            >
+
+              <div class="user-avatar">
+                ${avatar}
+              </div>
+
+              <div class="user-info">
+
+                <div class="user-name">
+                  ${escapeHtml(name)}
+                </div>
+
+                <div class="user-id">
+                  ${escapeHtml(user._id)}
+                </div>
+
+              </div>
+
+              <div class="user-balance">
+
+                Balance
+
+                <strong>
+                  ${Number(
+                    user.balance || 0
+                  ).toLocaleString()}
+                </strong>
+
+              </div>
+
+            </button>
+          `;
+
+        })
+        .join("");
+  }
+
+
+  /* ==========================================
+     SELECT USER
+  ========================================== */
+
+  function selectUser(userId) {
+
+    const user =
+      users.find(
+        item =>
+          item._id === userId
+      );
+
+
+    if (!user) {
+      return;
+    }
+
+
+    selectedUser =
+      user;
+
+
+    document.getElementById(
+      "noUserSelected"
+    ).style.display =
+      "none";
+
+
+    document.getElementById(
+      "userDetail"
+    ).classList.add("active");
+
+
+    const avatar =
+      document.getElementById(
+        "detailAvatar"
+      );
+
+
+    if (user.avatar) {
+
+      avatar.innerHTML =
+        `<img
+          src="https://cdn.discordapp.com/avatars/${encodeURIComponent(
+            user._id
+          )}/${encodeURIComponent(
+            user.avatar
+          )}.png?size=128"
+          alt=""
+        >`;
+
+    } else {
+
+      avatar.textContent =
+        (user.username || "?")
+          .charAt(0)
+          .toUpperCase();
+    }
+
+
+    document.getElementById(
+      "detailName"
+    ).textContent =
+      user.username ||
+      "Discord User";
+
+
+    document.getElementById(
+      "detailId"
+    ).textContent =
+      user._id;
+
+
+    document.getElementById(
+      "detailBalance"
+    ).textContent =
+      Number(
+        user.balance || 0
+      ).toLocaleString();
+
+
+    document.getElementById(
+      "detailPlaced"
+    ).textContent =
+      Number(
+        user.pixelsPlaced || 0
+      ).toLocaleString();
+
+
+    document.getElementById(
+      "detailClan"
+    ).textContent =
+      user.clanId ||
+      "None";
+
+
+    document.getElementById(
+      "detailCreated"
+    ).textContent =
+      formatDate(
+        user.createdAt
+      );
+
+
+    const banned =
+      user.banned === true;
+
+
+    document.getElementById(
+      "detailStatus"
+    ).textContent =
+      banned
+        ? "Banned"
+        : "Active";
+
+
+    document.getElementById(
+      "banButton"
+    ).style.display =
+      banned
+        ? "none"
+        : "block";
+
+
+    document.getElementById(
+      "unbanButton"
+    ).style.display =
+      banned
+        ? "block"
+        : "none";
+  }
+
+
+  /* ==========================================
+     ADMIN ACTION
+  ========================================== */
+
+  async function adminAction(
+    action,
+    extra = {}
+  ) {
+
+    if (!selectedUser) {
+
+      showToast(
+        "Select a user first."
+      );
+
+      return null;
+    }
+
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+
+              action,
+
+              userId:
+                selectedUser._id,
+
+              ...extra
+
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        if (
+          response.status === 403
+        ) {
+
+          showAccessDenied();
+
+          return null;
+        }
+
+
+        throw new Error(
+          data.error ||
+          "Admin operation failed"
+        );
+      }
+
+
+      return data;
+
+
+    } catch (error) {
+
+      console.error(
+        "Admin action error:",
+        error
+      );
+
+      showToast(
+        error.message
+      );
+
+      return null;
+    }
+  }
+
+
+  /* ==========================================
+     BAN
+  ========================================== */
+
+  async function banSelectedUser() {
+
+    if (!selectedUser) {
+      return;
+    }
+
+
+    const confirmed =
+      confirm(
+        `Ban ${selectedUser.username || "this user"}?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    const result =
+      await adminAction(
+        "ban"
+      );
+
+
+    if (
+      result &&
+      result.success
+    ) {
+
+      selectedUser.banned =
+        true;
+
+
+      selectUser(
+        selectedUser._id
+      );
+
+
+      showToast(
+        "User banned."
+      );
+
+
+      loadUsers(
+        document.getElementById(
+          "userSearch"
+        ).value.trim()
+      );
+
+      loadLogs();
+
+      loadStats();
+    }
+  }
+
+
+  /* ==========================================
+     UNBAN
+  ========================================== */
+
+  async function unbanSelectedUser() {
+
+    if (!selectedUser) {
+      return;
+    }
+
+
+    const result =
+      await adminAction(
+        "unban"
+      );
+
+
+    if (
+      result &&
+      result.success
+    ) {
+
+      selectedUser.banned =
+        false;
+
+
+      selectUser(
+        selectedUser._id
+      );
+
+
+      showToast(
+        "User unbanned."
+      );
+
+
+      loadUsers(
+        document.getElementById(
+          "userSearch"
+        ).value.trim()
+      );
+
+      loadLogs();
+
+      loadStats();
+    }
+  }
+
+
+  /* ==========================================
+     GIVE PIXELS
+  ========================================== */
+
+  async function givePixels() {
+
+    if (!selectedUser) {
+
+      showToast(
+        "Select a user first."
+      );
+
+      return;
+    }
+
+
+    const input =
+      document.getElementById(
+        "pixelAmount"
+      );
+
+
+    const amount =
+      Number(
+        input.value
+      );
+
+
+    if (
+      !Number.isInteger(amount) ||
+      amount <= 0 ||
+      amount > 100000
+    ) {
+
+      showToast(
+        "Enter an amount between 1 and 100,000."
+      );
+
+      return;
+    }
+
+
+    const result =
+      await adminAction(
+        "givePixels",
+        {
+          amount
+        }
+      );
+
+
+    if (
+      result &&
+      result.success
+    ) {
+
+      selectedUser.balance =
+        Number(
+          selectedUser.balance || 0
+        ) + amount;
+
+
+      selectUser(
+        selectedUser._id
+      );
+
+
+      input.value = "";
+
+
+      showToast(
+        `Added ${amount.toLocaleString()} pixels.`
+      );
+
+
+      loadUsers(
+        document.getElementById(
+          "userSearch"
+        ).value.trim()
+      );
+
+      loadLogs();
+
+      loadStats();
+    }
+  }
+
+
+  /* ==========================================
+     STATS
+  ========================================== */
+
+  async function loadStats() {
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              action:
+                "stats"
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+        return;
+      }
+
+
+      document.getElementById(
+        "statUsers"
+      ).textContent =
+        Number(
+          data.users || 0
+        ).toLocaleString();
+
+
+      document.getElementById(
+        "statPixels"
+      ).textContent =
+        Number(
+          data.pixels || 0
+        ).toLocaleString();
+
+
+      document.getElementById(
+        "statPlaced"
+      ).textContent =
+        Number(
+          data.pixelsPlaced || 0
+        ).toLocaleString();
+
+
+      document.getElementById(
+        "statBanned"
+      ).textContent =
+        Number(
+          data.banned || 0
+        ).toLocaleString();
+
+
+      document.getElementById(
+        "statClans"
+      ).textContent =
+        Number(
+          data.clans || 0
+        ).toLocaleString();
+
+
+      document.getElementById(
+        "boardOccupied"
+      ).textContent =
+        Number(
+          data.pixels || 0
+        ).toLocaleString();
+
+
+      document.getElementById(
+        "boardEmpty"
+      ).textContent =
+        Math.max(
+          0,
+          40000 -
+          Number(
+            data.pixels || 0
+          )
+        ).toLocaleString();
+
+
+    } catch (error) {
+
+      console.error(
+        "Stats error:",
+        error
+      );
+    }
+  }
+
+
+  /* ==========================================
+     LOGS
+  ========================================== */
+
+  async function loadLogs() {
+
+    const container =
+      document.getElementById(
+        "logs"
+      );
+
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              action:
+                "logs"
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+          "Failed to load logs"
+        );
+      }
+
+
+      const logs =
+        Array.isArray(data.logs)
+          ? data.logs
+          : [];
+
+
+      if (!logs.length) {
+
+        container.innerHTML =
+          `<div class="empty">
+            No admin activity yet.
+          </div>`;
+
+        return;
+      }
+
+
+      container.innerHTML =
+        logs
+          .map(log => {
+
+            return `
+              <div class="log">
+
+                <div class="log-top">
+
+                  <span class="log-action">
+                    ${escapeHtml(
+                      log.action ||
+                      "action"
+                    )}
+                  </span>
+
+                  <span class="log-time">
+                    ${escapeHtml(
+                      formatDate(
+                        log.createdAt
+                      )
+                    )}
+                  </span>
+
+                </div>
+
+                <div class="log-target">
+                  Admin:
+                  ${escapeHtml(
+                    log.adminUserId ||
+                    "Unknown"
+                  )}
+
+                  <br>
+
+                  Target:
+                  ${escapeHtml(
+                    log.targetUserId ||
+                    "None"
+                  )}
+
+                  ${
+                    log.amount
+                      ? `<br>Amount: ${Number(
+                          log.amount
+                        ).toLocaleString()}`
+                      : ""
+                  }
+
+                </div>
+
+              </div>
+            `;
+
+          })
+          .join("");
+
+
+    } catch (error) {
+
+      console.error(
+        "Logs error:",
+        error
+      );
+
+      container.innerHTML =
+        `<div class="empty">
+          Unable to load activity.
+        </div>`;
+    }
+  }
+
+
+  /* ==========================================
+     RESET BOARD
+  ========================================== */
+
+  async function resetBoard() {
+
+    const first =
+      confirm(
+        "WARNING: This will permanently delete every pixel on the board.\n\nContinue?"
+      );
+
+
+    if (!first) {
+      return;
+    }
+
+
+    const second =
+      prompt(
+        'Type "RESET" to confirm.'
+      );
+
+
+    if (
+      second !== "RESET"
+    ) {
+
+      showToast(
+        "Board reset cancelled."
+      );
+
+      return;
+    }
+
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              action:
+                "resetBoard"
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Failed to reset board"
+        );
+      }
+
+
+      showToast(
+        "Board reset successfully."
+      );
+
+
+      loadStats();
+
+      loadLogs();
+
+
+    } catch (error) {
+
+      console.error(
+        "Board reset error:",
+        error
+      );
+
+      showToast(
+        error.message
+      );
+    }
+  }
+
+
+  /* ==========================================
+     LOGOUT
+  ========================================== */
+
+  async function logout() {
+
+    try {
+
+      await fetch(
+        "/api/auth/logout",
+        {
+          method: "POST"
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Logout error:",
+        error
+      );
+    }
+
+
+    window.location.href =
+      "/";
+  }
+
+
+  /* ==========================================
+     CANVAS
+  ========================================== */
+
+  function goToCanvas() {
+
+    window.location.href =
+      "/";
+  }
+
+
+  /* ==========================================
+     DATE
+  ========================================== */
+
+  function formatDate(value) {
+
+    if (!value) {
+      return "Unknown";
+    }
+
+
+    const date =
+      new Date(value);
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return "Unknown";
+    }
+
+
+    return date.toLocaleString();
+  }
+
+
+  /* ==========================================
+     HTML ESCAPE
+  ========================================== */
+
+  function escapeHtml(value) {
+
+    return String(
+      value ?? ""
+    )
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+  }
+
+
+  /* ==========================================
+     JS ESCAPE
+  ========================================== */
+
+  function escapeJs(value) {
+
+    return String(
+      value ?? ""
+    )
+      .replaceAll(
+        "\\",
+        "\\\\"
+      )
+      .replaceAll(
+        "'",
+        "\\'"
+      )
+      .replaceAll(
+        "\n",
+        "\\n"
+      )
+      .replaceAll(
+        "\r",
+        "\\r"
+      );
+  }
+
+
+  /* ==========================================
+     INITIALIZE
+  ========================================== */
+
+  async function initialize() {
+
+    const isAdmin =
+      await checkAdmin();
+
+
+    if (!isAdmin) {
+      return;
+    }
+
+
+    await loadDashboard();
+
+  }
+
+
+  initialize();
+
+</script>
+
+</body>
+</html>
+
