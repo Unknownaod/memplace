@@ -1098,20 +1098,12 @@ async function loadBoard() {
    LIVE BOARD UPDATES
 ========================================== */
 
-/*
-  Load the board immediately when the page opens.
-*/
-
 loadBoard();
 
-/*
-  Check for new pixel placements every second.
-*/
-
 setInterval(() => {
+  console.log("LIVE REFRESH RUNNING");
   loadBoard();
 }, 1000);
-
 
 
   /* ==========================================
