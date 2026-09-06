@@ -1,3 +1,4 @@
+js
 import { MongoClient } from "mongodb";
 
 let client;
@@ -40,11 +41,12 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      pixels
+      pixels,
+      serverTime: new Date()
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Board error:", error);
 
     return res.status(500).json({
       error: "Failed to load board"
