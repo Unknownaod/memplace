@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelWorld</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #080a0f;
+      color: #fff;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      border: 1px solid #303744;
+      background: #171b23;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #202631;
+    }
+
+    .app {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR */
+
+    .topbar {
+      height: 58px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 16px;
+      background: #10131a;
+      border-bottom: 1px solid #252b36;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .connection {
+      font-size: 12px;
+      color: #7f8999;
+    }
+
+    .top-spacer {
+      flex: 1;
+    }
+
+    .pixel-balance {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #303744;
+      background: #171b23;
+      font-size: 13px;
+    }
+
+    .discord-button {
+      padding: 9px 13px;
+    }
+
+    /* LAYOUT */
+
+    .content {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+    }
+
+    .left-panel,
+    .right-panel {
+      width: 270px;
+      flex-shrink: 0;
+      padding: 14px;
+      overflow-y: auto;
+      background: #10131a;
+    }
+
+    .left-panel {
+      border-right: 1px solid #252b36;
+    }
+
+    .right-panel {
+      border-left: 1px solid #252b36;
+    }
+
+    .canvas-area {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      background: #080a0f;
+    }
+
+    #canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      image-rendering: pixelated;
+    }
+
+    /* PANELS */
+
+    .panel {
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: 1px solid #252c38;
+      background: #141820;
+    }
+
+    .panel-title {
+      margin-bottom: 12px;
+      color: #8d97a8;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin: 9px 0;
+      font-size: 13px;
+    }
+
+    .muted {
+      color: #7e8898;
+    }
+
+    .wide-button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    /* PALETTE */
+
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+
+    .color {
+      width: 100%;
+      height: 30px;
+      padding: 0;
+      border-radius: 6px;
+    }
+
+    .color.selected {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+
+    /* LEADERBOARD */
+
+    .leaderboard-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid #252b35;
+      font-size: 13px;
+    }
+
+    .leaderboard-row:last-child {
+      border-bottom: 0;
+    }
+
+    /* TOAST */
+
+    #toast {
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      display: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid #343c4a;
+      background: #171b23;
+      color: white;
+      font-size: 13px;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    /* COOLDOWN */
+
+    .cooldown {
+      margin: 5px 0 10px;
+      text-align: center;
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .help {
+      color: #788293;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+      .left-panel {
+        width: 220px;
+      }
+
+      .right-panel {
+        display: none;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .left-panel {
+        display: none;
+      }
+
+      .connection {
+        display: none;
+      }
+
+      .topbar {
+        padding: 0 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- TOP BAR -->
+
+  <header class="topbar">
+
+    <div class="logo">
+      PixelWorld
+    </div>
+
+    <div class="connection" id="connectionStatus">
+      Local canvas
+    </div>
+
+    <div class="top-spacer"></div>
+
+    <div class="pixel-balance">
+      Pixels: <strong id="balance">100</strong>
+    </div>
+
+    <button class="discord-button" id="discordButton">
+      Connect Discord
+    </button>
+
+  </header>
+
+
+  <div class="content">
+
+    <!-- LEFT PANEL -->
+
+    <aside class="left-panel">
+
+      <div class="panel">
+
+        <div class="panel-title">
+          Pixel
+        </div>
+
+        <div class="info-row">
+          <span class="muted">Selected color</span>
+          <strong id="selectedColor">#ff0000</strong>
+        </div>
+
+        <div class="palette" id="palette"></div>
+
+        <div class="info-row">
+          <span class="muted">Cooldown</span>
+          <span id="cooldownStatus">Ready</span>
+        </div>
+
+        <button
+          class="wide-button"
+          id="centerButton">
+          Center Canvas
+        </button>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-title">
+          Controls
+        </div>
+
+        <div class="help">
+          Click a pixel to place it.<br>
+          Click and drag to move the canvas.<br>
+          Scroll to zoom.<br>
+          Click an existing pixel to inspect it.
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-title">
+          My Profile
+        </div>
+
+        <div class="info-row">
+          <span class="muted">Username</span>
+          <strong id="username">Guest</strong>
+        </div>
+
+        <div class="info-row">
+          <span class="muted">Pixels placed</span>
+          <strong id="placed">0</strong>
+        </div>
+
+      </div>
+
+    </aside>
+
+
+    <!-- CANVAS -->
+
+    <main class="canvas-area">
+
+      <canvas id="canvas"></canvas>
+
+      <div id="toast"></div>
+
+    </main>
+
+
+    <!-- RIGHT PANEL -->
+
+    <aside class="right-panel">
+
+      <div class="panel">
+
+        <div class="panel-title">
+          Clans
+        </div>
+
+        <div class="leaderboard-row">
+          <span>Pixel Empire</span>
+          <strong>12,430</strong>
+        </div>
+
+        <div class="leaderboard-row">
+          <span>North Stars</span>
+          <strong>9,882</strong>
+        </div>
+
+        <div class="leaderboard-row">
+          <span>Red Legion</span>
+          <strong>7,421</strong>
+        </div>
+
+        <button class="wide-button" onclick="showToast('Clan system will be connected to the API.')">
+          View Clans
+        </button>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-title">
+          Leaderboard
+        </div>
+
+        <div class="leaderboard-row">
+          <span>1. PixelMaster</span>
+          <strong>4,210</strong>
+        </div>
+
+        <div class="leaderboard-row">
+          <span>2. Builder</span>
+          <strong>3,981</strong>
+        </div>
+
+        <div class="leaderboard-row">
+          <span>3. Nova</span>
+          <strong>3,440</strong>
+        </div>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="panel-title">
+          Pixel Inspector
+        </div>
+
+        <div class="info-row">
+          <span class="muted">Position</span>
+          <strong id="inspectPosition">—</strong>
+        </div>
+
+        <div class="info-row">
+          <span class="muted">Color</span>
+          <strong id="inspectPixelColor">—</strong>
+        </div>
+
+        <div class="info-row">
+          <span class="muted">Placed by</span>
+          <strong id="inspectUser">—</strong>
+        </div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const BOARD_SIZE = 200;
+
+const COLORS = [
+  "#ff0000",
+  "#ff7a00",
+  "#ffd400",
+  "#00c853",
+  "#00b0ff",
+  "#2962ff",
+  "#7c4dff",
+  "#d500f9",
+  "#ff4081",
+  "#ffffff",
+  "#b0b7c3",
+  "#000000"
+];
+
+const COOLDOWN = 30000;
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let selectedColor = COLORS[0];
+
+let balance = 100;
+let pixelsPlaced = 0;
+
+let lastPlacement = 0;
+
+let zoom = 3;
+
+let offsetX = 0;
+let offsetY = 0;
+
+let dragging = false;
+
+let dragStartX = 0;
+let dragStartY = 0;
+
+let startOffsetX = 0;
+let startOffsetY = 0;
+
+
+/*
+  Each array entry represents one pixel.
+
+  This is intentionally local for now.
+
+  Later the serverless API will replace this
+  with MongoDB-backed pixel data.
+*/
+
+const pixels = new Array(
+  BOARD_SIZE * BOARD_SIZE
+).fill("#ffffff");
+
+
+/* -----------------------------
+   CANVAS RESIZE
+----------------------------- */
+
+function resizeCanvas() {
+
+  const ratio = window.devicePixelRatio || 1;
+
+  canvas.width = canvas.clientWidth * ratio;
+  canvas.height = canvas.clientHeight * ratio;
+
+  ctx.setTransform(
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+  );
+
+  drawCanvas();
+}
+
+
+/* -----------------------------
+   DRAW CANVAS
+----------------------------- */
+
+function drawCanvas() {
+
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+
+  ctx.clearRect(
+    0,
+    0,
+    width,
+    height
+  );
+
+  ctx.fillStyle = "#080a0f";
+
+  ctx.fillRect(
+    0,
+    0,
+    width,
+    height
+  );
+
+  const cellSize = zoom;
+
+  const boardWidth =
+    BOARD_SIZE * cellSize;
+
+  const boardHeight =
+    BOARD_SIZE * cellSize;
+
+  const originX =
+    (width - boardWidth) / 2 +
+    offsetX;
+
+  const originY =
+    (height - boardHeight) / 2 +
+    offsetY;
+
+
+  /* Draw pixels */
+
+  for (let y = 0; y < BOARD_SIZE; y++) {
+
+    for (let x = 0; x < BOARD_SIZE; x++) {
+
+      const index =
+        y * BOARD_SIZE + x;
+
+      ctx.fillStyle =
+        pixels[index];
+
+      ctx.fillRect(
+        originX + x * cellSize,
+        originY + y * cellSize,
+        cellSize,
+        cellSize
+      );
+
+    }
+
+  }
+
+
+  /* Grid */
+
+  if (cellSize >= 5) {
+
+    ctx.strokeStyle =
+      "rgba(0,0,0,0.18)";
+
+    ctx.lineWidth = 1;
+
+    for (
+      let x = 0;
+      x <= BOARD_SIZE;
+      x++
+    ) {
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        originX + x * cellSize,
+        originY
+      );
+
+      ctx.lineTo(
+        originX + x * cellSize,
+        originY + boardHeight
+      );
+
+      ctx.stroke();
+
+    }
+
+    for (
+      let y = 0;
+      y <= BOARD_SIZE;
+      y++
+    ) {
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        originX,
+        originY + y * cellSize
+      );
+
+      ctx.lineTo(
+        originX + boardWidth,
+        originY + y * cellSize
+      );
+
+      ctx.stroke();
+
+    }
+
+  }
+
+}
+
+
+/* -----------------------------
+   GET PIXEL COORDINATES
+----------------------------- */
+
+function getPixelFromMouse(
+  mouseX,
+  mouseY
+) {
+
+  const width =
+    canvas.clientWidth;
+
+  const height =
+    canvas.clientHeight;
+
+  const cellSize = zoom;
+
+  const boardWidth =
+    BOARD_SIZE * cellSize;
+
+  const boardHeight =
+    BOARD_SIZE * cellSize;
+
+  const originX =
+    (width - boardWidth) / 2 +
+    offsetX;
+
+  const originY =
+    (height - boardHeight) / 2 +
+    offsetY;
+
+  const x = Math.floor(
+    (mouseX - originX) /
+    cellSize
+  );
+
+  const y = Math.floor(
+    (mouseY - originY) /
+    cellSize
+  );
+
+  if (
+    x < 0 ||
+    y < 0 ||
+    x >= BOARD_SIZE ||
+    y >= BOARD_SIZE
+  ) {
+
+    return null;
+
+  }
+
+  return {
+    x,
+    y
+  };
+
+}
+
+
+/* -----------------------------
+   PLACE PIXEL
+----------------------------- */
+
+function placePixel(x, y) {
+
+  const now = Date.now();
+
+  if (balance <= 0) {
+
+    showToast(
+      "You don't have any pixels."
+    );
+
+    return;
+
+  }
+
+  if (
+    now - lastPlacement <
+    COOLDOWN
+  ) {
+
+    const remaining =
+      Math.ceil(
+        (
+          COOLDOWN -
+          (now - lastPlacement)
+        ) / 1000
+      );
+
+    showToast(
+      `Cooldown: ${remaining}s`
+    );
+
+    return;
+
+  }
+
+
+  const index =
+    y * BOARD_SIZE + x;
+
+
+  pixels[index] =
+    selectedColor;
+
+
+  balance--;
+
+  pixelsPlaced++;
+
+  lastPlacement =
+    now;
+
+
+  document.getElementById(
+    "balance"
+  ).textContent =
+    balance;
+
+
+  document.getElementById(
+    "placed"
+  ).textContent =
+    pixelsPlaced;
+
+
+  drawCanvas();
+
+
+  /*
+    SERVERLESS API WILL GO HERE.
+
+    Later this becomes something like:
+
+    fetch("/api/pixel", {
+      method: "POST",
+      body: JSON.stringify({
+        x,
+        y,
+        color: selectedColor
+      })
+    });
+
+  */
+
+
+  showToast(
+    `Placed pixel at ${x}, ${y}`
+  );
+
+}
+
+
+/* -----------------------------
+   INSPECT PIXEL
+----------------------------- */
+
+function inspectPixel(x, y) {
+
+  const index =
+    y * BOARD_SIZE + x;
+
+  const color =
+    pixels[index];
+
+
+  document.getElementById(
+    "inspectPosition"
+  ).textContent =
+    `${x}, ${y}`;
+
+
+  document.getElementById(
+    "inspectPixelColor"
+  ).textContent =
+    color;
+
+
+  document.getElementById(
+    "inspectUser"
+  ).textContent =
+    "Guest";
+
+
+  /*
+    Later the API will provide:
+
+    user
+    clan
+    placement time
+    etc.
+  */
+
+}
+
+
+/* -----------------------------
+   MOUSE DOWN
+----------------------------- */
+
+canvas.addEventListener(
+  "mousedown",
+  event => {
+
+    dragging = true;
+
+    dragStartX =
+      event.clientX;
+
+    dragStartY =
+      event.clientY;
+
+    startOffsetX =
+      offsetX;
+
+    startOffsetY =
+      offsetY;
+
+  }
+);
+
+
+/* -----------------------------
+   MOUSE MOVE
+----------------------------- */
+
+canvas.addEventListener(
+  "mousemove",
+  event => {
+
+    if (!dragging) return;
+
+    offsetX =
+      startOffsetX +
+      (
+        event.clientX -
+        dragStartX
+      );
+
+    offsetY =
+      startOffsetY +
+      (
+        event.clientY -
+        dragStartY
+      );
+
+    drawCanvas();
+
+  }
+);
+
+
+/* -----------------------------
+   MOUSE UP
+----------------------------- */
+
+window.addEventListener(
+  "mouseup",
+  event => {
+
+    if (!dragging) return;
+
+    const distance =
+      Math.abs(
+        event.clientX -
+        dragStartX
+      ) +
+      Math.abs(
+        event.clientY -
+        dragStartY
+      );
+
+
+    dragging = false;
+
+
+    /*
+      If the mouse barely moved,
+      treat it as a click.
+    */
+
+    if (distance < 5) {
+
+      const rect =
+        canvas.getBoundingClientRect();
+
+      const x =
+        event.clientX -
+        rect.left;
+
+      const y =
+        event.clientY -
+        rect.top;
+
+
+      const pixel =
+        getPixelFromMouse(
+          x,
+          y
+        );
+
+
+      if (!pixel) return;
+
+
+      const index =
+        pixel.y *
+        BOARD_SIZE +
+        pixel.x;
+
+
+      /*
+        If the pixel is already
+        different from white,
+        inspect it.
+
+        Otherwise place a pixel.
+      */
+
+      if (
+        pixels[index] !==
+        "#ffffff"
+      ) {
+
+        inspectPixel(
+          pixel.x,
+          pixel.y
+        );
+
+      } else {
+
+        placePixel(
+          pixel.x,
+          pixel.y
+        );
+
+      }
+
+    }
+
+  }
+);
+
+
+/* -----------------------------
+   ZOOM
+----------------------------- */
+
+canvas.addEventListener(
+  "wheel",
+  event => {
+
+    event.preventDefault();
+
+    const oldZoom =
+      zoom;
+
+
+    if (event.deltaY < 0) {
+
+      zoom =
+        Math.min(
+          zoom * 1.2,
+          40
+        );
+
+    } else {
+
+      zoom =
+        Math.max(
+          zoom / 1.2,
+          0.5
+        );
+
+    }
+
+
+    /*
+      Keep zoom centered
+      around mouse position.
+    */
+
+    const rect =
+      canvas.getBoundingClientRect();
+
+    const mouseX =
+      event.clientX -
+      rect.left;
+
+    const mouseY =
+      event.clientY -
+      rect.top;
+
+
+    const zoomRatio =
+      zoom / oldZoom;
+
+
+    offsetX =
+      mouseX -
+      (mouseX - offsetX) *
+      zoomRatio;
+
+
+    offsetY =
+      mouseY -
+      (mouseY - offsetY) *
+      zoomRatio;
+
+
+    drawCanvas();
+
+  },
+  { passive: false }
+);
+
+
+/* -----------------------------
+   CENTER BUTTON
+----------------------------- */
+
+document
+  .getElementById("centerButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      offsetX = 0;
+      offsetY = 0;
+      zoom = 3;
+
+      drawCanvas();
+
+    }
+  );
+
+
+/* -----------------------------
+   COLOR PALETTE
+----------------------------- */
+
+function buildPalette() {
+
+  const palette =
+    document.getElementById(
+      "palette"
+    );
+
+
+  COLORS.forEach(
+    color => {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.className =
+        "color";
+
+
+      button.style.background =
+        color;
+
+
+      if (
+        color ===
+        selectedColor
+      ) {
+
+        button.classList.add(
+          "selected"
+        );
+
+      }
+
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          selectedColor =
+            color;
+
+
+          document.getElementById(
+            "selectedColor"
+          ).textContent =
+            color;
+
+
+          document
+            .querySelectorAll(
+              ".color"
+            )
+            .forEach(
+              element =>
+                element.classList
+                  .remove(
+                    "selected"
+                  )
+            );
+
+
+          button.classList.add(
+            "selected"
+          );
+
+        }
+      );
+
+
+      palette.appendChild(
+        button
+      );
+
+    }
+  );
+
+}
+
+
+/* -----------------------------
+   COOLDOWN TIMER
+----------------------------- */
+
+function updateCooldown() {
+
+  if (!lastPlacement) {
+
+    document.getElementById(
+      "cooldownStatus"
+    ).textContent =
+      "Ready";
+
+    return;
+
+  }
+
+
+  const remaining =
+    COOLDOWN -
+    (
+      Date.now() -
+      lastPlacement
+    );
+
+
+  if (remaining <= 0) {
+
+    document.getElementById(
+      "cooldownStatus"
+    ).textContent =
+      "Ready";
+
+    return;
+
+  }
+
+
+  const seconds =
+    Math.ceil(
+      remaining / 1000
+    );
+
+
+  document.getElementById(
+    "cooldownStatus"
+  ).textContent =
+    `${seconds}s`;
+
+}
+
+
+setInterval(
+  updateCooldown,
+  250
+);
+
+
+/* -----------------------------
+   DISCORD BUTTON
+----------------------------- */
+
+document
+  .getElementById("discordButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      showToast(
+        "Discord OAuth will be connected through the serverless API."
+      );
+
+    }
+  );
+
+
+/* -----------------------------
+   TOAST
+----------------------------- */
+
+let toastTimeout;
+
+function showToast(message) {
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    message;
+
+
+  toast.style.display =
+    "block";
+
+
+  clearTimeout(
+    toastTimeout
+  );
+
+
+  toastTimeout =
+    setTimeout(
+      () => {
+
+        toast.style.display =
+          "none";
+
+      },
+      2500
+    );
+
+}
+
+
+/* -----------------------------
+   INITIALIZE
+----------------------------- */
+
+buildPalette();
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+resizeCanvas();
+
+</script>
+
+</body>
+</html>
