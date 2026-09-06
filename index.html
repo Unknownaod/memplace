@@ -767,33 +767,28 @@
   </main>
 
 
-html
 <script>
-
   /*
     ============================================
     MIDDLE EASTERN MIXING COMMUNITY CANVAS
     ============================================
 
-    API endpoints:
+    API:
 
       GET  /api/board
       POST /api/pixel
 
-    Later:
+    AUTH:
 
-      /api/user
-      /api/clans
-      /api/admin
-      /api/auth/discord
+      GET  /api/auth/me
+      GET  /api/auth/discord
+      POST /api/auth/logout
   */
-
 
   const BOARD_SIZE = 200;
 
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-
 
   /* ==========================================
      STATE
@@ -804,13 +799,14 @@ html
   let selectedColor = "#000000";
   let selectedName = "Black";
 
-  let balance = 100;
+  let balance = 0;
   let pixelsPlaced = 0;
 
   let inspectMode = false;
-
   let placingPixel = false;
 
+  let currentUser = null;
+  let authenticated = false;
 
   /* ==========================================
      COLORS
@@ -842,131 +838,77 @@ html
     ["Dark Gray", "#383632"]
   ];
 
-
   /* ==========================================
      PALETTE
   ========================================== */
 
-  const palette =
-    document.getElementById("palette");
+  const palette = document.getElementById("palette");
 
   colors.forEach(([name, color]) => {
-
-    const button =
-      document.createElement("button");
+    const button = document.createElement("button");
 
     button.className = "color";
-
     button.style.background = color;
-
-    button.title =
-      `${name} ${color}`;
+    button.title = `${name} ${color}`;
 
     if (color === selectedColor) {
       button.classList.add("active");
     }
 
     button.onclick = () => {
-
       selectedColor = color;
       selectedName = name;
 
       document
         .querySelectorAll(".color")
-        .forEach(x =>
-          x.classList.remove("active")
-        );
+        .forEach(x => x.classList.remove("active"));
 
       button.classList.add("active");
 
-      document.getElementById(
-        "selectedPreview"
-      ).style.background = color;
+      const preview = document.getElementById("selectedPreview");
+      const nameElement = document.getElementById("selectedName");
+      const hexElement = document.getElementById("selectedHex");
 
-      document.getElementById(
-        "selectedName"
-      ).textContent = name;
+      if (preview) {
+        preview.style.background = color;
+      }
 
-      document.getElementById(
-        "selectedHex"
-      ).textContent = color;
+      if (nameElement) {
+        nameElement.textContent = name;
+      }
 
+      if (hexElement) {
+        hexElement.textContent = color;
+      }
     };
 
     palette.appendChild(button);
-
   });
-
 
   /* ==========================================
      LOCAL BOARD
   ========================================== */
 
-  const pixels =
-    new Array(
-      BOARD_SIZE * BOARD_SIZE
-    ).fill("#e7d7b5");
-
-
-  /* ==========================================
-     TEMPORARY USER ID
-  ========================================== */
-
-  function getUserId() {
-
-    let userId =
-      localStorage.getItem(
-        "mem_user_id"
-      );
-
-    if (!userId) {
-
-      userId =
-        crypto.randomUUID();
-
-      localStorage.setItem(
-        "mem_user_id",
-        userId
-      );
-
-    }
-
-    return userId;
-
-  }
-
+  const pixels = new Array(
+    BOARD_SIZE * BOARD_SIZE
+  ).fill("#e7d7b5");
 
   /* ==========================================
      DRAW BOARD
   ========================================== */
 
   function drawBoard() {
-
-    const size =
-      BOARD_SIZE * zoom;
+    const size = BOARD_SIZE * zoom;
 
     canvas.width = size;
     canvas.height = size;
 
     ctx.imageSmoothingEnabled = false;
 
-
-    for (
-      let y = 0;
-      y < BOARD_SIZE;
-      y++
-    ) {
-
-      for (
-        let x = 0;
-        x < BOARD_SIZE;
-        x++
-      ) {
-
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      for (let x = 0; x < BOARD_SIZE; x++) {
         const color =
-          pixels[
-            y * BOARD_SIZE + x
-          ];
+          pixels[y * BOARD_SIZE + x];
 
         ctx.fillStyle = color;
 
@@ -976,82 +918,61 @@ html
           zoom,
           zoom
         );
-
       }
-
     }
-
 
     /* Grid */
 
     if (zoom >= 5) {
-
-      ctx.strokeStyle =
-        "rgba(0,0,0,.12)";
-
+      ctx.strokeStyle = "rgba(0,0,0,.12)";
       ctx.lineWidth = 1;
 
-
-      for (
-        let x = 0;
-        x <= BOARD_SIZE;
-        x++
-      ) {
-
+      for (let x = 0; x <= BOARD_SIZE; x++) {
         ctx.beginPath();
 
         ctx.moveTo(
-          x * zoom + .5,
+          x * zoom + 0.5,
           0
         );
 
         ctx.lineTo(
-          x * zoom + .5,
+          x * zoom + 0.5,
           size
         );
 
         ctx.stroke();
-
       }
 
-
-      for (
-        let y = 0;
-        y <= BOARD_SIZE;
-        y++
-      ) {
-
+      for (let y = 0; y <= BOARD_SIZE; y++) {
         ctx.beginPath();
 
         ctx.moveTo(
           0,
-          y * zoom + .5
+          y * zoom + 0.5
         );
 
         ctx.lineTo(
           size,
-          y * zoom + .5
+          y * zoom + 0.5
         );
 
         ctx.stroke();
-
       }
-
     }
-
   }
 
-
   /* ==========================================
-     LOAD BOARD FROM API
+     LOAD BOARD
   ========================================== */
 
   async function loadBoard() {
-
     try {
-
-      const response =
-        await fetch("/api/board");
+      const response = await fetch(
+        "/api/board",
+        {
+          cache: "no-store"
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -1059,43 +980,29 @@ html
         );
       }
 
-      const data =
-        await response.json();
-
+      const data = await response.json();
 
       if (
         data.pixels &&
         Array.isArray(data.pixels)
       ) {
-
         data.pixels.forEach(pixel => {
-
           if (
             Number.isInteger(pixel.x) &&
             Number.isInteger(pixel.y) &&
-            typeof pixel.color === "string"
+            typeof pixel.color === "string" &&
+            pixel.x >= 0 &&
+            pixel.x < BOARD_SIZE &&
+            pixel.y >= 0 &&
+            pixel.y < BOARD_SIZE
           ) {
-
-            if (
-              pixel.x >= 0 &&
-              pixel.x < BOARD_SIZE &&
-              pixel.y >= 0 &&
-              pixel.y < BOARD_SIZE
-            ) {
-
-              pixels[
-                pixel.y * BOARD_SIZE +
-                pixel.x
-              ] = pixel.color;
-
-            }
-
+            pixels[
+              pixel.y * BOARD_SIZE +
+              pixel.x
+            ] = pixel.color;
           }
-
         });
-
       }
-
 
       drawBoard();
 
@@ -1105,9 +1012,7 @@ html
         "pixels"
       );
 
-
     } catch (error) {
-
       console.error(
         "Board loading error:",
         error
@@ -1116,11 +1021,126 @@ html
       showToast(
         "Could not load the community canvas."
       );
-
     }
-
   }
 
+  /* ==========================================
+     LOAD AUTHENTICATED USER
+  ========================================== */
+
+  async function loadCurrentUser() {
+    try {
+      const response = await fetch(
+        "/api/auth/me",
+        {
+          cache: "no-store"
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Authentication request failed"
+        );
+      }
+
+      const data = await response.json();
+
+      authenticated =
+        data.authenticated === true;
+
+      currentUser =
+        data.user || null;
+
+      if (authenticated && currentUser) {
+        balance =
+          Number(currentUser.balance) || 0;
+
+        pixelsPlaced =
+          Number(currentUser.pixelsPlaced) || 0;
+
+        updateUserUI();
+
+        console.log(
+          "Logged in as:",
+          currentUser.username
+        );
+      } else {
+        balance = 0;
+        pixelsPlaced = 0;
+
+        updateUserUI();
+
+        console.log(
+          "No Discord account connected."
+        );
+      }
+
+    } catch (error) {
+      console.error(
+        "Authentication error:",
+        error
+      );
+
+      authenticated = false;
+      currentUser = null;
+
+      updateUserUI();
+    }
+  }
+
+  /* ==========================================
+     UPDATE USER UI
+  ========================================== */
+
+  function updateUserUI() {
+    const balanceElement =
+      document.getElementById("balance");
+
+    const placedElement =
+      document.getElementById("placed");
+
+    if (balanceElement) {
+      balanceElement.textContent =
+        authenticated
+          ? balance
+          : "—";
+    }
+
+    if (placedElement) {
+      placedElement.textContent =
+        authenticated
+          ? pixelsPlaced
+          : "—";
+    }
+
+    /*
+      If your HTML contains these elements,
+      they'll automatically update.
+    */
+
+    const profileName =
+      document.getElementById("profileName");
+
+    if (profileName) {
+      profileName.textContent =
+        authenticated && currentUser
+          ? currentUser.username
+          : "Not connected";
+    }
+
+    const profileAvatar =
+      document.getElementById("profileAvatar");
+
+    if (
+      profileAvatar &&
+      authenticated &&
+      currentUser &&
+      currentUser.avatar
+    ) {
+      profileAvatar.src =
+        `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png?size=128`;
+    }
+  }
 
   /* ==========================================
      CANVAS CLICK
@@ -1131,17 +1151,12 @@ html
     async event => {
 
       if (inspectMode) {
-
         inspectPixel(event);
-
         return;
-
       }
-
 
       const rect =
         canvas.getBoundingClientRect();
-
 
       const x =
         Math.floor(
@@ -1149,13 +1164,11 @@ html
           zoom
         );
 
-
       const y =
         Math.floor(
           (event.clientY - rect.top) /
           zoom
         );
-
 
       if (
         x < 0 ||
@@ -1166,12 +1179,9 @@ html
         return;
       }
 
-
       await placePixel(x, y);
-
     }
   );
-
 
   /* ==========================================
      PLACE PIXEL
@@ -1183,65 +1193,55 @@ html
       return;
     }
 
+    /* Must be logged in */
+
+    if (!authenticated) {
+      showToast(
+        "Connect Discord before placing pixels."
+      );
+
+      return;
+    }
 
     if (balance <= 0) {
-
       showToast(
         "You don't have any pixels available."
       );
 
       return;
-
     }
 
-
     placingPixel = true;
-
 
     try {
 
       const response =
-        await fetch("/api/pixel", {
+        await fetch(
+          "/api/pixel",
+          {
+            method: "POST",
 
-          method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-
-            x,
-            y,
-
-            color:
-              selectedColor,
-
-            userId:
-              getUserId(),
-
-            username:
-              "Guest"
-
-          })
-
-        });
-
+            body: JSON.stringify({
+              x,
+              y,
+              color: selectedColor
+            })
+          }
+        );
 
       let data;
 
       try {
-
         data =
           await response.json();
-
       } catch {
-
         data = {};
-
       }
-
 
       /* ======================================
          API REJECTED
@@ -1250,27 +1250,38 @@ html
       if (!response.ok) {
 
         if (
+          response.status === 401
+        ) {
+          authenticated = false;
+          currentUser = null;
+
+          updateUserUI();
+
+          showToast(
+            "Please reconnect your Discord account."
+          );
+
+          return;
+        }
+
+        if (
           response.status === 429 &&
           data.remaining
         ) {
-
           showToast(
             `Wait ${data.remaining}s before placing another pixel.`
           );
 
-        } else {
-
-          showToast(
-            data.error ||
-            "Failed to place pixel."
-          );
-
+          return;
         }
 
+        showToast(
+          data.error ||
+          "Failed to place pixel."
+        );
+
         return;
-
       }
-
 
       /* ======================================
          API ACCEPTED
@@ -1280,41 +1291,32 @@ html
         y * BOARD_SIZE + x
       ] = selectedColor;
 
-
       if (
         typeof data.balance === "number"
       ) {
-
         balance =
           data.balance;
-
       } else {
-
         balance--;
-
       }
 
+      if (
+        typeof data.pixelsPlaced ===
+        "number"
+      ) {
+        pixelsPlaced =
+          data.pixelsPlaced;
+      } else {
+        pixelsPlaced++;
+      }
 
-      pixelsPlaced++;
-
-
-      document.getElementById(
-        "balance"
-      ).textContent = balance;
-
-
-      document.getElementById(
-        "placed"
-      ).textContent = pixelsPlaced;
-
+      updateUserUI();
 
       drawBoard();
-
 
       showToast(
         `Placed ${selectedName} at ${x}, ${y}`
       );
-
 
     } catch (error) {
 
@@ -1327,15 +1329,10 @@ html
         "Could not connect to the server."
       );
 
-
     } finally {
-
       placingPixel = false;
-
     }
-
   }
-
 
   /* ==========================================
      INSPECT MODE
@@ -1346,21 +1343,17 @@ html
     inspectMode =
       !inspectMode;
 
-
     showToast(
       inspectMode
         ? "Inspector enabled"
         : "Inspector disabled"
     );
 
-
     canvas.style.cursor =
       inspectMode
         ? "help"
         : "crosshair";
-
   }
-
 
   /* ==========================================
      INSPECT PIXEL
@@ -1371,20 +1364,17 @@ html
     const rect =
       canvas.getBoundingClientRect();
 
-
     const x =
       Math.floor(
         (event.clientX - rect.left) /
         zoom
       );
 
-
     const y =
       Math.floor(
         (event.clientY - rect.top) /
         zoom
       );
-
 
     if (
       x < 0 ||
@@ -1395,56 +1385,52 @@ html
       return;
     }
 
-
     const color =
       pixels[
         y * BOARD_SIZE + x
       ];
-
 
     document.getElementById(
       "coordinates"
     ).textContent =
       `${x}, ${y}`;
 
-
     document.getElementById(
       "inspectPosition"
     ).textContent =
       `${x}, ${y}`;
-
 
     document.getElementById(
       "inspectColor"
     ).textContent =
       color;
 
-
     document.getElementById(
       "inspectPreview"
     ).style.background =
       color;
 
+    /*
+      These will be improved once we
+      return pixel metadata from the
+      board API.
+    */
 
     document.getElementById(
       "inspectUser"
     ).textContent =
-      "Guest";
-
+      "Community Canvas";
 
     document.getElementById(
       "inspectClan"
     ).textContent =
       "—";
 
-
     document.getElementById(
       "inspectTime"
     ).textContent =
       "Unknown";
-
   }
-
 
   /* ==========================================
      ZOOM
@@ -1459,9 +1445,8 @@ html
     zoom++;
 
     drawBoard();
-
+    centerCanvas();
   }
-
 
   function zoomOut() {
 
@@ -1472,9 +1457,8 @@ html
     zoom--;
 
     drawBoard();
-
+    centerCanvas();
   }
-
 
   /* ==========================================
      CENTER CANVAS
@@ -1487,6 +1471,9 @@ html
         "canvasWrapper"
       );
 
+    if (!wrapper) {
+      return;
+    }
 
     wrapper.scrollLeft =
       Math.max(
@@ -1495,16 +1482,13 @@ html
           wrapper.clientWidth) / 2
       );
 
-
     wrapper.scrollTop =
       Math.max(
         0,
         (canvas.height -
           wrapper.clientHeight) / 2
       );
-
   }
-
 
   /* ==========================================
      MOUSE POSITION
@@ -1517,20 +1501,17 @@ html
       const rect =
         canvas.getBoundingClientRect();
 
-
       const x =
         Math.floor(
           (event.clientX - rect.left) /
           zoom
         );
 
-
       const y =
         Math.floor(
           (event.clientY - rect.top) /
           zoom
         );
-
 
       if (
         x >= 0 &&
@@ -1539,16 +1520,18 @@ html
         y < BOARD_SIZE
       ) {
 
-        document.getElementById(
-          "coordinates"
-        ).textContent =
-          `${x}, ${y}`;
+        const coordinates =
+          document.getElementById(
+            "coordinates"
+          );
 
+        if (coordinates) {
+          coordinates.textContent =
+            `${x}, ${y}`;
+        }
       }
-
     }
   );
-
 
   /* ==========================================
      DISCORD
@@ -1556,23 +1539,78 @@ html
 
   function connectDiscord() {
 
-    /*
-      Later this becomes:
+    if (authenticated) {
+      logoutDiscord();
+      return;
+    }
 
-      window.location.href =
-        "/api/auth/discord";
-
-      Discord OAuth will then identify
-      the actual Middle Eastern Mixing
-      Discord member.
-    */
-
-    showToast(
-      "Discord connection will be enabled shortly."
-    );
-
+    window.location.href =
+      "/api/auth/discord";
   }
 
+  /* ==========================================
+     LOGOUT
+  ========================================== */
+
+  async function logoutDiscord() {
+
+    try {
+
+      await fetch(
+        "/api/auth/logout",
+        {
+          method: "POST"
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Logout error:",
+        error
+      );
+
+    }
+
+    authenticated = false;
+    currentUser = null;
+    balance = 0;
+    pixelsPlaced = 0;
+
+    updateUserUI();
+
+    showToast(
+      "Disconnected from Discord."
+    );
+  }
+
+  /* ==========================================
+     UPDATE DISCORD BUTTON
+  ========================================== */
+
+  function updateDiscordButton() {
+
+    const buttons =
+      document.querySelectorAll(
+        "#discordButton, .discord-button, [data-discord]"
+      );
+
+    buttons.forEach(button => {
+
+      if (authenticated && currentUser) {
+
+        button.textContent =
+          `Discord: ${currentUser.username}`;
+
+      } else {
+
+        button.textContent =
+          "Connect Discord";
+
+      }
+
+    });
+  }
 
   /* ==========================================
      TOAST
@@ -1583,10 +1621,8 @@ html
     const toast =
       document.createElement("div");
 
-
     toast.textContent =
       message;
-
 
     toast.style.position =
       "fixed";
@@ -1624,37 +1660,41 @@ html
     toast.style.boxShadow =
       "0 10px 30px rgba(0,0,0,.35)";
 
-
     document.body.appendChild(
       toast
     );
 
-
     setTimeout(() => {
-
       toast.remove();
-
     }, 2200);
-
   }
-
 
   /* ==========================================
      INITIALIZE
   ========================================== */
 
-  drawBoard();
+  async function initialize() {
 
+    drawBoard();
 
-  loadBoard();
+    /*
+      Load authentication and board
+      at the same time.
+    */
 
+    await Promise.all([
+      loadCurrentUser(),
+      loadBoard()
+    ]);
 
-  setTimeout(() => {
+    updateDiscordButton();
 
-    centerCanvas();
+    setTimeout(() => {
+      centerCanvas();
+    }, 150);
+  }
 
-  }, 150);
-
+  initialize();
 
 </script>
 
