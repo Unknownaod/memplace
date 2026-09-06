@@ -779,22 +779,6 @@
 
 
 <script>
-  /*
-    ============================================
-    MIDDLE EASTERN MIXING COMMUNITY CANVAS
-    ============================================
-
-    API:
-
-      GET  /api/board
-      POST /api/pixel
-
-    AUTH:
-
-      GET  /api/auth/me
-      GET  /api/auth/discord
-      POST /api/auth/logout
-  */
 
   const BOARD_SIZE = 200;
   const DEFAULT_COLOR = "#e7d7b5";
@@ -1192,6 +1176,13 @@ setInterval(() => {
       updateDiscordButton();
     }
   }
+
+  loadCurrentUser();
+
+
+  setInterval(() => {
+    loadCurrentUser();
+  }, 1000);
 
 
 /* ==========================================
