@@ -2,6 +2,11 @@ import { MongoClient } from "mongodb";
 
 let client;
 
+
+/* ==========================================
+   DATABASE
+========================================== */
+
 async function getDb() {
 
   if (!process.env.MONGODB_URI) {
@@ -10,10 +15,9 @@ async function getDb() {
 
   if (!client) {
 
-    client =
-      new MongoClient(
-        process.env.MONGODB_URI
-      );
+    client = new MongoClient(
+      process.env.MONGODB_URI
+    );
 
     await client.connect();
 
@@ -28,7 +32,7 @@ async function getDb() {
 
 
 /* ==========================================
-   GET COOKIE
+   COOKIE
 ========================================== */
 
 function getCookie(req, name) {
@@ -66,7 +70,7 @@ function getCookie(req, name) {
 
 
 /* ==========================================
-   GET ADMIN IDS
+   ADMIN IDS
 ========================================== */
 
 function getAdminIds() {
@@ -77,6 +81,23 @@ function getAdminIds() {
     .split(",")
     .map(id => id.trim())
     .filter(Boolean);
+
+}
+
+
+/* ==========================================
+   ADMIN LOG
+========================================== */
+
+async function createLog(
+  adminLogs,
+  data
+) {
+
+  await adminLogs.insertOne({
+    ...data,
+    createdAt: new Date()
+  });
 
 }
 
@@ -102,7 +123,7 @@ export default async function handler(
   try {
 
     /* ======================================
-       CHECK SESSION
+       SESSION
     ====================================== */
 
     const sessionId =
@@ -110,6 +131,7 @@ export default async function handler(
         req,
         "mem_session"
       );
+
 
     if (!sessionId) {
 
@@ -131,15 +153,21 @@ export default async function handler(
     const users =
       db.collection("users");
 
+    const pixels =
+      db.collection("pixels");
+
     const bans =
       db.collection("bans");
+
+    const clans =
+      db.collection("clans");
 
     const adminLogs =
       db.collection("adminLogs");
 
 
     /* ======================================
-       FIND SESSION
+       SESSION LOOKUP
     ====================================== */
 
     const session =
@@ -159,7 +187,7 @@ export default async function handler(
 
 
     /* ======================================
-       CHECK SESSION EXPIRATION
+       SESSION EXPIRATION
     ====================================== */
 
     if (
@@ -193,7 +221,7 @@ export default async function handler(
 
 
     /* ======================================
-       VERIFY ADMIN
+       ADMIN PERMISSION
     ====================================== */
 
     const adminIds =
@@ -215,7 +243,7 @@ export default async function handler(
 
 
     /* ======================================
-       VERIFY ADMIN ACCOUNT EXISTS
+       ADMIN ACCOUNT
     ====================================== */
 
     const adminUser =
@@ -235,52 +263,302 @@ export default async function handler(
 
 
     /* ======================================
-       REQUEST DATA
+       REQUEST
     ====================================== */
 
-    const {
-      action,
-      userId
-    } = req.body || {};
+    const body =
+      req.body || {};
+
+    const action =
+      body.action;
+
+    const userId =
+      body.userId;
 
 
-    if (
-      !action ||
-      !userId
-    ) {
+    if (!action) {
 
       return res.status(400).json({
         error:
-          "Missing parameters"
+          "Missing action"
       });
 
     }
 
 
-    /* ======================================
-       PREVENT ADMIN SELF-BAN
-    ====================================== */
+    /* =========================================
+       STATS
+    ========================================= */
 
     if (
-      action === "ban" &&
-      userId === adminUserId
+      action === "stats"
     ) {
 
-      return res.status(400).json({
-        error:
-          "You cannot ban yourself."
+      const [
+        userCount,
+        pixelCount,
+        bannedCount,
+        clanCount
+      ] =
+        await Promise.all([
+
+          users.countDocuments({}),
+
+          pixels.countDocuments({}),
+
+          bans.countDocuments({
+            active: true
+          }),
+
+          clans.countDocuments({})
+
+        ]);
+
+
+      const placedResult =
+        await users.aggregate([
+          {
+            $group: {
+              _id: null,
+
+              total: {
+                $sum: {
+                  $ifNull: [
+                    "$pixelsPlaced",
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        ]).toArray();
+
+
+      const pixelsPlaced =
+        placedResult.length
+          ? placedResult[0].total
+          : 0;
+
+
+      return res.status(200).json({
+
+        success: true,
+
+        users:
+          userCount,
+
+        pixels:
+          pixelCount,
+
+        pixelsPlaced,
+
+        banned:
+          bannedCount,
+
+        clans:
+          clanCount
+
       });
 
     }
 
 
-    /* ======================================
-       BAN USER
-    ====================================== */
+    /* =========================================
+       LIST USERS
+    ========================================= */
+
+    if (
+      action === "listUsers"
+    ) {
+
+      const search =
+        typeof body.search === "string"
+          ? body.search.trim()
+          : "";
+
+
+      let query = {};
+
+
+      if (search) {
+
+        const escaped =
+          search.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          );
+
+
+        const regex =
+          new RegExp(
+            escaped,
+            "i"
+          );
+
+
+        query = {
+          $or: [
+            {
+              username:
+                regex
+            },
+
+            {
+              discordUsername:
+                regex
+            },
+
+            {
+              _id:
+                regex
+            }
+          ]
+        };
+
+      }
+
+
+      const foundUsers =
+        await users
+          .find(query)
+          .project({
+            _id: 1,
+            username: 1,
+            discordUsername: 1,
+            avatar: 1,
+            balance: 1,
+            pixelsPlaced: 1,
+            clanId: 1,
+            createdAt: 1,
+            updatedAt: 1
+          })
+          .sort({
+            createdAt: -1
+          })
+          .limit(50)
+          .toArray();
+
+
+      if (!foundUsers.length) {
+
+        return res.status(200).json({
+          success: true,
+          users: []
+        });
+
+      }
+
+
+      const userIds =
+        foundUsers.map(
+          user => user._id
+        );
+
+
+      const activeBans =
+        await bans
+          .find({
+            userId: {
+              $in: userIds
+            },
+
+            active: true
+          })
+          .project({
+            userId: 1
+          })
+          .toArray();
+
+
+      const bannedIds =
+        new Set(
+          activeBans.map(
+            ban => ban.userId
+          )
+        );
+
+
+      const result =
+        foundUsers.map(user => ({
+          ...user,
+
+          banned:
+            bannedIds.has(
+              user._id
+            )
+        }));
+
+
+      return res.status(200).json({
+
+        success: true,
+
+        users:
+          result
+
+      });
+
+    }
+
+
+    /* =========================================
+       ADMIN LOGS
+    ========================================= */
+
+    if (
+      action === "logs"
+    ) {
+
+      const logs =
+        await adminLogs
+          .find({})
+          .sort({
+            createdAt: -1
+          })
+          .limit(100)
+          .toArray();
+
+
+      return res.status(200).json({
+
+        success: true,
+
+        logs
+
+      });
+
+    }
+
+
+    /* =========================================
+       BAN
+    ========================================= */
 
     if (
       action === "ban"
     ) {
+
+      if (!userId) {
+
+        return res.status(400).json({
+          error:
+            "Missing userId"
+        });
+
+      }
+
+
+      if (
+        userId === adminUserId
+      ) {
+
+        return res.status(400).json({
+          error:
+            "You cannot ban yourself."
+        });
+
+      }
+
 
       const targetUser =
         await users.findOne({
@@ -311,49 +589,65 @@ export default async function handler(
         {
           $set: {
             userId,
-            active: true,
-            bannedAt: now,
-            bannedBy: adminUserId
+
+            active:
+              true,
+
+            bannedAt:
+              now,
+
+            bannedBy:
+              adminUserId
           }
         },
 
         {
-          upsert: true
+          upsert:
+            true
         }
 
       );
 
 
-      await adminLogs.insertOne({
+      await createLog(
+        adminLogs,
+        {
+          action:
+            "ban",
 
-        action:
-          "ban",
+          targetUserId:
+            userId,
 
-        targetUserId:
-          userId,
-
-        adminUserId,
-
-        createdAt:
-          now
-
-      });
+          adminUserId
+        }
+      );
 
 
       return res.status(200).json({
-        success: true
+        success:
+          true
       });
 
     }
 
 
-    /* ======================================
-       UNBAN USER
-    ====================================== */
+    /* =========================================
+       UNBAN
+    ========================================= */
 
     if (
       action === "unban"
     ) {
+
+      if (!userId) {
+
+        return res.status(400).json({
+          error:
+            "Missing userId"
+        });
+
+      }
+
 
       const targetUser =
         await users.findOne({
@@ -383,49 +677,63 @@ export default async function handler(
 
         {
           $set: {
-            active: false,
-            unbannedAt: now,
-            unbannedBy: adminUserId
+            active:
+              false,
+
+            unbannedAt:
+              now,
+
+            unbannedBy:
+              adminUserId
           }
         }
 
       );
 
 
-      await adminLogs.insertOne({
+      await createLog(
+        adminLogs,
+        {
+          action:
+            "unban",
 
-        action:
-          "unban",
+          targetUserId:
+            userId,
 
-        targetUserId:
-          userId,
-
-        adminUserId,
-
-        createdAt:
-          now
-
-      });
+          adminUserId
+        }
+      );
 
 
       return res.status(200).json({
-        success: true
+        success:
+          true
       });
 
     }
 
 
-    /* ======================================
+    /* =========================================
        GIVE PIXELS
-    ====================================== */
+    ========================================= */
 
     if (
       action === "givePixels"
     ) {
 
+      if (!userId) {
+
+        return res.status(400).json({
+          error:
+            "Missing userId"
+        });
+
+      }
+
+
       const amount =
         Number(
-          req.body.amount
+          body.amount
         );
 
 
@@ -449,7 +757,8 @@ export default async function handler(
         await users.updateOne(
 
           {
-            _id: userId
+            _id:
+              userId
           },
 
           {
@@ -462,7 +771,6 @@ export default async function handler(
               updatedAt:
                 new Date()
             }
-
           }
 
         );
@@ -480,31 +788,26 @@ export default async function handler(
       }
 
 
-      const now =
-        new Date();
+      await createLog(
+        adminLogs,
+        {
+          action:
+            "givePixels",
 
+          targetUserId:
+            userId,
 
-      await adminLogs.insertOne({
+          adminUserId,
 
-        action:
-          "givePixels",
-
-        targetUserId:
-          userId,
-
-        adminUserId,
-
-        amount,
-
-        createdAt:
-          now
-
-      });
+          amount
+        }
+      );
 
 
       return res.status(200).json({
 
-        success: true,
+        success:
+          true,
 
         added:
           amount
@@ -514,13 +817,257 @@ export default async function handler(
     }
 
 
-    /* ======================================
+    /* =========================================
+       REMOVE PIXELS
+    ========================================= */
+
+    if (
+      action === "removePixels"
+    ) {
+
+      if (!userId) {
+
+        return res.status(400).json({
+          error:
+            "Missing userId"
+        });
+
+      }
+
+
+      const amount =
+        Number(
+          body.amount
+        );
+
+
+      if (
+        !Number.isInteger(
+          amount
+        ) ||
+        amount <= 0 ||
+        amount > 100000
+      ) {
+
+        return res.status(400).json({
+          error:
+            "Invalid amount"
+        });
+
+      }
+
+
+      const result =
+        await users.updateOne(
+
+          {
+            _id:
+              userId,
+
+            balance: {
+              $gte:
+                amount
+            }
+          },
+
+          {
+            $inc: {
+              balance:
+                -amount
+            },
+
+            $set: {
+              updatedAt:
+                new Date()
+            }
+          }
+
+        );
+
+
+      if (
+        result.matchedCount === 0
+      ) {
+
+        const targetUser =
+          await users.findOne({
+            _id:
+              userId
+          });
+
+
+        if (!targetUser) {
+
+          return res.status(404).json({
+            error:
+              "User not found"
+          });
+
+        }
+
+
+        return res.status(400).json({
+          error:
+            "User does not have enough pixels."
+        });
+
+      }
+
+
+      await createLog(
+        adminLogs,
+        {
+          action:
+            "removePixels",
+
+          targetUserId:
+            userId,
+
+          adminUserId,
+
+          amount
+        }
+      );
+
+
+      return res.status(200).json({
+
+        success:
+          true,
+
+        removed:
+          amount
+
+      });
+
+    }
+
+
+    /* =========================================
+       DELETE PIXEL
+    ========================================= */
+
+    if (
+      action === "deletePixel"
+    ) {
+
+      const x =
+        Number(
+          body.x
+        );
+
+      const y =
+        Number(
+          body.y
+        );
+
+
+      if (
+        !Number.isInteger(x) ||
+        !Number.isInteger(y) ||
+        x < 0 ||
+        x >= 200 ||
+        y < 0 ||
+        y >= 200
+      ) {
+
+        return res.status(400).json({
+          error:
+            "Invalid coordinates"
+        });
+
+      }
+
+
+      const pixelId =
+        `${x}:${y}`;
+
+
+      const result =
+        await pixels.deleteOne({
+          _id:
+            pixelId
+        });
+
+
+      await createLog(
+        adminLogs,
+        {
+          action:
+            "deletePixel",
+
+          targetPixel:
+            pixelId,
+
+          adminUserId,
+
+          deleted:
+            result.deletedCount > 0
+        }
+      );
+
+
+      return res.status(200).json({
+
+        success:
+          true,
+
+        deleted:
+          result.deletedCount > 0
+
+      });
+
+    }
+
+
+    /* =========================================
+       RESET BOARD
+    ========================================= */
+
+    if (
+      action === "resetBoard"
+    ) {
+
+      const result =
+        await pixels.deleteMany({});
+
+
+      await createLog(
+        adminLogs,
+        {
+          action:
+            "resetBoard",
+
+          adminUserId,
+
+          deletedPixels:
+            result.deletedCount
+        }
+      );
+
+
+      return res.status(200).json({
+
+        success:
+          true,
+
+        deleted:
+          result.deletedCount
+
+      });
+
+    }
+
+
+    /* =========================================
        UNKNOWN ACTION
-    ====================================== */
+    ========================================= */
 
     return res.status(400).json({
+
       error:
         "Unknown action"
+
     });
 
 
@@ -533,11 +1080,15 @@ export default async function handler(
 
 
     return res.status(500).json({
+
       error:
-        "Admin operation failed"
+        "Admin operation failed",
+
+      message:
+        error.message
+
     });
 
   }
 
 }
-
