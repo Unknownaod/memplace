@@ -1177,13 +1177,15 @@ setInterval(() => {
     }
   }
 
-  loadCurrentUser();
+loadCurrentUser();
 
+setInterval(async () => {
+  console.log("🔄 Refreshing user balance...");
 
-  setInterval(() => {
-    loadCurrentUser();
-  }, 1000);
+  await loadCurrentUser();
 
+  console.log("💰 Current balance:", balance);
+}, 1000);
 
 /* ==========================================
    UPDATE USER UI
