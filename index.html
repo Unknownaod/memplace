@@ -1,254 +1,503 @@
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PixelWorld</title>
+  <title>Middle Eastern Mixing</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --black: #0b0a08;
+      --black-2: #12100d;
+      --black-3: #191611;
+      --beige: #e7d7b5;
+      --beige-light: #f3e8cf;
+      --gold: #c8a45d;
+      --gold-light: #dfc27b;
+      --gold-dark: #92743b;
+      --border: rgba(200, 164, 93, 0.25);
+      --text-muted: #a99d87;
+      --danger: #a84c43;
     }
 
-    html,
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+      padding: 0;
+    }
+
+    body {
       font-family: Arial, Helvetica, sans-serif;
-      background: #080a0f;
-      color: #fff;
+      background: var(--black);
+      color: var(--beige-light);
+      min-height: 100vh;
+      overflow: hidden;
     }
 
     button {
       font: inherit;
-      color: inherit;
-      border: 1px solid #303744;
-      background: #171b23;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #202631;
-    }
-
-    .app {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
     }
 
     /* TOP BAR */
 
     .topbar {
-      height: 58px;
-      flex-shrink: 0;
+      height: 64px;
+      background: #090806;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 0 16px;
-      background: #10131a;
-      border-bottom: 1px solid #252b36;
+      justify-content: space-between;
+      padding: 0 22px;
+      position: relative;
       z-index: 10;
     }
 
-    .logo {
-      font-size: 18px;
-      font-weight: 800;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .connection {
-      font-size: 12px;
-      color: #7f8999;
-    }
-
-    .top-spacer {
-      flex: 1;
-    }
-
-    .pixel-balance {
-      padding: 8px 12px;
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--gold);
+      color: var(--black);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
       border-radius: 8px;
-      border: 1px solid #303744;
-      background: #171b23;
-      font-size: 13px;
     }
 
-    .discord-button {
-      padding: 9px 13px;
+    .brand-text h1 {
+      font-size: 15px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .brand-text span {
+      color: var(--gold);
+      font-size: 11px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(200,164,93,.6);
+    }
+
+    .discord-btn {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      border-radius: 7px;
+      padding: 10px 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .discord-btn:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
     }
 
     /* LAYOUT */
 
-    .content {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-    }
-
-    .left-panel,
-    .right-panel {
-      width: 270px;
-      flex-shrink: 0;
-      padding: 14px;
-      overflow-y: auto;
-      background: #10131a;
-    }
-
-    .left-panel {
-      border-right: 1px solid #252b36;
-    }
-
-    .right-panel {
-      border-left: 1px solid #252b36;
-    }
-
-    .canvas-area {
-      position: relative;
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      background: #080a0f;
-    }
-
-    #canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      cursor: crosshair;
-      image-rendering: pixelated;
-    }
-
-    /* PANELS */
-
-    .panel {
-      padding: 14px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border: 1px solid #252c38;
-      background: #141820;
-    }
-
-    .panel-title {
-      margin-bottom: 12px;
-      color: #8d97a8;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin: 9px 0;
-      font-size: 13px;
-    }
-
-    .muted {
-      color: #7e8898;
-    }
-
-    .wide-button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-    }
-
-    /* PALETTE */
-
-    .palette {
+    .app {
+      height: calc(100vh - 64px);
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
+      grid-template-columns: 240px minmax(500px, 1fr) 280px;
     }
 
-    .color {
-      width: 100%;
-      height: 30px;
-      padding: 0;
-      border-radius: 6px;
+    .sidebar {
+      background: var(--black-2);
+      border-right: 1px solid var(--border);
+      padding: 18px;
+      overflow-y: auto;
     }
 
-    .color.selected {
-      outline: 2px solid white;
-      outline-offset: 2px;
+    .rightbar {
+      background: var(--black-2);
+      border-left: 1px solid var(--border);
+      padding: 18px;
+      overflow-y: auto;
     }
 
-    /* LEADERBOARD */
-
-    .leaderboard-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 9px 0;
-      border-bottom: 1px solid #252b35;
-      font-size: 13px;
+    .section {
+      margin-bottom: 24px;
     }
 
-    .leaderboard-row:last-child {
-      border-bottom: 0;
-    }
-
-    /* TOAST */
-
-    #toast {
-      position: absolute;
-      left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%);
-      display: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: 1px solid #343c4a;
-      background: #171b23;
-      color: white;
-      font-size: 13px;
-      z-index: 20;
-      white-space: nowrap;
-    }
-
-    /* COOLDOWN */
-
-    .cooldown {
-      margin: 5px 0 10px;
-      text-align: center;
-      font-size: 25px;
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
       font-weight: 800;
     }
 
-    .help {
-      color: #788293;
+    /* COLOR PICKER */
+
+    .selected-color {
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: var(--black-3);
+      margin-bottom: 10px;
+    }
+
+    .selected-preview {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,.15);
+    }
+
+    .selected-info {
       font-size: 11px;
-      line-height: 1.55;
+      color: var(--text-muted);
     }
 
-    @media (max-width: 900px) {
-      .left-panel {
-        width: 220px;
-      }
-
-      .right-panel {
-        display: none;
-      }
+    .selected-info strong {
+      display: block;
+      color: var(--beige-light);
+      font-size: 12px;
     }
 
-    @media (max-width: 650px) {
-      .left-panel {
-        display: none;
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .color {
+      aspect-ratio: 1;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: .12s;
+    }
+
+    .color:hover {
+      transform: scale(1.08);
+    }
+
+    .color.active {
+      border-color: var(--beige-light);
+      box-shadow: 0 0 0 2px var(--gold);
+    }
+
+    /* STATS */
+
+    .stat-box {
+      background: var(--black-3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .stat-value {
+      margin-top: 5px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--beige-light);
+    }
+
+    .cooldown {
+      color: var(--gold);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    /* PROFILE */
+
+    .profile {
+      background: var(--black-3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--black);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .profile-role {
+      color: var(--gold);
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      padding: 6px 0;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
+
+    .profile-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    /* CANVAS AREA */
+
+    .canvas-area {
+      background:
+        radial-gradient(circle at center, rgba(200,164,93,.06), transparent 45%),
+        #0e0c09;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .canvas-toolbar {
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      background: rgba(10,8,6,.8);
+    }
+
+    .coordinates {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .coordinates strong {
+      color: var(--gold);
+    }
+
+    .tools {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tool {
+      width: 34px;
+      height: 32px;
+      border: 1px solid var(--border);
+      background: var(--black-3);
+      color: var(--beige);
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tool:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #f1e5cb;
+      box-shadow:
+        0 0 0 1px rgba(200,164,93,.35),
+        0 20px 70px rgba(0,0,0,.5);
+      cursor: crosshair;
+    }
+
+    .canvas-hint {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,8,6,.9);
+      border: 1px solid var(--border);
+      padding: 7px 11px;
+      border-radius: 5px;
+      color: var(--text-muted);
+      font-size: 10px;
+      pointer-events: none;
+    }
+
+    /* RIGHT BAR */
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px;
+      border: 1px solid rgba(200,164,93,.12);
+      background: var(--black-3);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .rank {
+      width: 20px;
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .clan-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--beige);
+      color: var(--black);
+      border-radius: 5px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .clan-name {
+      font-size: 11px;
+      font-weight: 800;
+      flex: 1;
+    }
+
+    .clan-pixels {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    .view-all {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--gold);
+      padding: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .view-all:hover {
+      background: rgba(200,164,93,.08);
+    }
+
+    /* INSPECTOR */
+
+    .inspector {
+      background: var(--black-3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 12px;
+    }
+
+    .pixel-preview {
+      height: 70px;
+      border-radius: 5px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: #e7d7b5;
+    }
+
+    .inspect-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: 10px;
+    }
+
+    .inspect-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    .ban-btn {
+      width: 100%;
+      margin-top: 12px;
+      border: 1px solid rgba(168,76,67,.5);
+      background: transparent;
+      color: #d27a70;
+      padding: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 10px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 1000px) {
+      body {
+        overflow: auto;
       }
 
-      .connection {
-        display: none;
+      .app {
+        height: auto;
+        grid-template-columns: 1fr;
       }
 
-      .topbar {
-        padding: 0 10px;
+      .sidebar,
+      .rightbar {
+        border: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .canvas-area {
+        min-height: 650px;
+      }
+
+      .canvas-wrapper {
+        min-height: 580px;
       }
     }
   </style>
@@ -256,1063 +505,745 @@
 
 <body>
 
-<div class="app">
-
-  <!-- TOP BAR -->
-
   <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">م</div>
 
-    <div class="logo">
-      PixelWorld
+      <div class="brand-text">
+        <h1>Middle Eastern Mixing</h1>
+        <span>Community Canvas</span>
+      </div>
     </div>
 
-    <div class="connection" id="connectionStatus">
-      Local canvas
+    <div class="top-actions">
+      <div class="status">
+        <span class="status-dot"></span>
+        Connected
+      </div>
+
+      <button class="discord-btn" onclick="connectDiscord()">
+        Connect Discord
+      </button>
     </div>
-
-    <div class="top-spacer"></div>
-
-    <div class="pixel-balance">
-      Pixels: <strong id="balance">100</strong>
-    </div>
-
-    <button class="discord-button" id="discordButton">
-      Connect Discord
-    </button>
-
   </header>
 
 
-  <div class="content">
+  <main class="app">
 
-    <!-- LEFT PANEL -->
+    <!-- LEFT SIDEBAR -->
 
-    <aside class="left-panel">
+    <aside class="sidebar">
 
-      <div class="panel">
+      <section class="section">
 
-        <div class="panel-title">
-          Pixel
-        </div>
+        <div class="section-title">Selected Color</div>
 
-        <div class="info-row">
-          <span class="muted">Selected color</span>
-          <strong id="selectedColor">#ff0000</strong>
+        <div class="selected-color">
+          <div
+            class="selected-preview"
+            id="selectedPreview"
+            style="background:#000000">
+          </div>
+
+          <div class="selected-info">
+            <strong id="selectedName">Black</strong>
+            <span id="selectedHex">#000000</span>
+          </div>
         </div>
 
         <div class="palette" id="palette"></div>
 
-        <div class="info-row">
-          <span class="muted">Cooldown</span>
-          <span id="cooldownStatus">Ready</span>
+      </section>
+
+
+      <section class="section">
+
+        <div class="section-title">Your Pixels</div>
+
+        <div class="stat-box">
+          <div class="stat-label">Available</div>
+          <div class="stat-value" id="balance">100</div>
+          <div class="cooldown" id="cooldown">
+            +1 pixel available soon
+          </div>
         </div>
 
-        <button
-          class="wide-button"
-          id="centerButton">
+        <div class="stat-box">
+          <div class="stat-label">Pixels Placed</div>
+          <div class="stat-value" id="placed">0</div>
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <div class="section-title">Canvas</div>
+
+        <button class="view-all" onclick="centerCanvas()">
           Center Canvas
         </button>
 
-      </div>
+        <div style="height:7px"></div>
+
+        <button class="view-all" onclick="zoomIn()">
+          + Zoom In
+        </button>
+
+        <div style="height:7px"></div>
+
+        <button class="view-all" onclick="zoomOut()">
+          − Zoom Out
+        </button>
+
+      </section>
 
 
-      <div class="panel">
+      <section class="section">
 
-        <div class="panel-title">
-          Controls
+        <div class="section-title">Profile</div>
+
+        <div class="profile">
+
+          <div class="profile-header">
+
+            <div class="avatar">?</div>
+
+            <div>
+              <div class="profile-name">Not Connected</div>
+              <div class="profile-role">Discord Account</div>
+            </div>
+
+          </div>
+
+          <div class="profile-row">
+            <span>Username</span>
+            <span>Guest</span>
+          </div>
+
+          <div class="profile-row">
+            <span>Active Rate</span>
+            <span>1 / min</span>
+          </div>
+
+          <div class="profile-row">
+            <span>Away Rate</span>
+            <span>1 / 5 min</span>
+          </div>
+
         </div>
 
-        <div class="help">
-          Click a pixel to place it.<br>
-          Click and drag to move the canvas.<br>
-          Scroll to zoom.<br>
-          Click an existing pixel to inspect it.
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="panel-title">
-          My Profile
-        </div>
-
-        <div class="info-row">
-          <span class="muted">Username</span>
-          <strong id="username">Guest</strong>
-        </div>
-
-        <div class="info-row">
-          <span class="muted">Pixels placed</span>
-          <strong id="placed">0</strong>
-        </div>
-
-      </div>
+      </section>
 
     </aside>
 
 
     <!-- CANVAS -->
 
-    <main class="canvas-area">
+    <section class="canvas-area">
 
-      <canvas id="canvas"></canvas>
+      <div class="canvas-toolbar">
 
-      <div id="toast"></div>
-
-    </main>
-
-
-    <!-- RIGHT PANEL -->
-
-    <aside class="right-panel">
-
-      <div class="panel">
-
-        <div class="panel-title">
-          Clans
+        <div class="coordinates">
+          Position:
+          <strong id="coordinates">—</strong>
         </div>
 
-        <div class="leaderboard-row">
-          <span>Pixel Empire</span>
-          <strong>12,430</strong>
+        <div class="tools">
+          <button class="tool" onclick="zoomOut()">−</button>
+          <button class="tool" onclick="centerCanvas()">⌾</button>
+          <button class="tool" onclick="zoomIn()">+</button>
+          <button class="tool" onclick="toggleInspect()">⌕</button>
         </div>
 
-        <div class="leaderboard-row">
-          <span>North Stars</span>
-          <strong>9,882</strong>
+      </div>
+
+
+      <div class="canvas-wrapper" id="canvasWrapper">
+
+        <canvas id="canvas"></canvas>
+
+        <div class="canvas-hint">
+          Click a pixel to place • Drag to move • Scroll to zoom
         </div>
 
-        <div class="leaderboard-row">
-          <span>Red Legion</span>
-          <strong>7,421</strong>
+      </div>
+
+    </section>
+
+
+    <!-- RIGHT SIDEBAR -->
+
+    <aside class="rightbar">
+
+      <section class="section">
+
+        <div class="section-title">
+          Community Clans
         </div>
 
-        <button class="wide-button" onclick="showToast('Clan system will be connected to the API.')">
-          View Clans
+        <div id="leaderboard">
+
+          <div class="leaderboard-item">
+            <div class="rank">1</div>
+
+            <div class="clan-icon">M</div>
+
+            <div class="clan-name">
+              Middle Eastern Mixing
+            </div>
+
+            <div class="clan-pixels">
+              0
+            </div>
+          </div>
+
+          <div class="leaderboard-item">
+            <div class="rank">2</div>
+
+            <div class="clan-icon">ME</div>
+
+            <div class="clan-name">
+              Community
+            </div>
+
+            <div class="clan-pixels">
+              0
+            </div>
+          </div>
+
+        </div>
+
+        <button class="view-all">
+          View All Clans
         </button>
 
-      </div>
+      </section>
 
 
-      <div class="panel">
+      <section class="section">
 
-        <div class="panel-title">
-          Leaderboard
-        </div>
-
-        <div class="leaderboard-row">
-          <span>1. PixelMaster</span>
-          <strong>4,210</strong>
-        </div>
-
-        <div class="leaderboard-row">
-          <span>2. Builder</span>
-          <strong>3,981</strong>
-        </div>
-
-        <div class="leaderboard-row">
-          <span>3. Nova</span>
-          <strong>3,440</strong>
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="panel-title">
+        <div class="section-title">
           Pixel Inspector
         </div>
 
-        <div class="info-row">
-          <span class="muted">Position</span>
-          <strong id="inspectPosition">—</strong>
+        <div class="inspector">
+
+          <div
+            class="pixel-preview"
+            id="inspectPreview">
+          </div>
+
+          <div class="inspect-row">
+            <span>Position</span>
+            <span id="inspectPosition">—</span>
+          </div>
+
+          <div class="inspect-row">
+            <span>Color</span>
+            <span id="inspectColor">—</span>
+          </div>
+
+          <div class="inspect-row">
+            <span>Placed By</span>
+            <span id="inspectUser">—</span>
+          </div>
+
+          <div class="inspect-row">
+            <span>Clan</span>
+            <span id="inspectClan">—</span>
+          </div>
+
+          <div class="inspect-row">
+            <span>Placed</span>
+            <span id="inspectTime">—</span>
+          </div>
+
         </div>
 
-        <div class="info-row">
-          <span class="muted">Color</span>
-          <strong id="inspectPixelColor">—</strong>
-        </div>
-
-        <div class="info-row">
-          <span class="muted">Placed by</span>
-          <strong id="inspectUser">—</strong>
-        </div>
-
-      </div>
+      </section>
 
     </aside>
 
-  </div>
-
-</div>
+  </main>
 
 
 <script>
 
-const BOARD_SIZE = 200;
-
-const COLORS = [
-  "#ff0000",
-  "#ff7a00",
-  "#ffd400",
-  "#00c853",
-  "#00b0ff",
-  "#2962ff",
-  "#7c4dff",
-  "#d500f9",
-  "#ff4081",
-  "#ffffff",
-  "#b0b7c3",
-  "#000000"
-];
-
-const COOLDOWN = 30000;
-
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-let selectedColor = COLORS[0];
-
-let balance = 100;
-let pixelsPlaced = 0;
-
-let lastPlacement = 0;
-
-let zoom = 3;
-
-let offsetX = 0;
-let offsetY = 0;
-
-let dragging = false;
-
-let dragStartX = 0;
-let dragStartY = 0;
-
-let startOffsetX = 0;
-let startOffsetY = 0;
-
-
-/*
-  Each array entry represents one pixel.
-
-  This is intentionally local for now.
-
-  Later the serverless API will replace this
-  with MongoDB-backed pixel data.
-*/
-
-const pixels = new Array(
-  BOARD_SIZE * BOARD_SIZE
-).fill("#ffffff");
-
-
-/* -----------------------------
-   CANVAS RESIZE
------------------------------ */
-
-function resizeCanvas() {
-
-  const ratio = window.devicePixelRatio || 1;
-
-  canvas.width = canvas.clientWidth * ratio;
-  canvas.height = canvas.clientHeight * ratio;
-
-  ctx.setTransform(
-    ratio,
-    0,
-    0,
-    ratio,
-    0,
-    0
-  );
-
-  drawCanvas();
-}
-
-
-/* -----------------------------
-   DRAW CANVAS
------------------------------ */
-
-function drawCanvas() {
-
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-
-  ctx.clearRect(
-    0,
-    0,
-    width,
-    height
-  );
-
-  ctx.fillStyle = "#080a0f";
-
-  ctx.fillRect(
-    0,
-    0,
-    width,
-    height
-  );
-
-  const cellSize = zoom;
-
-  const boardWidth =
-    BOARD_SIZE * cellSize;
-
-  const boardHeight =
-    BOARD_SIZE * cellSize;
-
-  const originX =
-    (width - boardWidth) / 2 +
-    offsetX;
-
-  const originY =
-    (height - boardHeight) / 2 +
-    offsetY;
-
-
-  /* Draw pixels */
-
-  for (let y = 0; y < BOARD_SIZE; y++) {
-
-    for (let x = 0; x < BOARD_SIZE; x++) {
-
-      const index =
-        y * BOARD_SIZE + x;
-
-      ctx.fillStyle =
-        pixels[index];
-
-      ctx.fillRect(
-        originX + x * cellSize,
-        originY + y * cellSize,
-        cellSize,
-        cellSize
-      );
-
-    }
-
-  }
-
-
-  /* Grid */
-
-  if (cellSize >= 5) {
-
-    ctx.strokeStyle =
-      "rgba(0,0,0,0.18)";
-
-    ctx.lineWidth = 1;
-
-    for (
-      let x = 0;
-      x <= BOARD_SIZE;
-      x++
-    ) {
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        originX + x * cellSize,
-        originY
-      );
-
-      ctx.lineTo(
-        originX + x * cellSize,
-        originY + boardHeight
-      );
-
-      ctx.stroke();
-
-    }
-
-    for (
-      let y = 0;
-      y <= BOARD_SIZE;
-      y++
-    ) {
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        originX,
-        originY + y * cellSize
-      );
-
-      ctx.lineTo(
-        originX + boardWidth,
-        originY + y * cellSize
-      );
-
-      ctx.stroke();
-
-    }
-
-  }
-
-}
-
-
-/* -----------------------------
-   GET PIXEL COORDINATES
------------------------------ */
-
-function getPixelFromMouse(
-  mouseX,
-  mouseY
-) {
-
-  const width =
-    canvas.clientWidth;
-
-  const height =
-    canvas.clientHeight;
-
-  const cellSize = zoom;
-
-  const boardWidth =
-    BOARD_SIZE * cellSize;
-
-  const boardHeight =
-    BOARD_SIZE * cellSize;
-
-  const originX =
-    (width - boardWidth) / 2 +
-    offsetX;
-
-  const originY =
-    (height - boardHeight) / 2 +
-    offsetY;
-
-  const x = Math.floor(
-    (mouseX - originX) /
-    cellSize
-  );
-
-  const y = Math.floor(
-    (mouseY - originY) /
-    cellSize
-  );
-
-  if (
-    x < 0 ||
-    y < 0 ||
-    x >= BOARD_SIZE ||
-    y >= BOARD_SIZE
-  ) {
-
-    return null;
-
-  }
-
-  return {
-    x,
-    y
-  };
-
-}
-
-
-/* -----------------------------
-   PLACE PIXEL
------------------------------ */
-
-function placePixel(x, y) {
-
-  const now = Date.now();
-
-  if (balance <= 0) {
-
-    showToast(
-      "You don't have any pixels."
-    );
-
-    return;
-
-  }
-
-  if (
-    now - lastPlacement <
-    COOLDOWN
-  ) {
-
-    const remaining =
-      Math.ceil(
-        (
-          COOLDOWN -
-          (now - lastPlacement)
-        ) / 1000
-      );
-
-    showToast(
-      `Cooldown: ${remaining}s`
-    );
-
-    return;
-
-  }
-
-
-  const index =
-    y * BOARD_SIZE + x;
-
-
-  pixels[index] =
-    selectedColor;
-
-
-  balance--;
-
-  pixelsPlaced++;
-
-  lastPlacement =
-    now;
-
-
-  document.getElementById(
-    "balance"
-  ).textContent =
-    balance;
-
-
-  document.getElementById(
-    "placed"
-  ).textContent =
-    pixelsPlaced;
-
-
-  drawCanvas();
-
-
   /*
-    SERVERLESS API WILL GO HERE.
+    ============================================
+    MIDDLE EASTERN MIXING COMMUNITY CANVAS
+    ============================================
 
-    Later this becomes something like:
+    Frontend only for now.
 
-    fetch("/api/pixel", {
-      method: "POST",
-      body: JSON.stringify({
-        x,
-        y,
-        color: selectedColor
-      })
-    });
+    Later this will connect to:
 
+      /api/board
+      /api/pixel
+      /api/user
+      /api/clans
+      /api/admin
+
+    MongoDB will store the actual board.
   */
 
 
-  showToast(
-    `Placed pixel at ${x}, ${y}`
-  );
+  const BOARD_SIZE = 200;
 
-}
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
 
+  let zoom = 3;
+  let offsetX = 0;
+  let offsetY = 0;
 
-/* -----------------------------
-   INSPECT PIXEL
------------------------------ */
+  let selectedColor = "#000000";
+  let selectedName = "Black";
 
-function inspectPixel(x, y) {
+  let balance = 100;
+  let pixelsPlaced = 0;
 
-  const index =
-    y * BOARD_SIZE + x;
+  let inspectMode = false;
 
-  const color =
-    pixels[index];
+  let mouseDown = false;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
 
+  const colors = [
+    ["Black", "#000000"],
+    ["Dark Brown", "#3b2a1f"],
+    ["Brown", "#765438"],
+    ["Gold", "#c8a45d"],
+    ["Sand", "#e7d7b5"],
 
-  document.getElementById(
-    "inspectPosition"
-  ).textContent =
-    `${x}, ${y}`;
+    ["Cream", "#f3e8cf"],
+    ["White", "#ffffff"],
+    ["Red", "#9d3028"],
+    ["Dark Red", "#681d19"],
+    ["Orange", "#c46b2b"],
 
+    ["Yellow", "#d4ad42"],
+    ["Olive", "#74733c"],
+    ["Green", "#41613b"],
+    ["Dark Green", "#263c28"],
+    ["Blue", "#385a72"],
 
-  document.getElementById(
-    "inspectPixelColor"
-  ).textContent =
-    color;
-
-
-  document.getElementById(
-    "inspectUser"
-  ).textContent =
-    "Guest";
-
-
-  /*
-    Later the API will provide:
-
-    user
-    clan
-    placement time
-    etc.
-  */
-
-}
+    ["Dark Blue", "#243746"],
+    ["Purple", "#5c4569"],
+    ["Pink", "#a86c79"],
+    ["Gray", "#77736b"],
+    ["Dark Gray", "#383632"]
+  ];
 
 
-/* -----------------------------
-   MOUSE DOWN
------------------------------ */
+  /* PALETTE */
 
-canvas.addEventListener(
-  "mousedown",
-  event => {
+  const palette = document.getElementById("palette");
 
-    dragging = true;
+  colors.forEach(([name, color]) => {
 
-    dragStartX =
-      event.clientX;
+    const button = document.createElement("button");
 
-    dragStartY =
-      event.clientY;
+    button.className = "color";
 
-    startOffsetX =
-      offsetX;
+    button.style.background = color;
 
-    startOffsetY =
-      offsetY;
+    button.title = `${name} ${color}`;
 
-  }
-);
+    if (color === selectedColor) {
+      button.classList.add("active");
+    }
 
+    button.onclick = () => {
 
-/* -----------------------------
-   MOUSE MOVE
------------------------------ */
+      selectedColor = color;
+      selectedName = name;
 
-canvas.addEventListener(
-  "mousemove",
-  event => {
+      document
+        .querySelectorAll(".color")
+        .forEach(x => x.classList.remove("active"));
 
-    if (!dragging) return;
+      button.classList.add("active");
 
-    offsetX =
-      startOffsetX +
-      (
-        event.clientX -
-        dragStartX
-      );
+      document.getElementById("selectedPreview").style.background = color;
+      document.getElementById("selectedName").textContent = name;
+      document.getElementById("selectedHex").textContent = color;
 
-    offsetY =
-      startOffsetY +
-      (
-        event.clientY -
-        dragStartY
-      );
+    };
 
-    drawCanvas();
+    palette.appendChild(button);
 
-  }
-);
+  });
 
 
-/* -----------------------------
-   MOUSE UP
------------------------------ */
+  /* BOARD */
 
-window.addEventListener(
-  "mouseup",
-  event => {
-
-    if (!dragging) return;
-
-    const distance =
-      Math.abs(
-        event.clientX -
-        dragStartX
-      ) +
-      Math.abs(
-        event.clientY -
-        dragStartY
-      );
+  const pixels = new Array(
+    BOARD_SIZE * BOARD_SIZE
+  ).fill("#e7d7b5");
 
 
-    dragging = false;
+  function drawBoard() {
 
+    const size = BOARD_SIZE * zoom;
 
-    /*
-      If the mouse barely moved,
-      treat it as a click.
-    */
+    canvas.width = size;
+    canvas.height = size;
 
-    if (distance < 5) {
+    ctx.imageSmoothingEnabled = false;
 
-      const rect =
-        canvas.getBoundingClientRect();
+    for (let y = 0; y < BOARD_SIZE; y++) {
 
-      const x =
-        event.clientX -
-        rect.left;
+      for (let x = 0; x < BOARD_SIZE; x++) {
 
-      const y =
-        event.clientY -
-        rect.top;
+        const color =
+          pixels[y * BOARD_SIZE + x];
 
+        ctx.fillStyle = color;
 
-      const pixel =
-        getPixelFromMouse(
-          x,
-          y
-        );
-
-
-      if (!pixel) return;
-
-
-      const index =
-        pixel.y *
-        BOARD_SIZE +
-        pixel.x;
-
-
-      /*
-        If the pixel is already
-        different from white,
-        inspect it.
-
-        Otherwise place a pixel.
-      */
-
-      if (
-        pixels[index] !==
-        "#ffffff"
-      ) {
-
-        inspectPixel(
-          pixel.x,
-          pixel.y
-        );
-
-      } else {
-
-        placePixel(
-          pixel.x,
-          pixel.y
+        ctx.fillRect(
+          x * zoom,
+          y * zoom,
+          zoom,
+          zoom
         );
 
       }
 
     }
 
+    /*
+      Subtle grid when zoomed in
+    */
+
+    if (zoom >= 5) {
+
+      ctx.strokeStyle =
+        "rgba(0,0,0,.12)";
+
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= BOARD_SIZE; x++) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(x * zoom + .5, 0);
+        ctx.lineTo(x * zoom + .5, size);
+
+        ctx.stroke();
+
+      }
+
+      for (let y = 0; y <= BOARD_SIZE; y++) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(0, y * zoom + .5);
+        ctx.lineTo(size, y * zoom + .5);
+
+        ctx.stroke();
+
+      }
+
+    }
+
   }
-);
 
 
-/* -----------------------------
-   ZOOM
------------------------------ */
+  /* CANVAS CLICK */
 
-canvas.addEventListener(
-  "wheel",
-  event => {
+  canvas.addEventListener("click", event => {
 
-    event.preventDefault();
+    if (inspectMode) {
 
-    const oldZoom =
-      zoom;
+      inspectPixel(event);
+
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = Math.floor(
+      (event.clientX - rect.left) / zoom
+    );
+
+    const y = Math.floor(
+      (event.clientY - rect.top) / zoom
+    );
+
+    if (
+      x < 0 ||
+      x >= BOARD_SIZE ||
+      y < 0 ||
+      y >= BOARD_SIZE
+    ) return;
+
+    placePixel(x, y);
+
+  });
 
 
-    if (event.deltaY < 0) {
+  function placePixel(x, y) {
 
-      zoom =
-        Math.min(
-          zoom * 1.2,
-          40
-        );
+    if (balance <= 0) {
 
-    } else {
+      showToast("You don't have any pixels available.");
 
-      zoom =
-        Math.max(
-          zoom / 1.2,
-          0.5
-        );
+      return;
 
     }
 
 
     /*
-      Keep zoom centered
-      around mouse position.
+      TEMPORARY LOCAL PLACEMENT.
+
+      This will become:
+
+      fetch("/api/pixel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          x,
+          y,
+          color: selectedColor
+        })
+      });
+
     */
+
+
+    pixels[
+      y * BOARD_SIZE + x
+    ] = selectedColor;
+
+    balance--;
+    pixelsPlaced++;
+
+    document.getElementById("balance").textContent = balance;
+    document.getElementById("placed").textContent = pixelsPlaced;
+
+    drawBoard();
+
+    showToast(
+      `Placed ${selectedName} at ${x}, ${y}`
+    );
+
+  }
+
+
+  /* INSPECT */
+
+  function toggleInspect() {
+
+    inspectMode = !inspectMode;
+
+    showToast(
+      inspectMode
+        ? "Inspector enabled"
+        : "Inspector disabled"
+    );
+
+    canvas.style.cursor =
+      inspectMode
+        ? "help"
+        : "crosshair";
+
+  }
+
+
+  function inspectPixel(event) {
 
     const rect =
       canvas.getBoundingClientRect();
 
-    const mouseX =
-      event.clientX -
-      rect.left;
-
-    const mouseY =
-      event.clientY -
-      rect.top;
-
-
-    const zoomRatio =
-      zoom / oldZoom;
-
-
-    offsetX =
-      mouseX -
-      (mouseX - offsetX) *
-      zoomRatio;
-
-
-    offsetY =
-      mouseY -
-      (mouseY - offsetY) *
-      zoomRatio;
-
-
-    drawCanvas();
-
-  },
-  { passive: false }
-);
-
-
-/* -----------------------------
-   CENTER BUTTON
------------------------------ */
-
-document
-  .getElementById("centerButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      offsetX = 0;
-      offsetY = 0;
-      zoom = 3;
-
-      drawCanvas();
-
-    }
-  );
-
-
-/* -----------------------------
-   COLOR PALETTE
------------------------------ */
-
-function buildPalette() {
-
-  const palette =
-    document.getElementById(
-      "palette"
+    const x = Math.floor(
+      (event.clientX - rect.left) / zoom
     );
 
+    const y = Math.floor(
+      (event.clientY - rect.top) / zoom
+    );
 
-  COLORS.forEach(
-    color => {
+    if (
+      x < 0 ||
+      x >= BOARD_SIZE ||
+      y < 0 ||
+      y >= BOARD_SIZE
+    ) return;
 
-      const button =
-        document.createElement(
-          "button"
-        );
-
-
-      button.className =
-        "color";
-
-
-      button.style.background =
-        color;
-
-
-      if (
-        color ===
-        selectedColor
-      ) {
-
-        button.classList.add(
-          "selected"
-        );
-
-      }
-
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          selectedColor =
-            color;
-
-
-          document.getElementById(
-            "selectedColor"
-          ).textContent =
-            color;
-
-
-          document
-            .querySelectorAll(
-              ".color"
-            )
-            .forEach(
-              element =>
-                element.classList
-                  .remove(
-                    "selected"
-                  )
-            );
-
-
-          button.classList.add(
-            "selected"
-          );
-
-        }
-      );
-
-
-      palette.appendChild(
-        button
-      );
-
-    }
-  );
-
-}
-
-
-/* -----------------------------
-   COOLDOWN TIMER
------------------------------ */
-
-function updateCooldown() {
-
-  if (!lastPlacement) {
+    const color =
+      pixels[y * BOARD_SIZE + x];
 
     document.getElementById(
-      "cooldownStatus"
-    ).textContent =
-      "Ready";
+      "coordinates"
+    ).textContent = `${x}, ${y}`;
 
-    return;
+    document.getElementById(
+      "inspectPosition"
+    ).textContent = `${x}, ${y}`;
+
+    document.getElementById(
+      "inspectColor"
+    ).textContent = color;
+
+    document.getElementById(
+      "inspectPreview"
+    ).style.background = color;
+
+    document.getElementById(
+      "inspectUser"
+    ).textContent = "Guest";
+
+    document.getElementById(
+      "inspectClan"
+    ).textContent = "—";
+
+    document.getElementById(
+      "inspectTime"
+    ).textContent = "Just now";
 
   }
 
 
-  const remaining =
-    COOLDOWN -
-    (
-      Date.now() -
-      lastPlacement
-    );
+  /* ZOOM */
 
+  function zoomIn() {
 
-  if (remaining <= 0) {
+    if (zoom >= 10) return;
 
-    document.getElementById(
-      "cooldownStatus"
-    ).textContent =
-      "Ready";
+    zoom++;
 
-    return;
+    drawBoard();
 
   }
 
 
-  const seconds =
-    Math.ceil(
-      remaining / 1000
+  function zoomOut() {
+
+    if (zoom <= 2) return;
+
+    zoom--;
+
+    drawBoard();
+
+  }
+
+
+  function centerCanvas() {
+
+    const wrapper =
+      document.getElementById("canvasWrapper");
+
+    wrapper.scrollLeft =
+      (canvas.width - wrapper.clientWidth) / 2;
+
+    wrapper.scrollTop =
+      (canvas.height - wrapper.clientHeight) / 2;
+
+  }
+
+
+  /* MOUSE POSITION */
+
+  canvas.addEventListener("mousemove", event => {
+
+    const rect =
+      canvas.getBoundingClientRect();
+
+    const x = Math.floor(
+      (event.clientX - rect.left) / zoom
     );
 
+    const y = Math.floor(
+      (event.clientY - rect.top) / zoom
+    );
 
-  document.getElementById(
-    "cooldownStatus"
-  ).textContent =
-    `${seconds}s`;
+    if (
+      x >= 0 &&
+      x < BOARD_SIZE &&
+      y >= 0 &&
+      y < BOARD_SIZE
+    ) {
 
-}
-
-
-setInterval(
-  updateCooldown,
-  250
-);
-
-
-/* -----------------------------
-   DISCORD BUTTON
------------------------------ */
-
-document
-  .getElementById("discordButton")
-  .addEventListener(
-    "click",
-    () => {
-
-      showToast(
-        "Discord OAuth will be connected through the serverless API."
-      );
+      document.getElementById(
+        "coordinates"
+      ).textContent = `${x}, ${y}`;
 
     }
-  );
+
+  });
 
 
-/* -----------------------------
-   TOAST
------------------------------ */
+  /* DISCORD */
 
-let toastTimeout;
+  function connectDiscord() {
 
-function showToast(message) {
+    /*
+      Later:
 
-  const toast =
-    document.getElementById(
-      "toast"
+      window.location.href =
+        "/api/auth/discord";
+
+      This will start Discord OAuth.
+    */
+
+    showToast(
+      "Discord connection will be enabled shortly."
     );
 
-
-  toast.textContent =
-    message;
+  }
 
 
-  toast.style.display =
-    "block";
+  /* TOAST */
+
+  function showToast(message) {
+
+    const toast =
+      document.createElement("div");
+
+    toast.textContent = message;
+
+    toast.style.position = "fixed";
+    toast.style.bottom = "22px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.background = "#c8a45d";
+    toast.style.color = "#0b0a08";
+    toast.style.padding = "10px 15px";
+    toast.style.borderRadius = "6px";
+    toast.style.fontSize = "12px";
+    toast.style.fontWeight = "800";
+    toast.style.zIndex = "9999";
+    toast.style.boxShadow =
+      "0 10px 30px rgba(0,0,0,.35)";
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+
+      toast.remove();
+
+    }, 2200);
+
+  }
 
 
-  clearTimeout(
-    toastTimeout
-  );
+  /* INITIAL DRAW */
 
+  drawBoard();
 
-  toastTimeout =
-    setTimeout(
-      () => {
+  setTimeout(() => {
 
-        toast.style.display =
-          "none";
+    centerCanvas();
 
-      },
-      2500
-    );
+  }, 100);
 
-}
-
-
-/* -----------------------------
-   INITIALIZE
------------------------------ */
-
-buildPalette();
-
-window.addEventListener(
-  "resize",
-  resizeCanvas
-);
-
-resizeCanvas();
 
 </script>
 
 </body>
 </html>
+
