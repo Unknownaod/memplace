@@ -1,35 +1,35 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Admin Panel — Middle Eastern Mixing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Middle Eastern Mixing</title>
 
   <style>
     :root {
-      --black: #0b0a08;
-      --black-2: #12100d;
-      --black-3: #191611;
-
-      --beige: #e7d7b5;
-      --beige-light: #f3e8cf;
+      --black: #0b0b0b;
+      --black-2: #111111;
+      --black-3: #181818;
+      --panel: #151515;
+      --panel-2: #1d1d1d;
 
       --gold: #c8a45d;
-      --gold-light: #dfc27b;
-      --gold-dark: #92743b;
+      --gold-light: #e2c783;
+      --gold-dark: #9f7f3f;
 
-      --border: rgba(200, 164, 93, 0.25);
+      --beige: #e7d7b5;
+      --beige-2: #cfc09e;
 
-      --text-muted: #a99d87;
+      --white: #ffffff;
+      --muted: #999999;
 
-      --danger: #a84c43;
-      --danger-light: #d27a70;
+      --red: #c94b42;
+      --green: #6fa36f;
 
-      --success: #6d9b67;
+      --border: rgba(231, 215, 181, 0.12);
+
+      --radius: 10px;
     }
 
     * {
@@ -39,21 +39,14 @@
     }
 
     body {
+      background: var(--black);
+      color: var(--beige);
       font-family:
-        Arial,
-        Helvetica,
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
         sans-serif;
-
-      background:
-        radial-gradient(
-          circle at top center,
-          rgba(200,164,93,.05),
-          transparent 35%
-        ),
-        var(--black);
-
-      color: var(--beige-light);
-
       min-height: 100vh;
     }
 
@@ -72,33 +65,23 @@
 
     .topbar {
       height: 64px;
-
-      background: #090806;
-
-      border-bottom:
-        1px solid var(--border);
+      background: var(--black-2);
+      border-bottom: 1px solid var(--border);
 
       display: flex;
-
       align-items: center;
-
       justify-content: space-between;
 
-      padding:
-        0 22px;
+      padding: 0 24px;
 
       position: sticky;
-
       top: 0;
-
       z-index: 100;
     }
 
     .brand {
       display: flex;
-
       align-items: center;
-
       gap: 12px;
     }
 
@@ -106,100 +89,137 @@
       width: 36px;
       height: 36px;
 
-      background:
-        var(--gold);
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
 
-      color:
-        var(--black);
+      background: var(--gold);
 
       display: grid;
-
       place-items: center;
-
-      font-weight: 900;
-
-      border-radius: 8px;
     }
 
-    .brand-text h1 {
-      font-size: 15px;
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
 
-      letter-spacing: .8px;
+    .brand-name {
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.3px;
+    }
+
+    .admin-badge {
+      margin-left: 4px;
+
+      padding: 4px 8px;
+
+      border-radius: 5px;
+
+      background: rgba(200, 164, 93, 0.14);
+      color: var(--gold-light);
+
+      font-size: 11px;
+      font-weight: 800;
 
       text-transform: uppercase;
-    }
-
-    .brand-text span {
-      color: var(--gold);
-
-      font-size: 10px;
+      letter-spacing: 0.6px;
     }
 
     .top-actions {
       display: flex;
-
       align-items: center;
-
       gap: 10px;
     }
 
-    .admin-badge {
-      border:
-        1px solid var(--border);
-
-      background:
-        rgba(200,164,93,.08);
-
-      color:
-        var(--gold);
-
-      padding:
-        7px 10px;
-
-      border-radius: 5px;
-
-      font-size: 10px;
-
-      font-weight: 800;
-
-      text-transform: uppercase;
-
-      letter-spacing: .8px;
-    }
-
-    .user-display {
-      color:
-        var(--text-muted);
-
-      font-size: 11px;
+    .admin-user {
+      color: var(--muted);
+      font-size: 13px;
+      margin-right: 6px;
     }
 
     .top-btn {
-      border:
-        1px solid var(--border);
+      border: 1px solid var(--border);
+      background: var(--black-3);
+      color: var(--beige);
 
-      background:
-        var(--black-3);
+      padding: 9px 13px;
+      border-radius: 7px;
 
-      color:
-        var(--beige);
-
-      padding:
-        9px 12px;
-
-      border-radius: 6px;
-
-      font-size: 11px;
-
+      font-size: 13px;
       font-weight: 700;
+
+      transition: 0.15s;
     }
 
     .top-btn:hover {
-      background:
-        var(--gold);
+      background: var(--panel-2);
+      border-color: rgba(231, 215, 181, 0.25);
+    }
 
-      color:
-        var(--black);
+    .top-btn.danger {
+      color: #e98c85;
+    }
+
+    /* ==========================================
+       ACCESS DENIED
+    ========================================== */
+
+    .access-denied {
+      min-height: calc(100vh - 64px);
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      padding: 30px;
+    }
+
+    .access-card {
+      width: 100%;
+      max-width: 440px;
+
+      background: var(--panel);
+      border: 1px solid var(--border);
+
+      border-radius: 14px;
+
+      padding: 36px;
+
+      text-align: center;
+    }
+
+    .access-icon {
+      width: 60px;
+      height: 60px;
+
+      border-radius: 50%;
+
+      background: rgba(201, 75, 66, 0.12);
+      color: #e98c85;
+
+      display: grid;
+      place-items: center;
+
+      font-size: 25px;
+      font-weight: 900;
+
+      margin: 0 auto 18px;
+    }
+
+    .access-card h1 {
+      color: var(--white);
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .access-card p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
     }
 
     /* ==========================================
@@ -207,598 +227,560 @@
     ========================================== */
 
     .page {
-      max-width: 1400px;
-
+      display: none;
+      max-width: 1450px;
       margin: 0 auto;
 
-      padding:
-        28px;
+      padding: 28px 24px 60px;
     }
 
     .page-header {
-      display: flex;
-
-      align-items: flex-end;
-
-      justify-content: space-between;
-
-      margin-bottom: 24px;
+      margin-bottom: 26px;
     }
 
-    .page-title {
-      font-size: 24px;
-
-      font-weight: 900;
+    .page-header h1 {
+      color: var(--white);
+      font-size: 28px;
+      letter-spacing: -0.5px;
+      margin-bottom: 5px;
     }
 
-    .page-subtitle {
-      color:
-        var(--text-muted);
-
-      font-size: 12px;
-
-      margin-top: 5px;
+    .page-header p {
+      color: var(--muted);
+      font-size: 14px;
     }
 
     /* ==========================================
-       STAT GRID
+       STATS
     ========================================== */
 
-    .stats {
+    .stats-grid {
       display: grid;
-
       grid-template-columns:
-        repeat(5, 1fr);
+        repeat(5, minmax(0, 1fr));
 
-      gap: 12px;
+      gap: 14px;
 
       margin-bottom: 24px;
     }
 
-    .stat {
-      background:
-        var(--black-2);
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
 
-      border:
-        1px solid var(--border);
+      border-radius: var(--radius);
 
-      border-radius: 8px;
-
-      padding:
-        16px;
+      padding: 19px;
     }
 
     .stat-label {
-      color:
-        var(--text-muted);
-
-      font-size: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
 
       text-transform: uppercase;
+      letter-spacing: 0.7px;
 
-      letter-spacing: 1px;
-
-      font-weight: 800;
+      margin-bottom: 8px;
     }
 
     .stat-value {
-      margin-top: 7px;
-
-      font-size: 25px;
-
-      font-weight: 900;
-
-      color:
-        var(--beige-light);
+      color: var(--white);
+      font-size: 27px;
+      font-weight: 850;
     }
 
     /* ==========================================
-       GRID
+       LAYOUT
     ========================================== */
 
     .content-grid {
       display: grid;
-
       grid-template-columns:
-        minmax(0, 1.5fr)
-        minmax(320px, .8fr);
+        minmax(0, 1.35fr)
+        minmax(340px, 0.65fr);
 
-      gap: 16px;
+      gap: 18px;
+
+      align-items: start;
     }
 
+    .left-column,
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* ==========================================
+       PANELS
+    ========================================== */
+
     .panel {
-      background:
-        var(--black-2);
+      background: var(--panel);
+      border: 1px solid var(--border);
 
-      border:
-        1px solid var(--border);
-
-      border-radius: 8px;
+      border-radius: var(--radius);
 
       overflow: hidden;
     }
 
     .panel-header {
-      padding:
-        14px 16px;
+      padding: 17px 18px;
 
-      border-bottom:
-        1px solid var(--border);
+      border-bottom: 1px solid var(--border);
 
       display: flex;
-
       align-items: center;
-
       justify-content: space-between;
+
+      gap: 12px;
     }
 
-    .panel-title {
-      font-size: 11px;
+    .panel-header h2 {
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 800;
+    }
 
-      color:
-        var(--gold);
-
-      text-transform: uppercase;
-
-      letter-spacing: 1.2px;
-
-      font-weight: 900;
+    .panel-header span {
+      color: var(--muted);
+      font-size: 12px;
     }
 
     .panel-body {
-      padding:
-        16px;
+      padding: 18px;
     }
 
     /* ==========================================
        SEARCH
     ========================================== */
 
-    .search {
+    .search-row {
       display: flex;
-
-      gap: 8px;
-
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
-    .search input {
+    .search-input {
       flex: 1;
 
       min-width: 0;
 
-      background:
-        var(--black-3);
+      background: var(--black-3);
+      border: 1px solid var(--border);
 
-      color:
-        var(--beige-light);
+      color: var(--white);
 
-      border:
-        1px solid var(--border);
+      padding: 11px 12px;
 
-      border-radius: 6px;
-
-      padding:
-        11px 12px;
+      border-radius: 7px;
 
       outline: none;
-
-      font-size: 12px;
     }
 
-    .search input:focus {
-      border-color:
-        var(--gold);
+    .search-input:focus {
+      border-color: var(--gold-dark);
     }
 
-    .gold-btn {
-      border: none;
-
-      background:
-        var(--gold);
-
-      color:
-        var(--black);
-
-      border-radius: 6px;
-
-      padding:
-        10px 15px;
-
-      font-size: 11px;
-
-      font-weight: 900;
+    .search-input::placeholder {
+      color: #686868;
     }
 
-    .gold-btn:hover {
-      background:
-        var(--gold-light);
+    .btn {
+      border: 1px solid var(--border);
+
+      background: var(--black-3);
+      color: var(--beige);
+
+      padding: 10px 14px;
+
+      border-radius: 7px;
+
+      font-size: 13px;
+      font-weight: 750;
+
+      transition: 0.15s;
+    }
+
+    .btn:hover {
+      background: var(--panel-2);
+    }
+
+    .btn.gold {
+      background: var(--gold);
+      color: var(--black);
+      border-color: var(--gold);
+    }
+
+    .btn.gold:hover {
+      background: var(--gold-light);
+    }
+
+    .btn.red {
+      background: rgba(201, 75, 66, 0.12);
+      border-color: rgba(201, 75, 66, 0.3);
+      color: #e98c85;
+    }
+
+    .btn.red:hover {
+      background: rgba(201, 75, 66, 0.2);
+    }
+
+    .btn.green {
+      background: rgba(111, 163, 111, 0.12);
+      border-color: rgba(111, 163, 111, 0.3);
+      color: #9dcc9d;
     }
 
     /* ==========================================
-       USER RESULTS
+       USERS
     ========================================== */
 
-    .user-list {
+    .users-list {
       display: flex;
-
       flex-direction: column;
-
       gap: 7px;
     }
 
-    .user-item {
+    .user-row {
+      width: 100%;
+
       display: flex;
-
       align-items: center;
+      gap: 12px;
 
-      gap: 10px;
+      padding: 11px;
 
-      background:
-        var(--black-3);
+      border-radius: 8px;
 
-      border:
-        1px solid rgba(200,164,93,.12);
+      background: var(--black-3);
+      border: 1px solid transparent;
 
-      border-radius: 6px;
+      cursor: pointer;
 
-      padding:
-        10px;
+      transition: 0.15s;
     }
 
-    .user-avatar {
-      width: 34px;
-      height: 34px;
+    .user-row:hover {
+      border-color: var(--border);
+    }
+
+    .user-row.selected {
+      border-color: rgba(200, 164, 93, 0.45);
+      background: rgba(200, 164, 93, 0.06);
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
 
       border-radius: 50%;
 
-      background:
-        var(--gold);
+      background: var(--panel-2);
 
-      color:
-        var(--black);
-
-      display: grid;
-
-      place-items: center;
-
-      font-size: 12px;
-
-      font-weight: 900;
+      overflow: hidden;
 
       flex-shrink: 0;
 
-      overflow: hidden;
+      display: grid;
+      place-items: center;
+
+      color: var(--gold-light);
+      font-size: 13px;
+      font-weight: 800;
     }
 
-    .user-avatar img {
+    .avatar img {
       width: 100%;
       height: 100%;
-
       object-fit: cover;
     }
 
     .user-info {
-      flex: 1;
-
       min-width: 0;
+      flex: 1;
     }
 
     .user-name {
-      font-size: 12px;
+      color: var(--white);
 
-      font-weight: 800;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
+      font-size: 13px;
+      font-weight: 750;
 
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .user-id {
-      color:
-        var(--text-muted);
+      color: #686868;
 
-      font-family: monospace;
+      font-size: 11px;
 
-      font-size: 9px;
+      margin-top: 2px;
 
-      margin-top: 3px;
-
+      white-space: nowrap;
       overflow: hidden;
-
       text-overflow: ellipsis;
     }
 
     .user-balance {
-      text-align: right;
-
-      font-size: 10px;
-
-      color:
-        var(--text-muted);
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 800;
     }
 
-    .user-balance strong {
-      display: block;
+    .ban-pill {
+      padding: 3px 6px;
 
-      color:
-        var(--gold);
+      background: rgba(201, 75, 66, 0.12);
+      color: #e98c85;
 
-      font-size: 12px;
+      border-radius: 4px;
+
+      font-size: 10px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+    }
+
+    .empty {
+      padding: 25px 10px;
+
+      color: #686868;
+
+      text-align: center;
+
+      font-size: 13px;
     }
 
     /* ==========================================
        USER DETAIL
     ========================================== */
 
-    .empty {
-      color:
-        var(--text-muted);
-
-      text-align: center;
-
-      padding:
-        28px 10px;
-
-      font-size: 11px;
-    }
-
-    .detail {
+    .selected-user {
       display: none;
     }
 
-    .detail.active {
-      display: block;
+    .selected-user-head {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+
+      padding-bottom: 17px;
+
+      border-bottom: 1px solid var(--border);
+
+      margin-bottom: 17px;
     }
 
-    .detail-header {
-      display: flex;
+    .selected-user-head .avatar {
+      width: 48px;
+      height: 48px;
+    }
 
-      align-items: center;
+    .selected-user-name {
+      color: var(--white);
+      font-size: 17px;
+      font-weight: 800;
+    }
 
-      gap: 12px;
+    .selected-user-discord {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .user-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
 
       margin-bottom: 18px;
     }
 
-    .detail-avatar {
-      width: 52px;
-      height: 52px;
-
-      border-radius: 50%;
-
-      background:
-        var(--gold);
-
-      color:
-        var(--black);
-
-      display: grid;
-
-      place-items: center;
-
-      font-size: 18px;
-
-      font-weight: 900;
-
-      overflow: hidden;
+    .detail {
+      background: var(--black-3);
+      border-radius: 7px;
+      padding: 11px;
     }
 
-    .detail-avatar img {
-      width: 100%;
-      height: 100%;
+    .detail span:first-child {
+      display: block;
 
-      object-fit: cover;
-    }
-
-    .detail-name {
-      font-size: 15px;
-
-      font-weight: 900;
-    }
-
-    .detail-id {
-      color:
-        var(--text-muted);
-
-      font-family: monospace;
-
-      font-size: 9px;
-
-      margin-top: 4px;
-    }
-
-    .detail-row {
-      display: flex;
-
-      justify-content: space-between;
-
-      padding:
-        9px 0;
-
-      border-top:
-        1px solid rgba(255,255,255,.04);
-
-      font-size: 11px;
-    }
-
-    .detail-row span:first-child {
-      color:
-        var(--text-muted);
-    }
-
-    .detail-actions {
-      display: grid;
-
-      grid-template-columns:
-        1fr 1fr;
-
-      gap: 7px;
-
-      margin-top: 15px;
-    }
-
-    .action-btn {
-      border:
-        1px solid var(--border);
-
-      background:
-        var(--black-3);
-
-      color:
-        var(--beige);
-
-      padding:
-        9px;
-
-      border-radius: 5px;
+      color: #686868;
 
       font-size: 10px;
-
       font-weight: 800;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.5px;
+
+      margin-bottom: 4px;
     }
 
-    .action-btn:hover {
-      background:
-        var(--gold);
-
-      color:
-        var(--black);
-    }
-
-    .danger-btn {
-      border-color:
-        rgba(168,76,67,.5);
-
-      color:
-        var(--danger-light);
-    }
-
-    .danger-btn:hover {
-      background:
-        var(--danger);
-
-      color:
-        white;
+    .detail span:last-child {
+      color: var(--beige);
+      font-size: 13px;
+      font-weight: 700;
     }
 
     /* ==========================================
-       GIVE PIXELS
+       ACTIONS
     ========================================== */
 
-    .pixel-form {
-      display: flex;
+    .action-section {
+      padding-top: 16px;
+      margin-top: 16px;
 
-      gap: 7px;
-
-      margin-top: 9px;
+      border-top: 1px solid var(--border);
     }
 
-    .pixel-form input {
-      width: 100%;
+    .action-title {
+      color: var(--white);
 
-      background:
-        var(--black-3);
+      font-size: 12px;
+      font-weight: 800;
 
-      border:
-        1px solid var(--border);
+      margin-bottom: 9px;
+    }
 
-      color:
-        var(--beige-light);
+    .action-row {
+      display: flex;
+      gap: 8px;
+    }
 
-      border-radius: 5px;
+    .amount-input {
+      width: 120px;
 
-      padding:
-        9px;
+      background: var(--black-3);
+      border: 1px solid var(--border);
 
-      font-size: 11px;
+      color: var(--white);
+
+      padding: 10px;
+
+      border-radius: 7px;
 
       outline: none;
+    }
+
+    .amount-input:focus {
+      border-color: var(--gold-dark);
     }
 
     /* ==========================================
        BOARD MANAGEMENT
     ========================================== */
 
-    .board-info {
+    .board-grid {
       display: grid;
 
       grid-template-columns:
-        1fr 1fr;
+        repeat(3, 1fr);
 
       gap: 8px;
+
+      margin-bottom: 15px;
     }
 
-    .board-box {
-      background:
-        var(--black-3);
+    .board-stat {
+      background: var(--black-3);
+      border-radius: 7px;
 
-      border:
-        1px solid rgba(200,164,93,.12);
-
-      border-radius: 6px;
-
-      padding:
-        11px;
+      padding: 12px;
     }
 
-    .board-box span {
-      display: block;
-
-      color:
-        var(--text-muted);
-
-      font-size: 9px;
-
-      text-transform: uppercase;
-
-      letter-spacing: .6px;
-    }
-
-    .board-box strong {
-      display: block;
-
-      margin-top: 5px;
-
-      font-size: 14px;
-    }
-
-    .reset-btn {
-      width: 100%;
-
-      margin-top: 10px;
-
-      border:
-        1px solid rgba(168,76,67,.55);
-
-      background:
-        rgba(168,76,67,.08);
-
-      color:
-        var(--danger-light);
-
-      padding:
-        11px;
-
-      border-radius: 6px;
+    .board-stat-label {
+      color: #686868;
 
       font-size: 10px;
-
-      font-weight: 900;
+      font-weight: 800;
 
       text-transform: uppercase;
 
-      letter-spacing: .5px;
+      margin-bottom: 4px;
     }
 
-    .reset-btn:hover {
-      background:
-        var(--danger);
+    .board-stat-value {
+      color: var(--white);
 
-      color:
-        white;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .danger-box {
+      background: rgba(201, 75, 66, 0.07);
+
+      border: 1px solid rgba(201, 75, 66, 0.18);
+
+      border-radius: 8px;
+
+      padding: 13px;
+
+      margin-top: 15px;
+    }
+
+    .danger-box-title {
+      color: #e98c85;
+
+      font-size: 12px;
+      font-weight: 800;
+
+      margin-bottom: 4px;
+    }
+
+    .danger-box p {
+      color: #8e6865;
+
+      font-size: 11px;
+      line-height: 1.5;
+
+      margin-bottom: 10px;
+    }
+
+    /* ==========================================
+       DELETE PIXEL
+    ========================================== */
+
+    .coordinate-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 8px;
+
+      margin-bottom: 9px;
+    }
+
+    .coord-input {
+      width: 100%;
+
+      background: var(--black-3);
+      border: 1px solid var(--border);
+
+      color: var(--white);
+
+      padding: 10px;
+
+      border-radius: 7px;
+
+      outline: none;
+    }
+
+    .coord-input:focus {
+      border-color: var(--gold-dark);
+    }
+
+    .help-text {
+      color: #686868;
+
+      font-size: 11px;
+
+      line-height: 1.5;
+
+      margin-bottom: 10px;
     }
 
     /* ==========================================
@@ -807,133 +789,44 @@
 
     .logs {
       display: flex;
-
       flex-direction: column;
-
       gap: 6px;
-
-      max-height: 330px;
-
-      overflow-y: auto;
     }
 
-    .log {
-      background:
-        var(--black-3);
+    .log-row {
+      background: var(--black-3);
 
-      border:
-        1px solid rgba(200,164,93,.1);
+      border-radius: 7px;
 
-      border-radius: 5px;
-
-      padding:
-        9px;
+      padding: 10px 11px;
     }
 
     .log-top {
       display: flex;
-
       justify-content: space-between;
-
       gap: 10px;
+
+      margin-bottom: 4px;
     }
 
     .log-action {
-      color:
-        var(--gold);
+      color: var(--gold-light);
 
-      font-size: 10px;
-
-      font-weight: 900;
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .log-time {
-      color:
-        var(--text-muted);
-
-      font-size: 9px;
+      color: #5f5f5f;
+      font-size: 10px;
     }
 
-    .log-target {
-      color:
-        var(--text-muted);
+    .log-info {
+      color: #777;
 
-      font-size: 9px;
+      font-size: 10px;
 
-      margin-top: 4px;
-    }
-
-    /* ==========================================
-       LOADING
-    ========================================== */
-
-    .loading {
-      color:
-        var(--text-muted);
-
-      text-align: center;
-
-      padding:
-        25px;
-
-      font-size: 11px;
-    }
-
-    /* ==========================================
-       ACCESS DENIED
-    ========================================== */
-
-    .access-denied {
-      display: none;
-
-      min-height:
-        calc(100vh - 64px);
-
-      align-items: center;
-
-      justify-content: center;
-
-      text-align: center;
-
-      padding: 30px;
-    }
-
-    .access-box {
-      max-width: 400px;
-
-      background:
-        var(--black-2);
-
-      border:
-        1px solid var(--border);
-
-      border-radius: 8px;
-
-      padding:
-        30px;
-    }
-
-    .access-icon {
-      font-size: 35px;
-
-      margin-bottom: 12px;
-    }
-
-    .access-box h2 {
-      font-size: 18px;
-
-      margin-bottom: 7px;
-    }
-
-    .access-box p {
-      color:
-        var(--text-muted);
-
-      font-size: 11px;
-
-      line-height: 1.6;
-
-      margin-bottom: 18px;
+      line-height: 1.4;
     }
 
     /* ==========================================
@@ -943,100 +836,120 @@
     .toast {
       position: fixed;
 
-      bottom: 22px;
+      right: 20px;
+      bottom: 20px;
 
-      left: 50%;
+      max-width: 360px;
 
-      transform:
-        translateX(-50%)
-        translateY(15px);
+      padding: 13px 16px;
 
-      background:
-        var(--gold);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
 
-      color:
-        var(--black);
+      border-radius: 8px;
 
-      padding:
-        10px 15px;
+      color: var(--beige);
 
-      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 650;
 
-      font-size: 11px;
+      box-shadow:
+        0 12px 35px rgba(0,0,0,0.35);
 
-      font-weight: 900;
-
-      z-index: 9999;
-
+      transform: translateY(20px);
       opacity: 0;
 
       pointer-events: none;
 
-      transition:
-        .2s ease;
+      transition: 0.2s;
+
+      z-index: 999;
     }
 
     .toast.show {
+      transform: translateY(0);
       opacity: 1;
+    }
 
-      transform:
-        translateX(-50%)
-        translateY(0);
+    .toast.error {
+      border-color: rgba(201, 75, 66, 0.35);
+      color: #e98c85;
+    }
+
+    .toast.success {
+      border-color: rgba(111, 163, 111, 0.35);
+      color: #9dcc9d;
     }
 
     /* ==========================================
-       MOBILE
+       LOADING
     ========================================== */
 
-    @media (max-width: 1000px) {
+    .loading {
+      color: #686868;
+      font-size: 13px;
+      padding: 15px 0;
+    }
 
-      .stats {
+    /* ==========================================
+       RESPONSIVE
+    ========================================== */
+
+    @media (max-width: 1100px) {
+      .stats-grid {
+        grid-template-columns:
+          repeat(3, 1fr);
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        padding: 0 14px;
+      }
+
+      .brand-name {
+        display: none;
+      }
+
+      .admin-user {
+        display: none;
+      }
+
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .stats-grid {
         grid-template-columns:
           repeat(2, 1fr);
       }
 
-      .content-grid {
-        grid-template-columns:
-          1fr;
+      .board-grid {
+        grid-template-columns: 1fr;
       }
 
-    }
-
-    @media (max-width: 600px) {
-
-      .page {
-        padding: 16px;
+      .user-details {
+        grid-template-columns: 1fr;
       }
 
-      .topbar {
-        padding:
-          0 12px;
+      .action-row {
+        flex-wrap: wrap;
       }
 
-      .brand-text {
-        display: none;
+      .amount-input {
+        width: 100%;
       }
 
-      .user-display {
-        display: none;
+      .action-row .btn {
+        flex: 1;
       }
-
-      .stats {
-        grid-template-columns:
-          1fr 1fr;
-      }
-
-      .page-header {
-        align-items: flex-start;
-      }
-
-      .detail-actions {
-        grid-template-columns:
-          1fr;
-      }
-
     }
   </style>
+
 </head>
 
 <body>
@@ -1047,58 +960,53 @@
 
   <header class="topbar">
 
-    <div class="brand">
+```
+<div class="brand">
 
-      <div class="brand-mark">
-        م
-      </div>
+  <div class="brand-mark">
+    <img
+      src="/logo.gif"
+      alt="Middle Eastern Mixing"
+    >
+  </div>
 
-      <div class="brand-text">
+  <div class="brand-name">
+    Middle Eastern Mixing
+  </div>
 
-        <h1>
-          Middle Eastern Mixing
-        </h1>
+  <div class="admin-badge">
+    Admin
+  </div>
 
-        <span>
-          Community Canvas
-        </span>
+</div>
 
-      </div>
+<div class="top-actions">
 
-    </div>
+  <span
+    class="admin-user"
+    id="adminUsername"
+  >
+    Loading...
+  </span>
 
+  <button
+    class="top-btn"
+    onclick="window.location.href='/'"
+  >
+    Canvas
+  </button>
 
-    <div class="top-actions">
+  <button
+    class="top-btn danger"
+    onclick="logout()"
+  >
+    Disconnect
+  </button>
 
-      <div class="admin-badge">
-        Admin
-      </div>
-
-      <div
-        class="user-display"
-        id="adminUsername"
-      >
-        —
-      </div>
-
-      <button
-        class="top-btn"
-        onclick="goToCanvas()"
-      >
-        Canvas
-      </button>
-
-      <button
-        class="top-btn"
-        onclick="logout()"
-      >
-        Disconnect
-      </button>
-
-    </div>
+</div>
+```
 
   </header>
-
 
   <!-- ==========================================
        ACCESS DENIED
@@ -1109,33 +1017,35 @@
     id="accessDenied"
   >
 
-    <div class="access-box">
+```
+<div class="access-card">
 
-      <div class="access-icon">
-        🔒
-      </div>
+  <div class="access-icon">
+    !
+  </div>
 
-      <h2>
-        Access Denied
-      </h2>
+  <h1>
+    Access Denied
+  </h1>
 
-      <p>
-        You do not have permission to access
-        the Middle Eastern Mixing administration
-        panel.
-      </p>
+  <p>
+    Your Discord account does not have permission
+    to access the administration panel.
+  </p>
 
-      <button
-        class="gold-btn"
-        onclick="goToCanvas()"
-      >
-        Return to Canvas
-      </button>
+  <br>
 
-    </div>
+  <button
+    class="btn"
+    onclick="window.location.href='/'"
+  >
+    Return to Canvas
+  </button>
+
+</div>
+```
 
   </section>
-
 
   <!-- ==========================================
        ADMIN PAGE
@@ -1144,108 +1054,154 @@
   <main
     class="page"
     id="adminPage"
-    style="display:none"
   >
 
-    <div class="page-header">
+```
+<div class="page-header">
 
-      <div>
+  <h1>
+    Administration
+  </h1>
 
-        <div class="page-title">
-          Administration
-        </div>
+  <p>
+    Manage users, pixels, clans and the community canvas.
+  </p>
 
-        <div class="page-subtitle">
-          Manage the Middle Eastern Mixing
-          community canvas.
-        </div>
+</div>
 
-      </div>
 
+<!-- ==========================================
+     STATS
+========================================== -->
+
+<section class="stats-grid">
+
+  <div class="stat-card">
+    <div class="stat-label">
+      Users
     </div>
 
+    <div
+      class="stat-value"
+      id="statUsers"
+    >
+      —
+    </div>
+  </div>
 
-    <!-- ========================================
-         STATISTICS
-    ========================================= -->
+  <div class="stat-card">
+    <div class="stat-label">
+      Board Pixels
+    </div>
 
-    <section class="stats">
+    <div
+      class="stat-value"
+      id="statPixels"
+    >
+      —
+    </div>
+  </div>
 
-      <div class="stat">
+  <div class="stat-card">
+    <div class="stat-label">
+      Pixels Placed
+    </div>
 
-        <div class="stat-label">
+    <div
+      class="stat-value"
+      id="statPlaced"
+    >
+      —
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">
+      Banned
+    </div>
+
+    <div
+      class="stat-value"
+      id="statBanned"
+    >
+      —
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">
+      Clans
+    </div>
+
+    <div
+      class="stat-value"
+      id="statClans"
+    >
+      —
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ==========================================
+     CONTENT
+========================================== -->
+
+<div class="content-grid">
+
+
+  <!-- ========================================
+       LEFT COLUMN
+  ======================================== -->
+
+  <div class="left-column">
+
+
+    <!-- USERS -->
+
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <h2>
           Users
-        </div>
+        </h2>
 
-        <div
-          class="stat-value"
-          id="statUsers"
-        >
-          —
-        </div>
+        <span id="userCount">
+          0 users
+        </span>
 
       </div>
 
+      <div class="panel-body">
 
-      <div class="stat">
+        <div class="search-row">
 
-        <div class="stat-label">
-          Board Pixels
+          <input
+            id="userSearch"
+            class="search-input"
+            type="text"
+            placeholder="Search username or Discord ID..."
+            autocomplete="off"
+          >
+
+          <button
+            class="btn"
+            onclick="loadUsers()"
+          >
+            Search
+          </button>
+
         </div>
 
         <div
-          class="stat-value"
-          id="statPixels"
+          class="users-list"
+          id="usersList"
         >
-          —
-        </div>
-
-      </div>
-
-
-      <div class="stat">
-
-        <div class="stat-label">
-          Pixels Placed
-        </div>
-
-        <div
-          class="stat-value"
-          id="statPlaced"
-        >
-          —
-        </div>
-
-      </div>
-
-
-      <div class="stat">
-
-        <div class="stat-label">
-          Banned Users
-        </div>
-
-        <div
-          class="stat-value"
-          id="statBanned"
-        >
-          —
-        </div>
-
-      </div>
-
-
-      <div class="stat">
-
-        <div class="stat-label">
-          Clans
-        </div>
-
-        <div
-          class="stat-value"
-          id="statClans"
-        >
-          —
+          <div class="loading">
+            Loading users...
+          </div>
         </div>
 
       </div>
@@ -1253,223 +1209,247 @@
     </section>
 
 
-    <!-- ========================================
-         MAIN CONTENT
-    ========================================= -->
+    <!-- ADMIN LOGS -->
 
-    <div class="content-grid">
+    <section class="panel">
 
+      <div class="panel-header">
 
-      <!-- ======================================
-           USERS
-      ====================================== -->
+        <h2>
+          Admin Logs
+        </h2>
 
-      <section class="panel">
+        <span>
+          Latest 100
+        </span>
 
-        <div class="panel-header">
+      </div>
 
-          <div class="panel-title">
-            User Management
+      <div class="panel-body">
+
+        <div
+          class="logs"
+          id="logsList"
+        >
+          <div class="loading">
+            Loading logs...
           </div>
-
         </div>
 
-        <div class="panel-body">
+      </div>
 
-          <div class="search">
+    </section>
 
-            <input
-              type="text"
-              id="userSearch"
-              placeholder="Search username or Discord ID..."
-              autocomplete="off"
+
+  </div>
+
+
+  <!-- ========================================
+       RIGHT COLUMN
+  ======================================== -->
+
+  <div class="right-column">
+
+
+    <!-- SELECTED USER -->
+
+    <section class="panel">
+
+      <div class="panel-header">
+
+        <h2>
+          Selected User
+        </h2>
+
+        <span>
+          User management
+        </span>
+
+      </div>
+
+      <div class="panel-body">
+
+        <div
+          id="noSelectedUser"
+          class="empty"
+        >
+          Select a user from the list.
+        </div>
+
+
+        <div
+          id="selectedUser"
+          class="selected-user"
+        >
+
+          <div class="selected-user-head">
+
+            <div
+              class="avatar"
+              id="selectedAvatar"
             >
-
-            <button
-              class="gold-btn"
-              onclick="searchUsers()"
-            >
-              Search
-            </button>
-
-          </div>
-
-
-          <div
-            class="user-list"
-            id="userList"
-          >
-
-            <div class="loading">
-              Loading users...
             </div>
 
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ======================================
-           USER DETAIL
-      ====================================== -->
-
-      <section class="panel">
-
-        <div class="panel-header">
-
-          <div class="panel-title">
-            Selected User
-          </div>
-
-        </div>
-
-        <div class="panel-body">
-
-          <div
-            class="empty"
-            id="noUserSelected"
-          >
-            Select a user to view their details.
-          </div>
-
-
-          <div
-            class="detail"
-            id="userDetail"
-          >
-
-            <div class="detail-header">
+            <div>
 
               <div
-                class="detail-avatar"
-                id="detailAvatar"
+                class="selected-user-name"
+                id="selectedName"
               >
-                ?
+                —
               </div>
 
-              <div>
-
-                <div
-                  class="detail-name"
-                  id="detailName"
-                >
-                  —
-                </div>
-
-                <div
-                  class="detail-id"
-                  id="detailId"
-                >
-                  —
-                </div>
-
+              <div
+                class="selected-user-discord"
+                id="selectedDiscord"
+              >
+                —
               </div>
 
             </div>
 
+          </div>
 
-            <div class="detail-row">
 
+          <div class="user-details">
+
+            <div class="detail">
+              <span>
+                Discord ID
+              </span>
+
+              <span id="selectedId">
+                —
+              </span>
+            </div>
+
+            <div class="detail">
               <span>
                 Balance
               </span>
 
-              <span id="detailBalance">
+              <span id="selectedBalance">
                 —
               </span>
-
             </div>
 
-
-            <div class="detail-row">
-
+            <div class="detail">
               <span>
                 Pixels Placed
               </span>
 
-              <span id="detailPlaced">
+              <span id="selectedPlaced">
                 —
               </span>
-
             </div>
 
-
-            <div class="detail-row">
-
+            <div class="detail">
               <span>
                 Clan
               </span>
 
-              <span id="detailClan">
+              <span id="selectedClan">
                 None
               </span>
-
             </div>
 
-
-            <div class="detail-row">
-
-              <span>
-                Account Created
-              </span>
-
-              <span id="detailCreated">
-                —
-              </span>
-
-            </div>
-
-
-            <div class="detail-row">
-
+            <div class="detail">
               <span>
                 Status
               </span>
 
-              <span id="detailStatus">
-                —
+              <span id="selectedStatus">
+                Active
               </span>
-
             </div>
 
+            <div class="detail">
+              <span>
+                Created
+              </span>
 
-            <!-- GIVE PIXELS -->
+              <span id="selectedCreated">
+                —
+              </span>
+            </div>
 
-            <div
-              class="section-title"
-              style="margin-top:18px"
-            >
+          </div>
+
+
+          <!-- GIVE PIXELS -->
+
+          <div class="action-section">
+
+            <div class="action-title">
               Give Pixels
             </div>
 
-            <div class="pixel-form">
+            <div class="action-row">
 
               <input
+                id="giveAmount"
+                class="amount-input"
                 type="number"
-                id="pixelAmount"
                 min="1"
                 max="100000"
                 placeholder="Amount"
               >
 
               <button
-                class="gold-btn"
+                class="btn gold"
                 onclick="givePixels()"
               >
-                Give
+                Give Pixels
               </button>
 
             </div>
 
+          </div>
 
-            <!-- ACTIONS -->
 
-            <div class="detail-actions">
+          <!-- REMOVE PIXELS -->
+
+          <div class="action-section">
+
+            <div class="action-title">
+              Remove Pixels
+            </div>
+
+            <div class="action-row">
+
+              <input
+                id="removeAmount"
+                class="amount-input"
+                type="number"
+                min="1"
+                max="100000"
+                placeholder="Amount"
+              >
 
               <button
-                class="action-btn danger-btn"
+                class="btn"
+                onclick="removePixels()"
+              >
+                Remove Pixels
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- BAN -->
+
+          <div class="action-section">
+
+            <div class="action-title">
+              Account Moderation
+            </div>
+
+            <div class="action-row">
+
+              <button
+                class="btn red"
                 id="banButton"
                 onclick="banSelectedUser()"
               >
@@ -1477,7 +1457,7 @@
               </button>
 
               <button
-                class="action-btn"
+                class="btn green"
                 id="unbanButton"
                 onclick="unbanSelectedUser()"
               >
@@ -1490,80 +1470,140 @@
 
         </div>
 
-      </section>
+      </div>
+
+    </section>
 
 
-      <!-- ======================================
-           BOARD MANAGEMENT
-      ====================================== -->
+    <!-- BOARD MANAGEMENT -->
 
-      <section class="panel">
+    <section class="panel">
 
-        <div class="panel-header">
+      <div class="panel-header">
 
-          <div class="panel-title">
-            Board Management
+        <h2>
+          Board Management
+        </h2>
+
+        <span>
+          Canvas controls
+        </span>
+
+      </div>
+
+      <div class="panel-body">
+
+        <div class="board-grid">
+
+          <div class="board-stat">
+
+            <div class="board-stat-label">
+              Board Size
+            </div>
+
+            <div
+              class="board-stat-value"
+              id="boardSize"
+            >
+              200 × 200
+            </div>
+
+          </div>
+
+          <div class="board-stat">
+
+            <div class="board-stat-label">
+              Total Cells
+            </div>
+
+            <div
+              class="board-stat-value"
+              id="boardTotal"
+            >
+              40,000
+            </div>
+
+          </div>
+
+          <div class="board-stat">
+
+            <div class="board-stat-label">
+              Occupied
+            </div>
+
+            <div
+              class="board-stat-value"
+              id="boardOccupied"
+            >
+              —
+            </div>
+
           </div>
 
         </div>
 
-        <div class="panel-body">
 
-          <div class="board-info">
+        <!-- DELETE INDIVIDUAL PIXEL -->
 
-            <div class="board-box">
+        <div class="action-section">
 
-              <span>
-                Board Size
-              </span>
+          <div class="action-title">
+            Delete Individual Pixel
+          </div>
 
-              <strong>
-                200 × 200
-              </strong>
+          <div class="help-text">
+            Enter the pixel's X and Y coordinates.
+            Coordinates range from 0 to 199.
+          </div>
 
-            </div>
+          <div class="coordinate-grid">
 
-            <div class="board-box">
+            <input
+              id="deletePixelX"
+              class="coord-input"
+              type="number"
+              min="0"
+              max="199"
+              placeholder="X coordinate"
+            >
 
-              <span>
-                Total Cells
-              </span>
-
-              <strong>
-                40,000
-              </strong>
-
-            </div>
-
-            <div class="board-box">
-
-              <span>
-                Occupied
-              </span>
-
-              <strong id="boardOccupied">
-                —
-              </strong>
-
-            </div>
-
-            <div class="board-box">
-
-              <span>
-                Empty
-              </span>
-
-              <strong id="boardEmpty">
-                —
-              </strong>
-
-            </div>
+            <input
+              id="deletePixelY"
+              class="coord-input"
+              type="number"
+              min="0"
+              max="199"
+              placeholder="Y coordinate"
+            >
 
           </div>
 
+          <button
+            class="btn red"
+            onclick="deletePixel()"
+          >
+            Delete Pixel
+          </button>
+
+        </div>
+
+
+        <!-- RESET -->
+
+        <div class="danger-box">
+
+          <div class="danger-box-title">
+            Reset Entire Board
+          </div>
+
+          <p>
+            This permanently removes every placed
+            pixel from the canvas. User balances and
+            placement statistics are not changed.
+          </p>
 
           <button
-            class="reset-btn"
+            class="btn red"
             onclick="resetBoard()"
           >
             Reset Entire Board
@@ -1571,44 +1611,17 @@
 
         </div>
 
-      </section>
+      </div>
+
+    </section>
 
 
-      <!-- ======================================
-           ADMIN LOGS
-      ====================================== -->
+  </div>
 
-      <section class="panel">
-
-        <div class="panel-header">
-
-          <div class="panel-title">
-            Admin Activity
-          </div>
-
-        </div>
-
-        <div class="panel-body">
-
-          <div
-            class="logs"
-            id="logs"
-          >
-
-            <div class="loading">
-              Loading logs...
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </div>
+</div>
+```
 
   </main>
-
 
   <!-- ==========================================
        TOAST
@@ -1619,1312 +1632,1461 @@
     id="toast"
   ></div>
 
+  <script>
 
-<script>
-
-  /* ==========================================
-     STATE
-  ========================================== */
-
-  let currentAdmin = null;
-
-  let selectedUser = null;
-
-  let users = [];
+    let currentAdmin = null;
+    let selectedUser = null;
 
 
-  /* ==========================================
-     TOAST
-  ========================================== */
+    /* ==========================================
+       TOAST
+    ========================================== */
 
-  let toastTimer = null;
+    function showToast(message, type = "") {
 
-  function showToast(message) {
+      const toast =
+        document.getElementById("toast");
 
-    const toast =
-      document.getElementById("toast");
+      toast.textContent = message;
 
-    if (!toast) {
-      return;
+      toast.className =
+        "toast show " + type;
+
+      clearTimeout(
+        window.toastTimer
+      );
+
+      window.toastTimer =
+        setTimeout(() => {
+
+          toast.className =
+            "toast";
+
+        }, 3000);
     }
 
-    toast.textContent =
-      message;
 
-    toast.classList.add("show");
+    /* ==========================================
+       API
+    ========================================== */
 
-    clearTimeout(toastTimer);
-
-    toastTimer =
-      setTimeout(() => {
-
-        toast.classList.remove("show");
-
-      }, 2400);
-  }
-
-
-  /* ==========================================
-     AUTH CHECK
-  ========================================== */
-
-  async function checkAdmin() {
-
-    try {
+    async function adminAction(
+      action,
+      extra = {}
+    ) {
 
       const response =
-        await fetch(
-          "/api/auth/me",
-          {
-            cache: "no-store"
-          }
-        );
+        await fetch("/api/admin", {
+          method: "POST",
 
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-      if (!response.ok) {
-        throw new Error(
-          "Authentication failed"
-        );
-      }
-
+          body: JSON.stringify({
+            action,
+            ...extra
+          })
+        });
 
       const data =
-        await response.json();
+        await response.json()
+          .catch(() => ({}));
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Admin request failed."
+        );
+
+      }
+
+      return data;
+    }
 
 
-      if (
-        !data.authenticated ||
-        !data.user
-      ) {
+    /* ==========================================
+       AUTH CHECK
+    ========================================== */
+
+    async function checkAdmin() {
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/auth/me",
+            {
+              cache: "no-store"
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (
+          !data.authenticated ||
+          !data.user
+        ) {
+
+          showAccessDenied();
+
+          return false;
+        }
+
+        currentAdmin =
+          data.user;
+
+        document.getElementById(
+          "adminUsername"
+        ).textContent =
+          data.user.username ||
+          data.user.discordUsername ||
+          "Admin";
+
+        /*
+          The real permission check happens
+          server-side through /api/admin.
+        */
+
+        const test =
+          await adminAction("stats")
+            .catch(error => ({
+              __error:
+                error.message
+            }));
+
+        if (test.__error) {
+
+          if (
+            test.__error
+              .toLowerCase()
+              .includes("permission") ||
+            test.__error
+              .toLowerCase()
+              .includes("admin")
+          ) {
+
+            showAccessDenied();
+
+            return false;
+          }
+
+          /*
+            If this was a temporary API issue,
+            still show the page and let the
+            normal dashboard load report it.
+          */
+
+        }
+
+        document.getElementById(
+          "adminPage"
+        ).style.display =
+          "block";
+
+        await loadDashboard();
+
+        return true;
+
+      } catch (error) {
+
+        console.error(
+          "Admin check error:",
+          error
+        );
 
         showAccessDenied();
 
         return false;
       }
+    }
 
 
-      /*
-        The actual admin check is performed
-        by /api/admin.js.
-
-        We can safely display the panel here,
-        but every privileged API request is
-        still checked server-side.
-      */
-
-      currentAdmin =
-        data.user;
-
-
-      const username =
-        document.getElementById(
-          "adminUsername"
-        );
-
-
-      if (username) {
-
-        username.textContent =
-          currentAdmin.username ||
-          "Discord User";
-
-      }
-
+    function showAccessDenied() {
 
       document.getElementById(
         "adminPage"
       ).style.display =
-        "block";
+        "none";
 
-
-      return true;
-
-
-    } catch (error) {
-
-      console.error(
-        "Admin authentication error:",
-        error
-      );
-
-      showAccessDenied();
-
-      return false;
-    }
-  }
-
-
-  /* ==========================================
-     ACCESS DENIED
-  ========================================== */
-
-  function showAccessDenied() {
-
-    document.getElementById(
-      "adminPage"
-    ).style.display =
-      "none";
-
-    document.getElementById(
-      "accessDenied"
-    ).style.display =
-      "flex";
-  }
-
-
-  /* ==========================================
-     LOAD DASHBOARD
-  ========================================== */
-
-  async function loadDashboard() {
-
-    /*
-      The current admin API only exposes
-      modification actions.
-
-      Statistics will automatically populate
-      once the expanded admin API is installed.
-    */
-
-    loadUsers();
-
-    loadLogs();
-
-    loadStats();
-  }
-
-
-  /* ==========================================
-     LOAD USERS
-  ========================================== */
-
-  async function loadUsers(search = "") {
-
-    const list =
       document.getElementById(
-        "userList"
-      );
-
-    list.innerHTML =
-      `<div class="loading">
-        Loading users...
-      </div>`;
+        "accessDenied"
+      ).style.display =
+        "flex";
+    }
 
 
-    /*
-      This expects the admin API to support:
+    /* ==========================================
+       DASHBOARD
+    ========================================== */
 
-      action: "listUsers"
-    */
+    async function loadDashboard() {
 
-    try {
+      await Promise.all([
+        loadUsers(),
+        loadStats(),
+        loadLogs()
+      ]);
 
-      const response =
-        await fetch(
-          "/api/admin",
-          {
-            method: "POST",
+    }
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
 
-            body: JSON.stringify({
-              action:
-                "listUsers",
-              search
-            })
-          }
+    /* ==========================================
+       STATS
+    ========================================== */
+
+    async function loadStats() {
+
+      try {
+
+        const data =
+          await adminAction(
+            "stats"
+          );
+
+        document.getElementById(
+          "statUsers"
+        ).textContent =
+          Number(
+            data.users || 0
+          ).toLocaleString();
+
+        document.getElementById(
+          "statPixels"
+        ).textContent =
+          Number(
+            data.pixels || 0
+          ).toLocaleString();
+
+        document.getElementById(
+          "statPlaced"
+        ).textContent =
+          Number(
+            data.pixelsPlaced || 0
+          ).toLocaleString();
+
+        document.getElementById(
+          "statBanned"
+        ).textContent =
+          Number(
+            data.banned || 0
+          ).toLocaleString();
+
+        document.getElementById(
+          "statClans"
+        ).textContent =
+          Number(
+            data.clans || 0
+          ).toLocaleString();
+
+        document.getElementById(
+          "boardOccupied"
+        ).textContent =
+          Number(
+            data.pixels || 0
+          ).toLocaleString();
+
+      } catch (error) {
+
+        console.error(
+          "Stats error:",
+          error
         );
 
+        showToast(
+          error.message,
+          "error"
+        );
+      }
+    }
 
-      const data =
-        await response.json();
 
+    /* ==========================================
+       USERS
+    ========================================== */
 
-      if (!response.ok) {
+    async function loadUsers() {
 
-        if (
-          response.status === 403
-        ) {
+      const list =
+        document.getElementById(
+          "usersList"
+        );
 
-          showAccessDenied();
+      list.innerHTML =
+        '<div class="loading">Loading users...</div>';
+
+      try {
+
+        const search =
+          document.getElementById(
+            "userSearch"
+          ).value.trim();
+
+        const data =
+          await adminAction(
+            "listUsers",
+            {
+              search
+            }
+          );
+
+        const users =
+          data.users || [];
+
+        document.getElementById(
+          "userCount"
+        ).textContent =
+          `${users.length} user${
+            users.length === 1
+              ? ""
+              : "s"
+          }`;
+
+        if (!users.length) {
+
+          list.innerHTML =
+            '<div class="empty">No users found.</div>';
 
           return;
         }
 
-        throw new Error(
-          data.error ||
-          "Failed to load users"
-        );
-      }
+        list.innerHTML =
+          "";
 
+        users.forEach(
+          user => {
 
-      users =
-        Array.isArray(data.users)
-          ? data.users
-          : [];
+            const row =
+              document.createElement(
+                "div"
+              );
 
+            row.className =
+              "user-row";
 
-      renderUsers();
-
-
-    } catch (error) {
-
-      console.error(
-        "User loading error:",
-        error
-      );
-
-      list.innerHTML =
-        `<div class="empty">
-          ${escapeHtml(
-            error.message
-          )}
-        </div>`;
-    }
-  }
-
-
-  /* ==========================================
-     SEARCH USERS
-  ========================================== */
-
-  function searchUsers() {
-
-    const input =
-      document.getElementById(
-        "userSearch"
-      );
-
-    const search =
-      input
-        ? input.value.trim()
-        : "";
-
-    loadUsers(search);
-  }
-
-
-  document
-    .getElementById("userSearch")
-    .addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Enter"
-        ) {
-
-          searchUsers();
-        }
-
-      }
-    );
-
-
-  /* ==========================================
-     RENDER USERS
-  ========================================== */
-
-  function renderUsers() {
-
-    const list =
-      document.getElementById(
-        "userList"
-      );
-
-
-    if (!users.length) {
-
-      list.innerHTML =
-        `<div class="empty">
-          No users found.
-        </div>`;
-
-      return;
-    }
-
-
-    list.innerHTML =
-      users
-        .map(user => {
-
-          const name =
-            user.username ||
-            "Discord User";
-
-          const initial =
-            name
-              .charAt(0)
-              .toUpperCase();
-
-
-          const avatar =
-            user.avatar
-              ? `
-                <img
-                  src="https://cdn.discordapp.com/avatars/${encodeURIComponent(
-                    user._id
-                  )}/${encodeURIComponent(
-                    user.avatar
-                  )}.png?size=64"
-                  alt=""
-                >
-              `
-              : initial;
-
-
-          return `
-            <button
-              class="user-item"
-              onclick="selectUser('${escapeJs(
+            if (
+              selectedUser &&
+              selectedUser._id ===
                 user._id
-              )}')"
-            >
+            ) {
 
-              <div class="user-avatar">
-                ${avatar}
-              </div>
+              row.classList.add(
+                "selected"
+              );
+            }
 
-              <div class="user-info">
+            const avatar =
+              document.createElement(
+                "div"
+              );
 
-                <div class="user-name">
-                  ${escapeHtml(name)}
-                </div>
+            avatar.className =
+              "avatar";
 
-                <div class="user-id">
-                  ${escapeHtml(user._id)}
-                </div>
+            if (user.avatar) {
 
-              </div>
+              const img =
+                document.createElement(
+                  "img"
+                );
 
-              <div class="user-balance">
+              img.src =
+                `https://cdn.discordapp.com/avatars/${user._id}/${user.avatar}.png?size=128`;
 
-                Balance
+              img.alt = "";
 
-                <strong>
-                  ${Number(
-                    user.balance || 0
-                  ).toLocaleString()}
-                </strong>
+              avatar.appendChild(
+                img
+              );
 
-              </div>
+            } else {
 
-            </button>
-          `;
+              avatar.textContent =
+                (
+                  user.username ||
+                  "?"
+                )
+                  .charAt(0)
+                  .toUpperCase();
 
-        })
-        .join("");
-  }
+            }
 
+            const info =
+              document.createElement(
+                "div"
+              );
 
-  /* ==========================================
-     SELECT USER
-  ========================================== */
+            info.className =
+              "user-info";
 
-  function selectUser(userId) {
+            const name =
+              document.createElement(
+                "div"
+              );
 
-    const user =
-      users.find(
-        item =>
-          item._id === userId
-      );
+            name.className =
+              "user-name";
 
+            name.textContent =
+              user.username ||
+              user.discordUsername ||
+              "Unknown User";
 
-    if (!user) {
-      return;
+            const id =
+              document.createElement(
+                "div"
+              );
+
+            id.className =
+              "user-id";
+
+            id.textContent =
+              user._id;
+
+            info.appendChild(name);
+            info.appendChild(id);
+
+            const balance =
+              document.createElement(
+                "div"
+              );
+
+            balance.className =
+              "user-balance";
+
+            balance.textContent =
+              `${Number(
+                user.balance || 0
+              ).toLocaleString()} px`;
+
+            row.appendChild(
+              avatar
+            );
+
+            row.appendChild(
+              info
+            );
+
+            if (user.banned) {
+
+              const ban =
+                document.createElement(
+                  "span"
+                );
+
+              ban.className =
+                "ban-pill";
+
+              ban.textContent =
+                "Banned";
+
+              row.appendChild(
+                ban
+              );
+            }
+
+            row.appendChild(
+              balance
+            );
+
+            row.onclick =
+              () => selectUser(user);
+
+            list.appendChild(row);
+
+          }
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Users error:",
+          error
+        );
+
+        list.innerHTML =
+          `<div class="empty">${
+            escapeHtml(
+              error.message
+            )
+          }</div>`;
+
+      }
+
     }
 
 
-    selectedUser =
-      user;
+    /* ==========================================
+       SELECT USER
+    ========================================== */
 
+    function selectUser(user) {
 
-    document.getElementById(
-      "noUserSelected"
-    ).style.display =
-      "none";
+      selectedUser =
+        user;
 
-
-    document.getElementById(
-      "userDetail"
-    ).classList.add("active");
-
-
-    const avatar =
       document.getElementById(
-        "detailAvatar"
-      );
+        "noSelectedUser"
+      ).style.display =
+        "none";
 
+      document.getElementById(
+        "selectedUser"
+      ).style.display =
+        "block";
 
-    if (user.avatar) {
+      document.getElementById(
+        "selectedName"
+      ).textContent =
+        user.username ||
+        user.discordUsername ||
+        "Unknown User";
+
+      document.getElementById(
+        "selectedDiscord"
+      ).textContent =
+        user.discordUsername
+          ? `@${user.discordUsername}`
+          : "Discord user";
+
+      document.getElementById(
+        "selectedId"
+      ).textContent =
+        user._id;
+
+      document.getElementById(
+        "selectedBalance"
+      ).textContent =
+        `${Number(
+          user.balance || 0
+        ).toLocaleString()} pixels`;
+
+      document.getElementById(
+        "selectedPlaced"
+      ).textContent =
+        Number(
+          user.pixelsPlaced || 0
+        ).toLocaleString();
+
+      document.getElementById(
+        "selectedClan"
+      ).textContent =
+        user.clanId ||
+        "None";
+
+      document.getElementById(
+        "selectedStatus"
+      ).textContent =
+        user.banned
+          ? "Banned"
+          : "Active";
+
+      document.getElementById(
+        "selectedCreated"
+      ).textContent =
+        user.createdAt
+          ? formatDate(
+              user.createdAt
+            )
+          : "Unknown";
+
+      const avatar =
+        document.getElementById(
+          "selectedAvatar"
+        );
 
       avatar.innerHTML =
-        `<img
-          src="https://cdn.discordapp.com/avatars/${encodeURIComponent(
+        "";
+
+      if (user.avatar) {
+
+        const img =
+          document.createElement(
+            "img"
+          );
+
+        img.src =
+          `https://cdn.discordapp.com/avatars/${user._id}/${user.avatar}.png?size=128`;
+
+        img.alt = "";
+
+        avatar.appendChild(
+          img
+        );
+
+      } else {
+
+        avatar.textContent =
+          (
+            user.username ||
+            "?"
+          )
+            .charAt(0)
+            .toUpperCase();
+
+      }
+
+      document.getElementById(
+        "banButton"
+      ).style.display =
+        user.banned
+          ? "none"
+          : "inline-block";
+
+      document.getElementById(
+        "unbanButton"
+      ).style.display =
+        user.banned
+          ? "inline-block"
+          : "none";
+
+      /*
+        Refresh list so selected row
+        gets highlighted.
+      */
+
+      document
+        .querySelectorAll(
+          ".user-row"
+        )
+        .forEach(row => {
+          row.classList.remove(
+            "selected"
+          );
+        });
+
+      /*
+        Find matching row by user ID.
+      */
+
+      document
+        .querySelectorAll(
+          ".user-row"
+        )
+        .forEach(row => {
+
+          if (
+            row.querySelector(
+              ".user-id"
+            )?.textContent ===
             user._id
-          )}/${encodeURIComponent(
-            user.avatar
-          )}.png?size=128"
-          alt=""
-        >`;
+          ) {
 
-    } else {
+            row.classList.add(
+              "selected"
+            );
+          }
 
-      avatar.textContent =
-        (user.username || "?")
-          .charAt(0)
-          .toUpperCase();
+        });
+
     }
 
 
-    document.getElementById(
-      "detailName"
-    ).textContent =
-      user.username ||
-      "Discord User";
+    /* ==========================================
+       GIVE PIXELS
+    ========================================== */
 
+    async function givePixels() {
 
-    document.getElementById(
-      "detailId"
-    ).textContent =
-      user._id;
+      if (!selectedUser) {
 
+        showToast(
+          "Select a user first.",
+          "error"
+        );
 
-    document.getElementById(
-      "detailBalance"
-    ).textContent =
-      Number(
-        user.balance || 0
-      ).toLocaleString();
+        return;
+      }
 
+      const input =
+        document.getElementById(
+          "giveAmount"
+        );
 
-    document.getElementById(
-      "detailPlaced"
-    ).textContent =
-      Number(
-        user.pixelsPlaced || 0
-      ).toLocaleString();
+      const amount =
+        Number(
+          input.value
+        );
 
+      if (
+        !Number.isInteger(
+          amount
+        ) ||
+        amount <= 0
+      ) {
 
-    document.getElementById(
-      "detailClan"
-    ).textContent =
-      user.clanId ||
-      "None";
+        showToast(
+          "Enter a valid pixel amount.",
+          "error"
+        );
 
+        return;
+      }
 
-    document.getElementById(
-      "detailCreated"
-    ).textContent =
-      formatDate(
-        user.createdAt
-      );
+      try {
 
-
-    const banned =
-      user.banned === true;
-
-
-    document.getElementById(
-      "detailStatus"
-    ).textContent =
-      banned
-        ? "Banned"
-        : "Active";
-
-
-    document.getElementById(
-      "banButton"
-    ).style.display =
-      banned
-        ? "none"
-        : "block";
-
-
-    document.getElementById(
-      "unbanButton"
-    ).style.display =
-      banned
-        ? "block"
-        : "none";
-  }
-
-
-  /* ==========================================
-     ADMIN ACTION
-  ========================================== */
-
-  async function adminAction(
-    action,
-    extra = {}
-  ) {
-
-    if (!selectedUser) {
-
-      showToast(
-        "Select a user first."
-      );
-
-      return null;
-    }
-
-
-    try {
-
-      const response =
-        await fetch(
-          "/api/admin",
+        await adminAction(
+          "givePixels",
           {
-            method: "POST",
+            userId:
+              selectedUser._id,
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body: JSON.stringify({
-
-              action,
-
-              userId:
-                selectedUser._id,
-
-              ...extra
-
-            })
+            amount
           }
         );
 
+        showToast(
+          `${amount.toLocaleString()} pixels given.`,
+          "success"
+        );
+
+        input.value =
+          "";
+
+        await refreshSelectedUser();
+
+        await loadStats();
+
+      } catch (error) {
+
+        showToast(
+          error.message,
+          "error"
+        );
+
+      }
+
+    }
+
+
+    /* ==========================================
+       REMOVE PIXELS
+    ========================================== */
+
+    async function removePixels() {
+
+      if (!selectedUser) {
+
+        showToast(
+          "Select a user first.",
+          "error"
+        );
+
+        return;
+      }
+
+      const input =
+        document.getElementById(
+          "removeAmount"
+        );
+
+      const amount =
+        Number(
+          input.value
+        );
+
+      if (
+        !Number.isInteger(
+          amount
+        ) ||
+        amount <= 0
+      ) {
+
+        showToast(
+          "Enter a valid pixel amount.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        !confirm(
+          `Remove ${amount.toLocaleString()} pixels from ${selectedUser.username || selectedUser.discordUsername}?`
+        )
+      ) {
+
+        return;
+      }
+
+      try {
+
+        await adminAction(
+          "removePixels",
+          {
+            userId:
+              selectedUser._id,
+
+            amount
+          }
+        );
+
+        showToast(
+          `${amount.toLocaleString()} pixels removed.`,
+          "success"
+        );
+
+        input.value =
+          "";
+
+        await refreshSelectedUser();
+
+        await loadStats();
+
+      } catch (error) {
+
+        showToast(
+          error.message,
+          "error"
+        );
+
+      }
+
+    }
+
+
+    /* ==========================================
+       BAN
+    ========================================== */
+
+    async function banSelectedUser() {
+
+      if (!selectedUser) {
+
+        showToast(
+          "Select a user first.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        !confirm(
+          `Ban ${selectedUser.username || selectedUser.discordUsername}?`
+        )
+      ) {
+
+        return;
+      }
+
+      try {
+
+        await adminAction(
+          "ban",
+          {
+            userId:
+              selectedUser._id
+          }
+        );
+
+        showToast(
+          "User banned.",
+          "success"
+        );
+
+        await refreshSelectedUser();
+
+        await loadStats();
+
+      } catch (error) {
+
+        showToast(
+          error.message,
+          "error"
+        );
+
+      }
+
+    }
+
+
+    /* ==========================================
+       UNBAN
+    ========================================== */
+
+    async function unbanSelectedUser() {
+
+      if (!selectedUser) {
+
+        showToast(
+          "Select a user first.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        !confirm(
+          `Unban ${selectedUser.username || selectedUser.discordUsername}?`
+        )
+      ) {
+
+        return;
+      }
+
+      try {
+
+        await adminAction(
+          "unban",
+          {
+            userId:
+              selectedUser._id
+          }
+        );
+
+        showToast(
+          "User unbanned.",
+          "success"
+        );
+
+        await refreshSelectedUser();
+
+        await loadStats();
+
+      } catch (error) {
+
+        showToast(
+          error.message,
+          "error"
+        );
+
+      }
+
+    }
+
+
+    /* ==========================================
+       REFRESH SELECTED USER
+    ========================================== */
+
+    async function refreshSelectedUser() {
+
+      if (!selectedUser) {
+        return;
+      }
+
+      const selectedId =
+        selectedUser._id;
+
+      const search =
+        document.getElementById(
+          "userSearch"
+        ).value.trim();
 
       const data =
-        await response.json();
+        await adminAction(
+          "listUsers",
+          {
+            search
+          }
+        );
+
+      const updated =
+        (data.users || [])
+          .find(
+            user =>
+              user._id ===
+              selectedId
+          );
+
+      if (updated) {
+
+        selectedUser =
+          updated;
+
+        selectUser(
+          updated
+        );
+
+      }
+
+      await loadUsers();
+
+    }
 
 
-      if (!response.ok) {
+    /* ==========================================
+       DELETE PIXEL
+    ========================================== */
+
+    async function deletePixel() {
+
+      const x =
+        Number(
+          document.getElementById(
+            "deletePixelX"
+          ).value
+        );
+
+      const y =
+        Number(
+          document.getElementById(
+            "deletePixelY"
+          ).value
+        );
+
+      if (
+        !Number.isInteger(x) ||
+        !Number.isInteger(y) ||
+        x < 0 ||
+        x >= 200 ||
+        y < 0 ||
+        y >= 200
+      ) {
+
+        showToast(
+          "Coordinates must be between 0 and 199.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        !confirm(
+          `Delete pixel at (${x}, ${y})?`
+        )
+      ) {
+
+        return;
+      }
+
+      try {
+
+        const data =
+          await adminAction(
+            "deletePixel",
+            {
+              x,
+              y
+            }
+          );
 
         if (
-          response.status === 403
+          data.deleted
         ) {
 
-          showAccessDenied();
+          showToast(
+            `Pixel (${x}, ${y}) deleted.`,
+            "success"
+          );
 
-          return null;
+        } else {
+
+          showToast(
+            `There was no pixel at (${x}, ${y}).`,
+            "error"
+          );
+
         }
 
+        document.getElementById(
+          "deletePixelX"
+        ).value = "";
 
-        throw new Error(
-          data.error ||
-          "Admin operation failed"
+        document.getElementById(
+          "deletePixelY"
+        ).value = "";
+
+        await loadStats();
+
+        await loadLogs();
+
+      } catch (error) {
+
+        showToast(
+          error.message,
+          "error"
         );
+
       }
 
-
-      return data;
-
-
-    } catch (error) {
-
-      console.error(
-        "Admin action error:",
-        error
-      );
-
-      showToast(
-        error.message
-      );
-
-      return null;
-    }
-  }
-
-
-  /* ==========================================
-     BAN
-  ========================================== */
-
-  async function banSelectedUser() {
-
-    if (!selectedUser) {
-      return;
     }
 
 
-    const confirmed =
-      confirm(
-        `Ban ${selectedUser.username || "this user"}?`
-      );
-
-
-    if (!confirmed) {
-      return;
-    }
-
-
-    const result =
-      await adminAction(
-        "ban"
-      );
-
-
-    if (
-      result &&
-      result.success
-    ) {
-
-      selectedUser.banned =
-        true;
-
-
-      selectUser(
-        selectedUser._id
-      );
-
-
-      showToast(
-        "User banned."
-      );
-
-
-      loadUsers(
-        document.getElementById(
-          "userSearch"
-        ).value.trim()
-      );
-
-      loadLogs();
-
-      loadStats();
-    }
-  }
-
-
-  /* ==========================================
-     UNBAN
-  ========================================== */
-
-  async function unbanSelectedUser() {
-
-    if (!selectedUser) {
-      return;
-    }
-
-
-    const result =
-      await adminAction(
-        "unban"
-      );
-
-
-    if (
-      result &&
-      result.success
-    ) {
-
-      selectedUser.banned =
-        false;
-
-
-      selectUser(
-        selectedUser._id
-      );
-
-
-      showToast(
-        "User unbanned."
-      );
-
-
-      loadUsers(
-        document.getElementById(
-          "userSearch"
-        ).value.trim()
-      );
-
-      loadLogs();
-
-      loadStats();
-    }
-  }
-
-
-  /* ==========================================
-     GIVE PIXELS
-  ========================================== */
-
-  async function givePixels() {
-
-    if (!selectedUser) {
-
-      showToast(
-        "Select a user first."
-      );
-
-      return;
-    }
-
-
-    const input =
-      document.getElementById(
-        "pixelAmount"
-      );
-
-
-    const amount =
-      Number(
-        input.value
-      );
-
-
-    if (
-      !Number.isInteger(amount) ||
-      amount <= 0 ||
-      amount > 100000
-    ) {
-
-      showToast(
-        "Enter an amount between 1 and 100,000."
-      );
-
-      return;
-    }
-
-
-    const result =
-      await adminAction(
-        "givePixels",
-        {
-          amount
-        }
-      );
-
-
-    if (
-      result &&
-      result.success
-    ) {
-
-      selectedUser.balance =
-        Number(
-          selectedUser.balance || 0
-        ) + amount;
-
-
-      selectUser(
-        selectedUser._id
-      );
-
-
-      input.value = "";
-
-
-      showToast(
-        `Added ${amount.toLocaleString()} pixels.`
-      );
-
-
-      loadUsers(
-        document.getElementById(
-          "userSearch"
-        ).value.trim()
-      );
-
-      loadLogs();
-
-      loadStats();
-    }
-  }
-
-
-  /* ==========================================
-     STATS
-  ========================================== */
-
-  async function loadStats() {
-
-    try {
-
-      const response =
-        await fetch(
-          "/api/admin",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body: JSON.stringify({
-              action:
-                "stats"
-            })
-          }
+    /* ==========================================
+       RESET BOARD
+    ========================================== */
+
+    async function resetBoard() {
+
+      const first =
+        confirm(
+          "Are you sure you want to delete EVERY pixel from the board?"
         );
 
-
-      const data =
-        await response.json();
-
-
-      if (!response.ok) {
+      if (!first) {
         return;
       }
 
-
-      document.getElementById(
-        "statUsers"
-      ).textContent =
-        Number(
-          data.users || 0
-        ).toLocaleString();
-
-
-      document.getElementById(
-        "statPixels"
-      ).textContent =
-        Number(
-          data.pixels || 0
-        ).toLocaleString();
-
-
-      document.getElementById(
-        "statPlaced"
-      ).textContent =
-        Number(
-          data.pixelsPlaced || 0
-        ).toLocaleString();
-
-
-      document.getElementById(
-        "statBanned"
-      ).textContent =
-        Number(
-          data.banned || 0
-        ).toLocaleString();
-
-
-      document.getElementById(
-        "statClans"
-      ).textContent =
-        Number(
-          data.clans || 0
-        ).toLocaleString();
-
-
-      document.getElementById(
-        "boardOccupied"
-      ).textContent =
-        Number(
-          data.pixels || 0
-        ).toLocaleString();
-
-
-      document.getElementById(
-        "boardEmpty"
-      ).textContent =
-        Math.max(
-          0,
-          40000 -
-          Number(
-            data.pixels || 0
-          )
-        ).toLocaleString();
-
-
-    } catch (error) {
-
-      console.error(
-        "Stats error:",
-        error
-      );
-    }
-  }
-
-
-  /* ==========================================
-     LOGS
-  ========================================== */
-
-  async function loadLogs() {
-
-    const container =
-      document.getElementById(
-        "logs"
-      );
-
-
-    try {
-
-      const response =
-        await fetch(
-          "/api/admin",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body: JSON.stringify({
-              action:
-                "logs"
-            })
-          }
+      const second =
+        confirm(
+          "This cannot be undone. Continue?"
         );
 
-
-      const data =
-        await response.json();
-
-
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-          "Failed to load logs"
-        );
-      }
-
-
-      const logs =
-        Array.isArray(data.logs)
-          ? data.logs
-          : [];
-
-
-      if (!logs.length) {
-
-        container.innerHTML =
-          `<div class="empty">
-            No admin activity yet.
-          </div>`;
-
+      if (!second) {
         return;
       }
 
+      try {
 
-      container.innerHTML =
-        logs
-          .map(log => {
+        const data =
+          await adminAction(
+            "resetBoard"
+          );
 
-            return `
-              <div class="log">
+        showToast(
+          `${Number(
+            data.deleted || 0
+          ).toLocaleString()} pixels deleted.`,
+          "success"
+        );
 
-                <div class="log-top">
+        await loadStats();
 
-                  <span class="log-action">
-                    ${escapeHtml(
-                      log.action ||
-                      "action"
-                    )}
-                  </span>
+        await loadLogs();
 
-                  <span class="log-time">
-                    ${escapeHtml(
-                      formatDate(
-                        log.createdAt
-                      )
-                    )}
-                  </span>
+      } catch (error) {
 
-                </div>
+        showToast(
+          error.message,
+          "error"
+        );
 
-                <div class="log-target">
-                  Admin:
-                  ${escapeHtml(
-                    log.adminUserId ||
-                    "Unknown"
-                  )}
+      }
 
-                  <br>
-
-                  Target:
-                  ${escapeHtml(
-                    log.targetUserId ||
-                    "None"
-                  )}
-
-                  ${
-                    log.amount
-                      ? `<br>Amount: ${Number(
-                          log.amount
-                        ).toLocaleString()}`
-                      : ""
-                  }
-
-                </div>
-
-              </div>
-            `;
-
-          })
-          .join("");
-
-
-    } catch (error) {
-
-      console.error(
-        "Logs error:",
-        error
-      );
-
-      container.innerHTML =
-        `<div class="empty">
-          Unable to load activity.
-        </div>`;
-    }
-  }
-
-
-  /* ==========================================
-     RESET BOARD
-  ========================================== */
-
-  async function resetBoard() {
-
-    const first =
-      confirm(
-        "WARNING: This will permanently delete every pixel on the board.\n\nContinue?"
-      );
-
-
-    if (!first) {
-      return;
     }
 
 
-    const second =
-      prompt(
-        'Type "RESET" to confirm.'
-      );
+    /* ==========================================
+       LOGS
+    ========================================== */
 
+    async function loadLogs() {
 
-    if (
-      second !== "RESET"
-    ) {
+      const list =
+        document.getElementById(
+          "logsList"
+        );
 
-      showToast(
-        "Board reset cancelled."
-      );
+      try {
 
-      return;
-    }
+        const data =
+          await adminAction(
+            "logs"
+          );
 
+        const logs =
+          data.logs || [];
 
-    try {
+        if (!logs.length) {
 
-      const response =
-        await fetch(
-          "/api/admin",
-          {
-            method: "POST",
+          list.innerHTML =
+            '<div class="empty">No admin actions yet.</div>';
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+          return;
+        }
 
-            body: JSON.stringify({
-              action:
-                "resetBoard"
-            })
+        list.innerHTML =
+          "";
+
+        logs.forEach(
+          log => {
+
+            const row =
+              document.createElement(
+                "div"
+              );
+
+            row.className =
+              "log-row";
+
+            const top =
+              document.createElement(
+                "div"
+              );
+
+            top.className =
+              "log-top";
+
+            const action =
+              document.createElement(
+                "span"
+              );
+
+            action.className =
+              "log-action";
+
+            action.textContent =
+              formatAction(
+                log.action
+              );
+
+            const time =
+              document.createElement(
+                "span"
+              );
+
+            time.className =
+              "log-time";
+
+            time.textContent =
+              formatDate(
+                log.createdAt
+              );
+
+            top.appendChild(
+              action
+            );
+
+            top.appendChild(
+              time
+            );
+
+            const info =
+              document.createElement(
+                "div"
+              );
+
+            info.className =
+              "log-info";
+
+            const parts =
+              [];
+
+            if (
+              log.adminUserId
+            ) {
+
+              parts.push(
+                `Admin: ${log.adminUserId}`
+              );
+            }
+
+            if (
+              log.targetUserId
+            ) {
+
+              parts.push(
+                `User: ${log.targetUserId}`
+              );
+            }
+
+            if (
+              log.targetPixel
+            ) {
+
+              parts.push(
+                `Pixel: ${log.targetPixel}`
+              );
+            }
+
+            if (
+              log.amount !==
+              undefined
+            ) {
+
+              parts.push(
+                `Amount: ${log.amount}`
+              );
+            }
+
+            if (
+              log.deletedPixels !==
+              undefined
+            ) {
+
+              parts.push(
+                `Deleted: ${log.deletedPixels}`
+              );
+            }
+
+            info.textContent =
+              parts.join(
+                " • "
+              );
+
+            row.appendChild(
+              top
+            );
+
+            row.appendChild(
+              info
+            );
+
+            list.appendChild(
+              row
+            );
+
           }
         );
 
+      } catch (error) {
 
-      const data =
-        await response.json();
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.error ||
-          "Failed to reset board"
+        console.error(
+          "Logs error:",
+          error
         );
+
+        list.innerHTML =
+          `<div class="empty">${
+            escapeHtml(
+              error.message
+            )
+          }</div>`;
+
       }
 
-
-      showToast(
-        "Board reset successfully."
-      );
-
-
-      loadStats();
-
-      loadLogs();
-
-
-    } catch (error) {
-
-      console.error(
-        "Board reset error:",
-        error
-      );
-
-      showToast(
-        error.message
-      );
     }
-  }
 
 
-  /* ==========================================
-     LOGOUT
-  ========================================== */
+    /* ==========================================
+       LOG HELPERS
+    ========================================== */
 
-  async function logout() {
+    function formatAction(
+      action
+    ) {
 
-    try {
+      const names = {
+        ban: "Ban User",
+        unban: "Unban User",
+        givePixels: "Give Pixels",
+        removePixels: "Remove Pixels",
+        deletePixel: "Delete Pixel",
+        resetBoard: "Reset Board"
+      };
 
-      await fetch(
-        "/api/auth/logout",
-        {
-          method: "POST"
+      return (
+        names[action] ||
+        action ||
+        "Unknown Action"
+      );
+
+    }
+
+
+    function formatDate(
+      value
+    ) {
+
+      if (!value) {
+        return "Unknown";
+      }
+
+      const date =
+        new Date(value);
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+
+        return "Unknown";
+      }
+
+      return date.toLocaleString();
+
+    }
+
+
+    function escapeHtml(
+      value
+    ) {
+
+      return String(value)
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
+
+    }
+
+
+    /* ==========================================
+       LOGOUT
+    ========================================== */
+
+    async function logout() {
+
+      try {
+
+        await fetch(
+          "/api/auth/logout",
+          {
+            method: "POST"
+          }
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Logout error:",
+          error
+        );
+
+      }
+
+      window.location.href =
+        "/";
+
+    }
+
+
+    /* ==========================================
+       SEARCH ENTER KEY
+    ========================================== */
+
+    document
+      .getElementById(
+        "userSearch"
+      )
+      .addEventListener(
+        "keydown",
+        event => {
+
+          if (
+            event.key ===
+            "Enter"
+          ) {
+
+            loadUsers();
+
+          }
+
         }
       );
 
-    } catch (error) {
 
-      console.error(
-        "Logout error:",
-        error
-      );
-    }
+    /* ==========================================
+       INITIALIZE
+    ========================================== */
 
+    checkAdmin();
 
-    window.location.href =
-      "/";
-  }
-
-
-  /* ==========================================
-     CANVAS
-  ========================================== */
-
-  function goToCanvas() {
-
-    window.location.href =
-      "/";
-  }
-
-
-  /* ==========================================
-     DATE
-  ========================================== */
-
-  function formatDate(value) {
-
-    if (!value) {
-      return "Unknown";
-    }
-
-
-    const date =
-      new Date(value);
-
-
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return "Unknown";
-    }
-
-
-    return date.toLocaleString();
-  }
-
-
-  /* ==========================================
-     HTML ESCAPE
-  ========================================== */
-
-  function escapeHtml(value) {
-
-    return String(
-      value ?? ""
-    )
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-  }
-
-
-  /* ==========================================
-     JS ESCAPE
-  ========================================== */
-
-  function escapeJs(value) {
-
-    return String(
-      value ?? ""
-    )
-      .replaceAll(
-        "\\",
-        "\\\\"
-      )
-      .replaceAll(
-        "'",
-        "\\'"
-      )
-      .replaceAll(
-        "\n",
-        "\\n"
-      )
-      .replaceAll(
-        "\r",
-        "\\r"
-      );
-  }
-
-
-  /* ==========================================
-     INITIALIZE
-  ========================================== */
-
-  async function initialize() {
-
-    const isAdmin =
-      await checkAdmin();
-
-
-    if (!isAdmin) {
-      return;
-    }
-
-
-    await loadDashboard();
-
-  }
-
-
-  initialize();
-
-</script>
+  </script>
 
 </body>
 </html>
-
