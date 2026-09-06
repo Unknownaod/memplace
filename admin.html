@@ -3084,7 +3084,63 @@
        INITIALIZE
     ========================================== */
 
-    checkAdmin();
+document
+  .getElementById("userSearch")
+  .addEventListener("keydown", event => {
+
+    if (event.key === "Enter") {
+      loadUsers();
+    }
+
+  });
+
+
+/* ==========================================
+   CLOSE USER PROFILE WHEN CLICKING OUTSIDE
+========================================== */
+
+document.addEventListener("click", (event) => {
+
+  const selectedUserPanel =
+    document.getElementById("selectedUser");
+
+  if (
+    !selectedUserPanel ||
+    selectedUserPanel.style.display !== "block"
+  ) {
+    return;
+  }
+
+  if (selectedUserPanel.contains(event.target)) {
+    return;
+  }
+
+  if (event.target.closest(".user-row")) {
+    return;
+  }
+
+  selectedUser = null;
+
+  selectedUserPanel.style.display = "none";
+
+  document.getElementById(
+    "noSelectedUser"
+  ).style.display = "block";
+
+  document
+    .querySelectorAll(".user-row")
+    .forEach(row => {
+      row.classList.remove("selected");
+    });
+
+});
+
+
+/* ==========================================
+   INITIALIZE
+========================================== */
+
+checkAdmin();
 
   </script>
 
