@@ -767,6 +767,7 @@
   </main>
 
 
+
 <script>
   /*
     ============================================
@@ -786,6 +787,8 @@
   */
 
   const BOARD_SIZE = 200;
+  const DEFAULT_COLOR = "#e7d7b5";
+  const PIXEL_COOLDOWN = 60;
 
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
@@ -805,8 +808,11 @@
   let inspectMode = false;
   let placingPixel = false;
 
-  let currentUser = null;
   let authenticated = false;
+  let currentUser = null;
+
+  let cooldownSeconds = 0;
+  let cooldownTimer = null;
 
   /* ==========================================
      COLORS
@@ -844,54 +850,70 @@
 
   const palette = document.getElementById("palette");
 
-  colors.forEach(([name, color]) => {
-    const button = document.createElement("button");
+  if (palette) {
+    colors.forEach(([name, color]) => {
+      const button = document.createElement("button");
 
-    button.className = "color";
-    button.style.background = color;
-    button.title = `${name} ${color}`;
+      button.className = "color";
+      button.style.background = color;
+      button.title = `${name} ${color}`;
 
-    if (color === selectedColor) {
-      button.classList.add("active");
-    }
-
-    button.onclick = () => {
-      selectedColor = color;
-      selectedName = name;
-
-      document
-        .querySelectorAll(".color")
-        .forEach(x => x.classList.remove("active"));
-
-      button.classList.add("active");
-
-      const preview = document.getElementById("selectedPreview");
-      const nameElement = document.getElementById("selectedName");
-      const hexElement = document.getElementById("selectedHex");
-
-      if (preview) {
-        preview.style.background = color;
+      if (color === selectedColor) {
+        button.classList.add("active");
       }
 
-      if (nameElement) {
-        nameElement.textContent = name;
-      }
+      button.onclick = () => {
+        selectedColor = color;
+        selectedName = name;
 
-      if (hexElement) {
-        hexElement.textContent = color;
-      }
-    };
+        document
+          .querySelectorAll(".color")
+          .forEach(x => x.classList.remove("active"));
 
-    palette.appendChild(button);
-  });
+        button.classList.add("active");
+
+        const preview =
+          document.getElementById("selectedPreview");
+
+        const nameElement =
+          document.getElementById("selectedName");
+
+        const hexElement =
+          document.getElementById("selectedHex");
+
+        if (preview) {
+          preview.style.background = color;
+        }
+
+        if (nameElement) {
+          nameElement.textContent = name;
+        }
+
+        if (hexElement) {
+          hexElement.textContent = color;
+        }
+      };
+
+      palette.appendChild(button);
+    });
+  }
 
   /* ==========================================
      LOCAL BOARD
   ========================================== */
 
-  const pixels = new Array(
-    BOARD_SIZE * BOARD_SIZE
-  ).fill("#e7d7b5");
+  const pixels =
+    new Array(BOARD_SIZE * BOARD_SIZE)
+      .fill(DEFAULT_COLOR);
+
+  /*
+    Metadata for the inspector.
+
+    Key format:
+      "x:y"
+  */
+
+  const pixelMetadata = new Map();
 
   /* ==========================================
      DRAW BOARD
@@ -907,6 +929,7 @@
 
     for (let y = 0; y < BOARD_SIZE; y++) {
       for (let x = 0; x < BOARD_SIZE; x++) {
+
         const color =
           pixels[y * BOARD_SIZE + x];
 
@@ -921,10 +944,14 @@
       }
     }
 
-    /* Grid */
+    /*
+      Grid at higher zoom levels.
+    */
 
     if (zoom >= 5) {
-      ctx.strokeStyle = "rgba(0,0,0,.12)";
+      ctx.strokeStyle =
+        "rgba(0,0,0,.12)";
+
       ctx.lineWidth = 1;
 
       for (let x = 0; x <= BOARD_SIZE; x++) {
@@ -967,12 +994,10 @@
 
   async function loadBoard() {
     try {
-      const response = await fetch(
-        "/api/board",
-        {
+      const response =
+        await fetch("/api/board", {
           cache: "no-store"
-        }
-      );
+        });
 
       if (!response.ok) {
         throw new Error(
@@ -980,27 +1005,64 @@
         );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (
         data.pixels &&
         Array.isArray(data.pixels)
       ) {
+
         data.pixels.forEach(pixel => {
+
           if (
-            Number.isInteger(pixel.x) &&
-            Number.isInteger(pixel.y) &&
-            typeof pixel.color === "string" &&
-            pixel.x >= 0 &&
-            pixel.x < BOARD_SIZE &&
-            pixel.y >= 0 &&
-            pixel.y < BOARD_SIZE
+            !Number.isInteger(pixel.x) ||
+            !Number.isInteger(pixel.y) ||
+            typeof pixel.color !== "string"
           ) {
-            pixels[
-              pixel.y * BOARD_SIZE +
-              pixel.x
-            ] = pixel.color;
+            return;
           }
+
+          if (
+            pixel.x < 0 ||
+            pixel.x >= BOARD_SIZE ||
+            pixel.y < 0 ||
+            pixel.y >= BOARD_SIZE
+          ) {
+            return;
+          }
+
+          const index =
+            pixel.y * BOARD_SIZE +
+            pixel.x;
+
+          pixels[index] =
+            pixel.color;
+
+          /*
+            Save metadata for inspector.
+          */
+
+          pixelMetadata.set(
+            `${pixel.x}:${pixel.y}`,
+            {
+              userId:
+                pixel.userId || null,
+
+              username:
+                pixel.username ||
+                "Unknown",
+
+              clanId:
+                pixel.clanId || null,
+
+              placedAt:
+                pixel.placedAt || null,
+
+              color:
+                pixel.color
+            }
+          );
         });
       }
 
@@ -1013,6 +1075,7 @@
       );
 
     } catch (error) {
+
       console.error(
         "Board loading error:",
         error
@@ -1025,17 +1088,19 @@
   }
 
   /* ==========================================
-     LOAD AUTHENTICATED USER
+     LOAD CURRENT USER
   ========================================== */
 
   async function loadCurrentUser() {
     try {
-      const response = await fetch(
-        "/api/auth/me",
-        {
-          cache: "no-store"
-        }
-      );
+
+      const response =
+        await fetch(
+          "/api/auth/me",
+          {
+            cache: "no-store"
+          }
+        );
 
       if (!response.ok) {
         throw new Error(
@@ -1043,7 +1108,8 @@
         );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       authenticated =
         data.authenticated === true;
@@ -1051,7 +1117,11 @@
       currentUser =
         data.user || null;
 
-      if (authenticated && currentUser) {
+      if (
+        authenticated &&
+        currentUser
+      ) {
+
         balance =
           Number(currentUser.balance) || 0;
 
@@ -1061,10 +1131,15 @@
         updateUserUI();
 
         console.log(
-          "Logged in as:",
+          "Discord connected:",
           currentUser.username
         );
+
       } else {
+
+        authenticated = false;
+        currentUser = null;
+
         balance = 0;
         pixelsPlaced = 0;
 
@@ -1075,7 +1150,10 @@
         );
       }
 
+      updateDiscordButton();
+
     } catch (error) {
+
       console.error(
         "Authentication error:",
         error
@@ -1084,7 +1162,11 @@
       authenticated = false;
       currentUser = null;
 
+      balance = 0;
+      pixelsPlaced = 0;
+
       updateUserUI();
+      updateDiscordButton();
     }
   }
 
@@ -1093,11 +1175,13 @@
   ========================================== */
 
   function updateUserUI() {
+
+    /*
+      Balance
+    */
+
     const balanceElement =
       document.getElementById("balance");
-
-    const placedElement =
-      document.getElementById("placed");
 
     if (balanceElement) {
       balanceElement.textContent =
@@ -1105,6 +1189,13 @@
           ? balance
           : "—";
     }
+
+    /*
+      Pixels placed
+    */
+
+    const placedElement =
+      document.getElementById("placed");
 
     if (placedElement) {
       placedElement.textContent =
@@ -1114,32 +1205,218 @@
     }
 
     /*
-      If your HTML contains these elements,
-      they'll automatically update.
+      Profile name
     */
 
     const profileName =
-      document.getElementById("profileName");
+      document.querySelector(".profile-name");
 
     if (profileName) {
       profileName.textContent =
-        authenticated && currentUser
+        authenticated &&
+        currentUser
           ? currentUser.username
-          : "Not connected";
+          : "Not Connected";
     }
 
-    const profileAvatar =
-      document.getElementById("profileAvatar");
+    /*
+      Profile avatar.
+
+      Your current HTML uses a div,
+      so we turn it into an image when
+      the user is authenticated.
+    */
+
+    const profileHeader =
+      document.querySelector(".profile-header");
+
+    if (profileHeader) {
+
+      const existingAvatar =
+        profileHeader.querySelector(".avatar");
+
+      if (existingAvatar) {
+
+        if (
+          authenticated &&
+          currentUser
+        ) {
+
+          if (currentUser.avatar) {
+
+            existingAvatar.innerHTML = "";
+
+            const img =
+              document.createElement("img");
+
+            img.src =
+              `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png?size=128`;
+
+            img.alt =
+              currentUser.username || "Discord";
+
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.borderRadius = "50%";
+            img.style.objectFit = "cover";
+
+            existingAvatar.appendChild(img);
+
+          } else {
+
+            existingAvatar.textContent =
+              getAvatarLetter(
+                currentUser.username
+              );
+          }
+
+        } else {
+
+          existingAvatar.textContent = "?";
+        }
+      }
+    }
+  }
+
+  /* ==========================================
+     AVATAR LETTER
+  ========================================== */
+
+  function getAvatarLetter(username) {
 
     if (
-      profileAvatar &&
-      authenticated &&
-      currentUser &&
-      currentUser.avatar
+      !username ||
+      typeof username !== "string"
     ) {
-      profileAvatar.src =
-        `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png?size=128`;
+      return "?";
     }
+
+    return username
+      .trim()
+      .charAt(0)
+      .toUpperCase();
+  }
+
+  /* ==========================================
+     DISCORD BUTTON
+  ========================================== */
+
+  function updateDiscordButton() {
+
+    /*
+      Your actual HTML is:
+
+      <button class="discord-btn">
+    */
+
+    const buttons =
+      document.querySelectorAll(
+        ".discord-btn"
+      );
+
+    buttons.forEach(button => {
+
+      if (
+        authenticated &&
+        currentUser
+      ) {
+
+        button.textContent =
+          `Disconnect Discord`;
+
+        button.title =
+          `Connected as ${currentUser.username}`;
+
+        button.setAttribute(
+          "aria-label",
+          `Disconnect Discord (${currentUser.username})`
+        );
+
+      } else {
+
+        button.textContent =
+          "Connect Discord";
+
+        button.title =
+          "Connect your Discord account";
+
+        button.setAttribute(
+          "aria-label",
+          "Connect Discord"
+        );
+      }
+    });
+  }
+
+  /* ==========================================
+     CONNECT / DISCONNECT
+  ========================================== */
+
+  function connectDiscord() {
+
+    /*
+      Already authenticated?
+
+      Disconnect instead.
+    */
+
+    if (authenticated) {
+      logoutDiscord();
+      return;
+    }
+
+    /*
+      Start Discord OAuth.
+    */
+
+    window.location.href =
+      "/api/auth/discord";
+  }
+
+  async function logoutDiscord() {
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/auth/logout",
+          {
+            method: "POST"
+          }
+        );
+
+      if (!response.ok) {
+        console.error(
+          "Logout request failed."
+        );
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Logout error:",
+        error
+      );
+    }
+
+    /*
+      Clear local state.
+    */
+
+    authenticated = false;
+    currentUser = null;
+
+    balance = 0;
+    pixelsPlaced = 0;
+
+    stopCooldown();
+
+    updateUserUI();
+    updateDiscordButton();
+
+    showToast(
+      "Disconnected from Discord."
+    );
   }
 
   /* ==========================================
@@ -1193,9 +1470,12 @@
       return;
     }
 
-    /* Must be logged in */
+    /*
+      Must be authenticated.
+    */
 
     if (!authenticated) {
+
       showToast(
         "Connect Discord before placing pixels."
       );
@@ -1203,7 +1483,25 @@
       return;
     }
 
+    /*
+      Cooldown.
+    */
+
+    if (cooldownSeconds > 0) {
+
+      showToast(
+        `Wait ${cooldownSeconds}s before placing another pixel.`
+      );
+
+      return;
+    }
+
+    /*
+      Balance.
+    */
+
     if (balance <= 0) {
+
       showToast(
         "You don't have any pixels available."
       );
@@ -1234,7 +1532,7 @@
           }
         );
 
-      let data;
+      let data = {};
 
       try {
         data =
@@ -1243,37 +1541,59 @@
         data = {};
       }
 
-      /* ======================================
-         API REJECTED
-      ====================================== */
+      /*
+        API rejected request.
+      */
 
       if (!response.ok) {
+
+        /*
+          Session expired.
+        */
 
         if (
           response.status === 401
         ) {
+
           authenticated = false;
           currentUser = null;
 
+          balance = 0;
+          pixelsPlaced = 0;
+
           updateUserUI();
+          updateDiscordButton();
 
           showToast(
-            "Please reconnect your Discord account."
+            "Your Discord session expired. Please reconnect."
           );
 
           return;
         }
 
+        /*
+          Cooldown.
+        */
+
         if (
           response.status === 429 &&
-          data.remaining
+          typeof data.remaining === "number"
         ) {
+
+          startCooldown(
+            data.remaining
+          );
+
           showToast(
             `Wait ${data.remaining}s before placing another pixel.`
           );
 
           return;
         }
+
+        /*
+          Any other API error.
+        */
 
         showToast(
           data.error ||
@@ -1283,32 +1603,89 @@
         return;
       }
 
-      /* ======================================
-         API ACCEPTED
-      ====================================== */
+      /*
+        Update local board.
+      */
 
-      pixels[
-        y * BOARD_SIZE + x
-      ] = selectedColor;
+      const index =
+        y * BOARD_SIZE + x;
+
+      pixels[index] =
+        selectedColor;
+
+      /*
+        Update metadata.
+      */
+
+      pixelMetadata.set(
+        `${x}:${y}`,
+        {
+          userId:
+            data.pixel?.userId ||
+            currentUser?.id ||
+            null,
+
+          username:
+            data.pixel?.username ||
+            currentUser?.username ||
+            "Unknown",
+
+          clanId:
+            data.pixel?.clanId ||
+            currentUser?.clanId ||
+            null,
+
+          placedAt:
+            data.pixel?.placedAt ||
+            new Date().toISOString(),
+
+          color:
+            selectedColor
+        }
+      );
+
+      /*
+        Update balance.
+      */
 
       if (
         typeof data.balance === "number"
       ) {
+
         balance =
           data.balance;
+
       } else {
+
         balance--;
       }
+
+      /*
+        Update pixel count.
+      */
 
       if (
         typeof data.pixelsPlaced ===
         "number"
       ) {
+
         pixelsPlaced =
           data.pixelsPlaced;
+
       } else {
+
         pixelsPlaced++;
       }
+
+      /*
+        Start cooldown.
+
+        API currently uses 60 seconds.
+      */
+
+      startCooldown(
+        PIXEL_COOLDOWN
+      );
 
       updateUserUI();
 
@@ -1330,7 +1707,85 @@
       );
 
     } finally {
+
       placingPixel = false;
+    }
+  }
+
+  /* ==========================================
+     COOLDOWN
+  ========================================== */
+
+  function startCooldown(seconds) {
+
+    stopCooldown();
+
+    cooldownSeconds =
+      Math.max(
+        0,
+        Math.ceil(Number(seconds) || 0)
+      );
+
+    updateCooldownUI();
+
+    if (cooldownSeconds <= 0) {
+      return;
+    }
+
+    cooldownTimer =
+      setInterval(() => {
+
+        cooldownSeconds--;
+
+        updateCooldownUI();
+
+        if (cooldownSeconds <= 0) {
+          stopCooldown();
+        }
+
+      }, 1000);
+  }
+
+  function stopCooldown() {
+
+    if (cooldownTimer) {
+      clearInterval(
+        cooldownTimer
+      );
+    }
+
+    cooldownTimer = null;
+    cooldownSeconds = 0;
+
+    updateCooldownUI();
+  }
+
+  function updateCooldownUI() {
+
+    const cooldown =
+      document.getElementById("cooldown");
+
+    if (!cooldown) {
+      return;
+    }
+
+    if (!authenticated) {
+
+      cooldown.textContent =
+        "Connect Discord to place pixels.";
+
+      return;
+    }
+
+    if (cooldownSeconds > 0) {
+
+      cooldown.textContent =
+        `Next pixel available in ${cooldownSeconds}s`;
+
+    } else {
+
+      cooldown.textContent =
+        "+1 pixel available now";
     }
   }
 
@@ -1390,46 +1845,100 @@
         y * BOARD_SIZE + x
       ];
 
-    document.getElementById(
-      "coordinates"
-    ).textContent =
-      `${x}, ${y}`;
+    const metadata =
+      pixelMetadata.get(
+        `${x}:${y}`
+      );
 
-    document.getElementById(
-      "inspectPosition"
-    ).textContent =
-      `${x}, ${y}`;
+    const coordinates =
+      document.getElementById(
+        "coordinates"
+      );
 
-    document.getElementById(
-      "inspectColor"
-    ).textContent =
-      color;
+    if (coordinates) {
+      coordinates.textContent =
+        `${x}, ${y}`;
+    }
 
-    document.getElementById(
-      "inspectPreview"
-    ).style.background =
-      color;
+    const position =
+      document.getElementById(
+        "inspectPosition"
+      );
 
-    /*
-      These will be improved once we
-      return pixel metadata from the
-      board API.
-    */
+    if (position) {
+      position.textContent =
+        `${x}, ${y}`;
+    }
 
-    document.getElementById(
-      "inspectUser"
-    ).textContent =
-      "Community Canvas";
+    const inspectColor =
+      document.getElementById(
+        "inspectColor"
+      );
 
-    document.getElementById(
-      "inspectClan"
-    ).textContent =
-      "—";
+    if (inspectColor) {
+      inspectColor.textContent =
+        color;
+    }
 
-    document.getElementById(
-      "inspectTime"
-    ).textContent =
-      "Unknown";
+    const preview =
+      document.getElementById(
+        "inspectPreview"
+      );
+
+    if (preview) {
+      preview.style.background =
+        color;
+    }
+
+    const inspectUser =
+      document.getElementById(
+        "inspectUser"
+      );
+
+    if (inspectUser) {
+
+      inspectUser.textContent =
+        metadata?.username ||
+        "Unknown";
+    }
+
+    const inspectClan =
+      document.getElementById(
+        "inspectClan"
+      );
+
+    if (inspectClan) {
+
+      inspectClan.textContent =
+        metadata?.clanId ||
+        "None";
+    }
+
+    const inspectTime =
+      document.getElementById(
+        "inspectTime"
+      );
+
+    if (inspectTime) {
+
+      if (metadata?.placedAt) {
+
+        const date =
+          new Date(
+            metadata.placedAt
+          );
+
+        inspectTime.textContent =
+          isNaN(date.getTime())
+            ? "Unknown"
+            : date.toLocaleString();
+
+      } else {
+
+        inspectTime.textContent =
+          "Unknown";
+      }
+    }
   }
 
   /* ==========================================
@@ -1526,91 +2035,13 @@
           );
 
         if (coordinates) {
+
           coordinates.textContent =
             `${x}, ${y}`;
         }
       }
     }
   );
-
-  /* ==========================================
-     DISCORD
-  ========================================== */
-
-  function connectDiscord() {
-
-    if (authenticated) {
-      logoutDiscord();
-      return;
-    }
-
-    window.location.href =
-      "/api/auth/discord";
-  }
-
-  /* ==========================================
-     LOGOUT
-  ========================================== */
-
-  async function logoutDiscord() {
-
-    try {
-
-      await fetch(
-        "/api/auth/logout",
-        {
-          method: "POST"
-        }
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Logout error:",
-        error
-      );
-
-    }
-
-    authenticated = false;
-    currentUser = null;
-    balance = 0;
-    pixelsPlaced = 0;
-
-    updateUserUI();
-
-    showToast(
-      "Disconnected from Discord."
-    );
-  }
-
-  /* ==========================================
-     UPDATE DISCORD BUTTON
-  ========================================== */
-
-  function updateDiscordButton() {
-
-    const buttons =
-      document.querySelectorAll(
-        "#discordButton, .discord-button, [data-discord]"
-      );
-
-    buttons.forEach(button => {
-
-      if (authenticated && currentUser) {
-
-        button.textContent =
-          `Discord: ${currentUser.username}`;
-
-      } else {
-
-        button.textContent =
-          "Connect Discord";
-
-      }
-
-    });
-  }
 
   /* ==========================================
      TOAST
@@ -1665,7 +2096,11 @@
     );
 
     setTimeout(() => {
-      toast.remove();
+
+      if (toast.parentNode) {
+        toast.remove();
+      }
+
     }, 2200);
   }
 
@@ -1675,11 +2110,15 @@
 
   async function initialize() {
 
+    /*
+      Draw the blank board immediately.
+    */
+
     drawBoard();
 
     /*
-      Load authentication and board
-      at the same time.
+      Load both the Discord session
+      and board from MongoDB.
     */
 
     await Promise.all([
@@ -1687,16 +2126,46 @@
       loadBoard()
     ]);
 
+    /*
+      Make absolutely sure the UI
+      reflects the authenticated state.
+    */
+
+    updateUserUI();
     updateDiscordButton();
+    updateCooldownUI();
 
     setTimeout(() => {
       centerCanvas();
     }, 150);
+
+    /*
+      If redirected back from Discord
+      with ?discord=connected,
+      remove it from the URL.
+    */
+
+    if (
+      window.location.search.includes(
+        "discord=connected"
+      )
+    ) {
+
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+      );
+
+      showToast(
+        "Discord connected successfully."
+      );
+    }
   }
 
   initialize();
-
 </script>
+
 
 
 </body>
