@@ -1,8 +1,13 @@
+javascript
 import { MongoClient } from "mongodb";
 
 let client;
 
 async function getDb() {
+
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI is missing");
+  }
 
   if (!client) {
 
@@ -23,14 +28,70 @@ async function getDb() {
 }
 
 
+/* ==========================================
+   GET COOKIE
+========================================== */
+
+function getCookie(req, name) {
+
+  const cookieHeader =
+    req.headers.cookie;
+
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const cookies =
+    cookieHeader.split(";");
+
+  for (const cookie of cookies) {
+
+    const [
+      key,
+      ...valueParts
+    ] =
+      cookie.trim().split("=");
+
+    if (key === name) {
+
+      return decodeURIComponent(
+        valueParts.join("=")
+      );
+
+    }
+
+  }
+
+  return null;
+}
+
+
+/* ==========================================
+   GET ADMIN IDS
+========================================== */
+
+function getAdminIds() {
+
+  return (
+    process.env.ADMIN_USER_IDS || ""
+  )
+    .split(",")
+    .map(id => id.trim())
+    .filter(Boolean);
+
+}
+
+
+/* ==========================================
+   ADMIN API
+========================================== */
+
 export default async function handler(
   req,
   res
 ) {
 
-  if (
-    req.method !== "POST"
-  ) {
+  if (req.method !== "POST") {
 
     return res.status(405).json({
       error: "Method not allowed"
@@ -40,6 +101,143 @@ export default async function handler(
 
 
   try {
+
+    /* ======================================
+       CHECK SESSION
+    ====================================== */
+
+    const sessionId =
+      getCookie(
+        req,
+        "mem_session"
+      );
+
+    if (!sessionId) {
+
+      return res.status(401).json({
+        error:
+          "You must connect Discord."
+      });
+
+    }
+
+
+    const db =
+      await getDb();
+
+
+    const sessions =
+      db.collection("sessions");
+
+    const users =
+      db.collection("users");
+
+    const bans =
+      db.collection("bans");
+
+    const adminLogs =
+      db.collection("adminLogs");
+
+
+    /* ======================================
+       FIND SESSION
+    ====================================== */
+
+    const session =
+      await sessions.findOne({
+        _id: sessionId
+      });
+
+
+    if (!session) {
+
+      return res.status(401).json({
+        error:
+          "Invalid session. Please reconnect Discord."
+      });
+
+    }
+
+
+    /* ======================================
+       CHECK SESSION EXPIRATION
+    ====================================== */
+
+    if (
+      session.expiresAt &&
+      new Date(
+        session.expiresAt
+      ).getTime() < Date.now()
+    ) {
+
+      await sessions.deleteOne({
+        _id: sessionId
+      });
+
+
+      res.setHeader(
+        "Set-Cookie",
+        "mem_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0"
+      );
+
+
+      return res.status(401).json({
+        error:
+          "Your session has expired."
+      });
+
+    }
+
+
+    const adminUserId =
+      session.userId;
+
+
+    /* ======================================
+       VERIFY ADMIN
+    ====================================== */
+
+    const adminIds =
+      getAdminIds();
+
+
+    if (
+      !adminIds.includes(
+        adminUserId
+      )
+    ) {
+
+      return res.status(403).json({
+        error:
+          "You do not have permission to use the admin panel."
+      });
+
+    }
+
+
+    /* ======================================
+       VERIFY ADMIN ACCOUNT EXISTS
+    ====================================== */
+
+    const adminUser =
+      await users.findOne({
+        _id: adminUserId
+      });
+
+
+    if (!adminUser) {
+
+      return res.status(403).json({
+        error:
+          "Admin account not found."
+      });
+
+    }
+
+
+    /* ======================================
+       REQUEST DATA
+    ====================================== */
 
     const {
       action,
@@ -53,33 +251,57 @@ export default async function handler(
     ) {
 
       return res.status(400).json({
-        error: "Missing parameters"
+        error:
+          "Missing parameters"
       });
 
     }
 
 
-    const db =
-      await getDb();
+    /* ======================================
+       PREVENT ADMIN SELF-BAN
+    ====================================== */
+
+    if (
+      action === "ban" &&
+      userId === adminUserId
+    ) {
+
+      return res.status(400).json({
+        error:
+          "You cannot ban yourself."
+      });
+
+    }
 
 
-    const users =
-      db.collection("users");
-
-    const bans =
-      db.collection("bans");
-
-    const adminLogs =
-      db.collection("adminLogs");
-
-
-    /* =============================
+    /* ======================================
        BAN USER
-    ============================= */
+    ====================================== */
 
     if (
       action === "ban"
     ) {
+
+      const targetUser =
+        await users.findOne({
+          _id: userId
+        });
+
+
+      if (!targetUser) {
+
+        return res.status(404).json({
+          error:
+            "User not found"
+        });
+
+      }
+
+
+      const now =
+        new Date();
+
 
       await bans.updateOne(
 
@@ -91,7 +313,8 @@ export default async function handler(
           $set: {
             userId,
             active: true,
-            bannedAt: new Date()
+            bannedAt: now,
+            bannedBy: adminUserId
           }
         },
 
@@ -104,13 +327,16 @@ export default async function handler(
 
       await adminLogs.insertOne({
 
-        action: "ban",
+        action:
+          "ban",
 
         targetUserId:
           userId,
 
+        adminUserId,
+
         createdAt:
-          new Date()
+          now
 
       });
 
@@ -122,13 +348,33 @@ export default async function handler(
     }
 
 
-    /* =============================
+    /* ======================================
        UNBAN USER
-    ============================= */
+    ====================================== */
 
     if (
       action === "unban"
     ) {
+
+      const targetUser =
+        await users.findOne({
+          _id: userId
+        });
+
+
+      if (!targetUser) {
+
+        return res.status(404).json({
+          error:
+            "User not found"
+        });
+
+      }
+
+
+      const now =
+        new Date();
+
 
       await bans.updateOne(
 
@@ -139,8 +385,8 @@ export default async function handler(
         {
           $set: {
             active: false,
-            unbannedAt:
-              new Date()
+            unbannedAt: now,
+            unbannedBy: adminUserId
           }
         }
 
@@ -149,13 +395,16 @@ export default async function handler(
 
       await adminLogs.insertOne({
 
-        action: "unban",
+        action:
+          "unban",
 
         targetUserId:
           userId,
 
+        adminUserId,
+
         createdAt:
-          new Date()
+          now
 
       });
 
@@ -167,26 +416,31 @@ export default async function handler(
     }
 
 
-    /* =============================
+    /* ======================================
        GIVE PIXELS
-    ============================= */
+    ====================================== */
 
     if (
       action === "givePixels"
     ) {
 
       const amount =
-        Number(req.body.amount);
+        Number(
+          req.body.amount
+        );
 
 
       if (
-        !Number.isInteger(amount) ||
+        !Number.isInteger(
+          amount
+        ) ||
         amount <= 0 ||
         amount > 100000
       ) {
 
         return res.status(400).json({
-          error: "Invalid amount"
+          error:
+            "Invalid amount"
         });
 
       }
@@ -201,7 +455,8 @@ export default async function handler(
 
           {
             $inc: {
-              balance: amount
+              balance:
+                amount
             },
 
             $set: {
@@ -219,10 +474,15 @@ export default async function handler(
       ) {
 
         return res.status(404).json({
-          error: "User not found"
+          error:
+            "User not found"
         });
 
       }
+
+
+      const now =
+        new Date();
 
 
       await adminLogs.insertOne({
@@ -233,24 +493,35 @@ export default async function handler(
         targetUserId:
           userId,
 
+        adminUserId,
+
         amount,
 
         createdAt:
-          new Date()
+          now
 
       });
 
 
       return res.status(200).json({
+
         success: true,
-        added: amount
+
+        added:
+          amount
+
       });
 
     }
 
 
+    /* ======================================
+       UNKNOWN ACTION
+    ====================================== */
+
     return res.status(400).json({
-      error: "Unknown action"
+      error:
+        "Unknown action"
     });
 
 
@@ -263,7 +534,8 @@ export default async function handler(
 
 
     return res.status(500).json({
-      error: "Admin operation failed"
+      error:
+        "Admin operation failed"
     });
 
   }
