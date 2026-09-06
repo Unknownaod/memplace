@@ -994,104 +994,125 @@
     }
   }
 
-  /* ==========================================
-     LOAD BOARD
-  ========================================== */
+/* ==========================================
+   LOAD BOARD
+========================================== */
 
-  async function loadBoard() {
-    try {
-      const response =
-        await fetch("/api/board", {
-          cache: "no-store"
-        });
+async function loadBoard() {
+  try {
+    const response =
+      await fetch("/api/board", {
+        cache: "no-store"
+      });
 
-      if (!response.ok) {
-        throw new Error(
-          "Failed to load board"
-        );
-      }
-
-      const data =
-        await response.json();
-
-      if (
-        data.pixels &&
-        Array.isArray(data.pixels)
-      ) {
-
-        data.pixels.forEach(pixel => {
-
-          if (
-            !Number.isInteger(pixel.x) ||
-            !Number.isInteger(pixel.y) ||
-            typeof pixel.color !== "string"
-          ) {
-            return;
-          }
-
-          if (
-            pixel.x < 0 ||
-            pixel.x >= BOARD_SIZE ||
-            pixel.y < 0 ||
-            pixel.y >= BOARD_SIZE
-          ) {
-            return;
-          }
-
-          const index =
-            pixel.y * BOARD_SIZE +
-            pixel.x;
-
-          pixels[index] =
-            pixel.color;
-
-          /*
-            Save metadata for inspector.
-          */
-
-          pixelMetadata.set(
-            `${pixel.x}:${pixel.y}`,
-            {
-              userId:
-                pixel.userId || null,
-
-              username:
-                pixel.username ||
-                "Unknown",
-
-              clanId:
-                pixel.clanId || null,
-
-              placedAt:
-                pixel.placedAt || null,
-
-              color:
-                pixel.color
-            }
-          );
-        });
-      }
-
-      drawBoard();
-
-      console.log(
-        "Board loaded:",
-        data.pixels?.length || 0,
-        "pixels"
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Board loading error:",
-        error
-      );
-
-      showToast(
-        "Could not load the community canvas."
+    if (!response.ok) {
+      throw new Error(
+        "Failed to load board"
       );
     }
+
+    const data =
+      await response.json();
+
+    if (
+      data.pixels &&
+      Array.isArray(data.pixels)
+    ) {
+
+      data.pixels.forEach(pixel => {
+
+        if (
+          !Number.isInteger(pixel.x) ||
+          !Number.isInteger(pixel.y) ||
+          typeof pixel.color !== "string"
+        ) {
+          return;
+        }
+
+        if (
+          pixel.x < 0 ||
+          pixel.x >= BOARD_SIZE ||
+          pixel.y < 0 ||
+          pixel.y >= BOARD_SIZE
+        ) {
+          return;
+        }
+
+        const index =
+          pixel.y * BOARD_SIZE +
+          pixel.x;
+
+        pixels[index] =
+          pixel.color;
+
+        /*
+          Save metadata for inspector.
+        */
+
+        pixelMetadata.set(
+          `${pixel.x}:${pixel.y}`,
+          {
+            userId:
+              pixel.userId || null,
+
+            username:
+              pixel.username ||
+              "Unknown",
+
+            clanId:
+              pixel.clanId || null,
+
+            placedAt:
+              pixel.placedAt || null,
+
+            color:
+              pixel.color
+          }
+        );
+      });
+    }
+
+    drawBoard();
+
+    console.log(
+      "Board loaded:",
+      data.pixels?.length || 0,
+      "pixels"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Board loading error:",
+      error
+    );
+
+    showToast(
+      "Could not load the community canvas."
+    );
   }
+}
+
+
+/* ==========================================
+   LIVE BOARD UPDATES
+========================================== */
+
+/*
+  Load the board immediately when the page opens.
+*/
+
+loadBoard();
+
+/*
+  Check for new pixel placements every second.
+*/
+
+setInterval(() => {
+  loadBoard();
+}, 1000);
+
+
 
   /* ==========================================
      LOAD CURRENT USER
