@@ -1,6 +1,33 @@
+js
 import { MongoClient } from "mongodb";
 
 let client;
+
+const BOARD_SIZE = 200;
+const PIXEL_COOLDOWN = 60 * 1000;
+
+const ALLOWED_COLORS = new Set([
+  "#000000",
+  "#3b2a1f",
+  "#765438",
+  "#c8a45d",
+  "#e7d7b5",
+  "#f3e8cf",
+  "#ffffff",
+  "#9d3028",
+  "#681d19",
+  "#c46b2b",
+  "#d4ad42",
+  "#74733c",
+  "#41613b",
+  "#263c28",
+  "#385a72",
+  "#243746",
+  "#5c4569",
+  "#a86c79",
+  "#77736b",
+  "#383632"
+]);
 
 async function getDb() {
   if (!client) {
@@ -31,35 +58,39 @@ export default async function handler(req, res) {
       username
     } = req.body || {};
 
-    /* Validate coordinates */
+    /* -----------------------------
+       VALIDATION
+    ----------------------------- */
 
     if (
       !Number.isInteger(x) ||
       !Number.isInteger(y) ||
       x < 0 ||
-      x >= 200 ||
+      x >= BOARD_SIZE ||
       y < 0 ||
-      y >= 200
+      y >= BOARD_SIZE
     ) {
       return res.status(400).json({
         error: "Invalid coordinates"
       });
     }
 
-    /* Validate color */
-
     if (
       typeof color !== "string" ||
-      !/^#[0-9a-fA-F]{6}$/.test(color)
+      !ALLOWED_COLORS.has(color.toLowerCase())
     ) {
       return res.status(400).json({
         error: "Invalid color"
       });
     }
 
-    if (!userId) {
+    if (
+      typeof userId !== "string" ||
+      userId.length < 5 ||
+      userId.length > 100
+    ) {
       return res.status(401).json({
-        error: "User is not authenticated"
+        error: "Invalid user"
       });
     }
 
@@ -69,7 +100,9 @@ export default async function handler(req, res) {
     const pixels = db.collection("pixels");
     const bans = db.collection("bans");
 
-    /* Check ban */
+    /* -----------------------------
+       CHECK BAN
+    ----------------------------- */
 
     const ban = await bans.findOne({
       userId,
@@ -82,40 +115,53 @@ export default async function handler(req, res) {
       });
     }
 
-    /* Get user */
+    /* -----------------------------
+       FIND USER
+    ----------------------------- */
 
     let user = await users.findOne({
       _id: userId
     });
 
-    /* Create user if they don't exist */
+    /* -----------------------------
+       CREATE USER
+    ----------------------------- */
 
     if (!user) {
 
       user = {
         _id: userId,
-        username: username || "Guest",
+        username:
+          typeof username === "string"
+            ? username.slice(0, 50)
+            : "Guest",
+
         balance: 100,
         pixelsPlaced: 0,
         clanId: null,
         lastPlacement: null,
-        createdAt: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       await users.insertOne(user);
     }
 
-    /* Check balance */
+    /* -----------------------------
+       BALANCE
+    ----------------------------- */
 
     if ((user.balance || 0) <= 0) {
+
       return res.status(400).json({
-        error: "You don't have any pixels"
+        error: "You don't have any pixels available."
       });
+
     }
 
-    /* Cooldown */
-
-    const cooldown = 60 * 1000;
+    /* -----------------------------
+       COOLDOWN
+    ----------------------------- */
 
     if (user.lastPlacement) {
 
@@ -123,19 +169,25 @@ export default async function handler(req, res) {
         Date.now() -
         new Date(user.lastPlacement).getTime();
 
-      if (elapsed < cooldown) {
+      if (elapsed < PIXEL_COOLDOWN) {
 
         const remaining =
           Math.ceil(
-            (cooldown - elapsed) / 1000
+            (PIXEL_COOLDOWN - elapsed) / 1000
           );
 
         return res.status(429).json({
           error: "Pixel cooldown active",
           remaining
         });
+
       }
+
     }
+
+    /* -----------------------------
+       EXISTING PIXEL
+    ----------------------------- */
 
     const pixelId = `${x}:${y}`;
 
@@ -144,28 +196,29 @@ export default async function handler(req, res) {
         _id: pixelId
       });
 
-    /*
-      Clan protection.
-
-      If both pixels belong to the same clan,
-      teammates cannot paint over each other.
-    */
+    /* -----------------------------
+       CLAN PROTECTION
+    ----------------------------- */
 
     if (
       existingPixel &&
       existingPixel.clanId &&
+      user.clanId &&
       existingPixel.clanId === user.clanId
     ) {
 
       return res.status(403).json({
         error:
-          "Your clan cannot paint over its own pixels"
+          "Your clan cannot paint over its own pixels."
       });
+
     }
 
     const now = new Date();
 
-    /* Place pixel */
+    /* -----------------------------
+       SAVE PIXEL
+    ----------------------------- */
 
     await pixels.updateOne(
       {
@@ -175,10 +228,12 @@ export default async function handler(req, res) {
         $set: {
           x,
           y,
-          color,
+          color: color.toLowerCase(),
           userId,
-          username: username || user.username || "Guest",
-          clanId: user.clanId || null,
+          username:
+            user.username || "Guest",
+          clanId:
+            user.clanId || null,
           placedAt: now
         }
       },
@@ -187,47 +242,68 @@ export default async function handler(req, res) {
       }
     );
 
-    /* Remove one pixel from balance */
+    /* -----------------------------
+       REMOVE PIXEL FROM BALANCE
+    ----------------------------- */
 
-    await users.updateOne(
-      {
-        _id: userId
-      },
-      {
-        $inc: {
-          balance: -1,
-          pixelsPlaced: 1
+    const updatedUser =
+      await users.findOneAndUpdate(
+        {
+          _id: userId
         },
-        $set: {
-          lastPlacement: now,
-          username: username || user.username || "Guest"
+        {
+          $inc: {
+            balance: -1,
+            pixelsPlaced: 1
+          },
+          $set: {
+            lastPlacement: now,
+            updatedAt: now
+          }
+        },
+        {
+          returnDocument: "after"
         }
-      }
-    );
+      );
 
     return res.status(200).json({
+
       success: true,
+
       pixel: {
         x,
         y,
-        color,
+        color: color.toLowerCase(),
         userId,
-        username: username || user.username || "Guest",
-        clanId: user.clanId || null,
+        username:
+          user.username || "Guest",
+        clanId:
+          user.clanId || null,
         placedAt: now
       },
-      balance: Math.max(
-        0,
-        (user.balance || 0) - 1
-      )
+
+      balance:
+        updatedUser.value?.balance ?? 0,
+
+      pixelsPlaced:
+        updatedUser.value?.pixelsPlaced ?? 0,
+
+      cooldown:
+        PIXEL_COOLDOWN
+
     });
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Pixel placement error:",
+      error
+    );
 
     return res.status(500).json({
       error: "Failed to place pixel"
     });
+
   }
+
 }
