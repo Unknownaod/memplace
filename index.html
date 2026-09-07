@@ -1295,6 +1295,7 @@
   <div class="discord-server-card">
 
     <!-- SERVER HEADER -->
+
     <div class="discord-server-header">
 
       <div class="discord-server-logo">
@@ -1338,13 +1339,6 @@
 
       <div class="discord-stat-card">
 
-        <div
-          class="discord-stat-icon"
-          aria-hidden="true"
-        >
-          
-        </div>
-
         <div class="discord-stat-content">
 
           <div class="discord-stat-label">
@@ -1367,13 +1361,6 @@
 
       <div class="discord-stat-card">
 
-        <div
-          class="discord-stat-icon online-icon"
-          aria-hidden="true"
-        >
-          ●
-        </div>
-
         <div class="discord-stat-content">
 
           <div class="discord-stat-label">
@@ -1395,13 +1382,6 @@
       <!-- VOICE -->
 
       <div class="discord-stat-card">
-
-        <div
-          class="discord-stat-icon"
-          aria-hidden="true"
-        >
-          
-        </div>
 
         <div class="discord-stat-content">
 
@@ -1429,16 +1409,20 @@
        LIVE VOICE CHANNELS
   ========================================== -->
 
-  <div
-    class="section-title discord-vc-title"
-  >
+  <div class="section-title discord-vc-title">
     Live Voice Channels
   </div>
+
 
   <div
     id="discord-vcs"
     class="discord-vc-list"
   >
+
+    <!--
+      JavaScript will dynamically create
+      the voice channels and their members here.
+    -->
 
     <div class="discord-vc-empty">
       Nobody is currently in a voice channel.
