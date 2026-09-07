@@ -1149,15 +1149,19 @@
 
       <section class="section">
 
-<section>
+<section class="discord-section">
+
+  <!-- ==========================================
+       DISCORD SERVER
+  ========================================== -->
 
   <div class="section-title">
     Discord Server
   </div>
 
-  <!-- SERVER CARD -->
   <div class="discord-server-card">
 
+    <!-- SERVER HEADER -->
     <div class="discord-server-header">
 
       <div class="discord-server-logo">
@@ -1174,20 +1178,37 @@
         </div>
 
         <div class="discord-server-status">
-          <span class="status-dot"></span>
-          <span>Live on Discord</span>
+
+          <span
+            class="status-dot"
+            aria-hidden="true"
+          ></span>
+
+          <span>
+            Live on Discord
+          </span>
+
         </div>
 
       </div>
 
     </div>
 
-    <!-- STATS -->
+
+    <!-- ==========================================
+         SERVER STATS
+    ========================================== -->
+
     <div class="discord-server-stats">
+
+      <!-- MEMBERS -->
 
       <div class="discord-stat-card">
 
-        <div class="discord-stat-icon">
+        <div
+          class="discord-stat-icon"
+          aria-hidden="true"
+        >
           👥
         </div>
 
@@ -1209,9 +1230,14 @@
       </div>
 
 
+      <!-- ONLINE -->
+
       <div class="discord-stat-card">
 
-        <div class="discord-stat-icon online-icon">
+        <div
+          class="discord-stat-icon online-icon"
+          aria-hidden="true"
+        >
           ●
         </div>
 
@@ -1233,9 +1259,14 @@
       </div>
 
 
+      <!-- VOICE -->
+
       <div class="discord-stat-card">
 
-        <div class="discord-stat-icon">
+        <div
+          class="discord-stat-icon"
+          aria-hidden="true"
+        >
           🎙️
         </div>
 
@@ -1261,14 +1292,15 @@
   </div>
 
 
-  <!-- VOICE CHANNELS -->
+  <!-- ==========================================
+       LIVE VOICE CHANNELS
+  ========================================== -->
+
   <div
-    class="section-title"
-    style="margin-top: 24px;"
+    class="section-title discord-vc-title"
   >
     Live Voice Channels
   </div>
-
 
   <div
     id="discord-vcs"
@@ -2767,30 +2799,78 @@ function updateUserUI() {
    DISCORD LIVE SERVER
 ========================================== */
 
+let discordLoading = false;
+
+
+/* ==========================================
+   LOAD DISCORD STATUS
+========================================== */
+
 async function loadDiscordStatus() {
+
+  // Prevent overlapping requests
+  if (discordLoading) {
+    return;
+  }
+
+  discordLoading = true;
 
   try {
 
     const response = await fetch(
-      "/api/discord",
+      "/api/discord?t=" + Date.now(),
       {
-        cache: "no-store"
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache"
+        }
       }
     );
 
+
+    /* ==========================================
+       API ERROR
+    ========================================== */
+
     if (!response.ok) {
-      throw new Error(
-        "Discord status request failed"
-      );
+
+      let errorMessage =
+        `Discord API returned ${response.status}`;
+
+      try {
+
+        const errorData =
+          await response.json();
+
+        if (errorData?.error) {
+          errorMessage =
+            errorData.error;
+        }
+
+      } catch {
+        // Ignore invalid error response
+      }
+
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+
+    const data =
+      await response.json();
+
+
+    /* ==========================================
+       DATA ERROR
+    ========================================== */
 
     if (!data.success) {
+
       throw new Error(
         data.error ||
         "Discord status unavailable"
       );
+
     }
 
 
@@ -2890,6 +2970,23 @@ async function loadDiscordStatus() {
 
 
     /* ==========================================
+       LIVE STATUS
+    ========================================== */
+
+    const statusText =
+      document.querySelector(
+        ".discord-server-status span:last-child"
+      );
+
+    if (statusText) {
+
+      statusText.textContent =
+        "Live on Discord";
+
+    }
+
+
+    /* ==========================================
        VOICE CHANNELS
     ========================================== */
 
@@ -2898,51 +2995,97 @@ async function loadDiscordStatus() {
         "discord-vcs"
       );
 
-    if (!vcs) {
-      return;
+    if (vcs) {
+
+      const channels =
+        Array.isArray(
+          data.voiceChannels
+        )
+          ? data.voiceChannels
+          : [];
+
+
+      /* ==========================================
+         NO ACTIVE VOICE CHANNELS
+      ========================================== */
+
+      if (!channels.length) {
+
+        vcs.innerHTML = `
+          <div class="discord-vc-empty">
+            Nobody is currently in a voice channel.
+          </div>
+        `;
+
+      }
+
+
+      /* ==========================================
+         ACTIVE VOICE CHANNELS
+      ========================================== */
+
+      else {
+
+        vcs.innerHTML =
+          channels
+            .map(channel => {
+
+              const channelName =
+                escapeHtml(
+                  channel.name ||
+                  "Unknown Channel"
+                );
+
+              const memberCount =
+                Number(
+                  channel.members || 0
+                );
+
+
+              return `
+                <div class="discord-vc">
+
+                  <div class="discord-vc-name">
+                    <span aria-hidden="true">🔊</span>
+                    <span>
+                      ${channelName}
+                    </span>
+                  </div>
+
+                  <div
+                    class="discord-vc-count"
+                    title="${memberCount} member${memberCount === 1 ? "" : "s"}"
+                  >
+                    ${memberCount}
+                  </div>
+
+                </div>
+              `;
+
+            })
+            .join("");
+
+      }
+
     }
 
 
-    const channels =
-      Array.isArray(
-        data.voiceChannels
-      )
-        ? data.voiceChannels
-        : [];
+    /* ==========================================
+       SUCCESS LOG
+    ========================================== */
 
-
-    if (!channels.length) {
-
-      vcs.innerHTML = `
-        <div class="discord-vc-empty">
-          Nobody is currently in a voice channel.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    vcs.innerHTML =
-      channels
-        .map(channel => {
-
-          return `
-            <div class="discord-vc">
-
-              <div class="discord-vc-name">
-                🔊 ${escapeHtml(channel.name)}
-              </div>
-
-              <div class="discord-vc-count">
-                ${Number(channel.members || 0)}
-              </div>
-
-            </div>
-          `;
-
-        })
-        .join("");
+    console.log(
+      "Discord status updated:",
+      {
+        members: data.members,
+        online: data.online,
+        voice: data.voice,
+        channels:
+          Array.isArray(data.voiceChannels)
+            ? data.voiceChannels.length
+            : 0
+      }
+    );
 
 
   } catch (error) {
@@ -2951,6 +3094,29 @@ async function loadDiscordStatus() {
       "Discord live status error:",
       error
     );
+
+
+    /* ==========================================
+       SHOW OFFLINE STATUS
+       Only changes the status indicator.
+       Existing numbers remain visible.
+    ========================================== */
+
+    const statusText =
+      document.querySelector(
+        ".discord-server-status span:last-child"
+      );
+
+    if (statusText) {
+
+      statusText.textContent =
+        "Discord status unavailable";
+
+    }
+
+  } finally {
+
+    discordLoading = false;
 
   }
 
@@ -2985,11 +3151,10 @@ loadDiscordStatus();
    Every 5 seconds
 ========================================== */
 
-setInterval(() => {
-
-  loadDiscordStatus();
-
-}, 5000);
+setInterval(
+  loadDiscordStatus,
+  5000
+);
 
   
   initialize();
