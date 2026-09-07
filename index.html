@@ -506,11 +506,23 @@
 
 
 /* ==========================================
-   DISCORD SERVER
+   DISCORD SECTION
+========================================== */
+
+.discord-section {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+
+/* ==========================================
+   SERVER CARD
 ========================================== */
 
 .discord-server-card {
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 
   background: var(--surface);
@@ -542,11 +554,12 @@
 
   flex: 0 0 58px;
 
-  border-radius: 14px;
   overflow: hidden;
 
-  background: var(--gold);
+  border-radius: 14px;
   border: 1px solid var(--border);
+
+  background: var(--gold);
 
   box-sizing: border-box;
 }
@@ -556,8 +569,9 @@
   width: 100%;
   height: 100%;
 
-  object-fit: cover;
   display: block;
+
+  object-fit: cover;
 }
 
 
@@ -569,6 +583,7 @@
 
 .discord-server-name {
   width: 100%;
+  min-width: 0;
 
   font-size: 17px;
   font-weight: 700;
@@ -584,6 +599,9 @@
 .discord-server-status {
   display: flex;
   align-items: center;
+
+  width: fit-content;
+  max-width: 100%;
 
   gap: 7px;
   margin-top: 5px;
@@ -611,12 +629,12 @@
 
 
 /* ==========================================
-   STAT CARDS
+   SERVER STATS
 ========================================== */
 
 .discord-server-stats {
   width: 100%;
-  box-sizing: border-box;
+  min-width: 0;
 
   display: grid;
 
@@ -632,6 +650,7 @@
 .discord-stat-card {
   min-width: 0;
   width: 100%;
+
   box-sizing: border-box;
 
   display: flex;
@@ -639,14 +658,20 @@
 
   gap: 11px;
 
+  padding: 13px;
+
   background: rgba(0, 0, 0, 0.025);
 
   border: 1px solid var(--border);
   border-radius: 12px;
 
-  padding: 13px;
+  overflow: hidden;
 }
 
+
+/* ==========================================
+   STAT ICON
+========================================== */
 
 .discord-stat-icon {
   width: 34px;
@@ -657,21 +682,25 @@
   display: grid;
   place-items: center;
 
+  box-sizing: border-box;
+
   border-radius: 9px;
 
   background: rgba(0, 0, 0, 0.045);
 
   font-size: 15px;
-
-  box-sizing: border-box;
 }
 
 
 .online-icon {
   color: #43b581;
-  font-size: 18px;
+  font-size: 17px;
 }
 
+
+/* ==========================================
+   STAT CONTENT
+========================================== */
 
 .discord-stat-content {
   min-width: 0;
@@ -683,11 +712,14 @@
 
 .discord-stat-label {
   width: 100%;
-
-  font-size: 11px;
-  color: #777;
+  min-width: 0;
 
   margin-bottom: 3px;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  color: #777;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -697,9 +729,11 @@
 
 .discord-stat-value {
   width: 100%;
+  min-width: 0;
 
   font-size: 18px;
   font-weight: 700;
+  line-height: 1.15;
 
   color: var(--text);
 
@@ -710,12 +744,21 @@
 
 
 /* ==========================================
-   VOICE CHANNELS SECTION
+   VOICE CHANNEL TITLE
+========================================== */
+
+.discord-vc-title {
+  margin-top: 24px;
+}
+
+
+/* ==========================================
+   VOICE CHANNEL LIST
 ========================================== */
 
 .discord-vc-list {
   width: 100%;
-  box-sizing: border-box;
+  min-width: 0;
 
   display: flex;
   flex-direction: column;
@@ -731,6 +774,7 @@
 .discord-vc {
   width: 100%;
   min-width: 0;
+
   box-sizing: border-box;
 
   display: flex;
@@ -738,16 +782,17 @@
 
   gap: 12px;
 
+  padding: 13px 15px;
+
   background: var(--surface);
 
   border: 1px solid var(--border);
   border-radius: 12px;
 
-  padding: 13px 15px;
-
   transition:
     background 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 
@@ -775,13 +820,15 @@
   color: var(--text);
 
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 
-.discord-vc-name::first-letter {
-  flex-shrink: 0;
+.discord-vc-name span:last-child {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
@@ -790,17 +837,17 @@
 ========================================== */
 
 .discord-vc-count {
-  min-width: 28px;
-  height: 24px;
+  min-width: 30px;
+  height: 25px;
 
   flex: 0 0 auto;
 
   display: grid;
   place-items: center;
 
-  padding: 0 8px;
-
   box-sizing: border-box;
+
+  padding: 0 8px;
 
   border-radius: 7px;
 
@@ -814,26 +861,27 @@
 
 
 /* ==========================================
-   EMPTY STATE
+   EMPTY VOICE STATE
 ========================================== */
 
 .discord-vc-empty {
   width: 100%;
+  min-width: 0;
+
   box-sizing: border-box;
+
+  padding: 15px;
 
   background: var(--surface);
 
   border: 1px solid var(--border);
   border-radius: 12px;
 
-  padding: 15px;
-
   text-align: center;
 
   color: #777;
 
   font-size: 13px;
-
   line-height: 1.4;
 }
 
@@ -844,9 +892,8 @@
 
 @media (max-width: 800px) {
 
-  .discord-server-stats {
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+  .discord-server-card {
+    padding: 16px;
   }
 
   .discord-stat-card {
@@ -889,6 +936,11 @@
   }
 
 
+  .discord-server-header {
+    gap: 12px;
+  }
+
+
   .discord-server-name {
     font-size: 16px;
   }
@@ -898,6 +950,8 @@
     grid-template-columns: 1fr;
 
     gap: 8px;
+
+    margin-top: 16px;
   }
 
 
@@ -905,6 +959,8 @@
     min-height: 58px;
 
     padding: 11px 12px;
+
+    gap: 10px;
   }
 
 
@@ -921,6 +977,11 @@
   }
 
 
+  .discord-vc-title {
+    margin-top: 20px;
+  }
+
+
   .discord-vc {
     padding: 12px 13px;
   }
@@ -929,7 +990,7 @@
 
 
 /* ==========================================
-   VERY SMALL SCREENS
+   SMALL PHONES
 ========================================== */
 
 @media (max-width: 380px) {
@@ -949,6 +1010,8 @@
     height: 46px;
 
     flex-basis: 46px;
+
+    border-radius: 11px;
   }
 
 
@@ -957,8 +1020,15 @@
   }
 
 
+  .discord-server-status {
+    font-size: 11px;
+  }
+
+
   .discord-stat-card {
-    gap: 9px;
+    min-height: 54px;
+
+    padding: 10px;
   }
 
 
