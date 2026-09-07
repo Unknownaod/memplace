@@ -510,9 +510,13 @@
 ========================================== */
 
 .discord-server-card {
+  width: 100%;
+  box-sizing: border-box;
+
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
+
   padding: 18px;
 }
 
@@ -522,8 +526,12 @@
 ========================================== */
 
 .discord-server-header {
+  width: 100%;
+  min-width: 0;
+
   display: flex;
   align-items: center;
+
   gap: 14px;
 }
 
@@ -531,45 +539,74 @@
 .discord-server-logo {
   width: 58px;
   height: 58px;
+
+  flex: 0 0 58px;
+
   border-radius: 14px;
   overflow: hidden;
-  flex-shrink: 0;
+
   background: var(--gold);
   border: 1px solid var(--border);
+
+  box-sizing: border-box;
 }
 
 
 .discord-server-logo img {
   width: 100%;
   height: 100%;
+
   object-fit: cover;
   display: block;
 }
 
 
+.discord-server-info {
+  min-width: 0;
+  flex: 1;
+}
+
+
 .discord-server-name {
+  width: 100%;
+
   font-size: 17px;
   font-weight: 700;
+
   color: var(--text);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
 .discord-server-status {
   display: flex;
   align-items: center;
+
   gap: 7px;
   margin-top: 5px;
+
   font-size: 12px;
   color: #777;
+
+  white-space: nowrap;
 }
 
 
 .status-dot {
   width: 8px;
   height: 8px;
+
+  flex: 0 0 8px;
+
   border-radius: 50%;
+
   background: #43b581;
-  box-shadow: 0 0 0 3px rgba(67, 181, 129, 0.12);
+
+  box-shadow:
+    0 0 0 3px rgba(67, 181, 129, 0.12);
 }
 
 
@@ -578,16 +615,28 @@
 ========================================== */
 
 .discord-server-stats {
+  width: 100%;
+  box-sizing: border-box;
+
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
   gap: 10px;
+
   margin-top: 18px;
 }
 
 
 .discord-stat-card {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+
   display: flex;
   align-items: center;
+
   gap: 11px;
 
   background: rgba(0, 0, 0, 0.025);
@@ -603,6 +652,8 @@
   width: 34px;
   height: 34px;
 
+  flex: 0 0 34px;
+
   display: grid;
   place-items: center;
 
@@ -611,6 +662,8 @@
   background: rgba(0, 0, 0, 0.045);
 
   font-size: 15px;
+
+  box-sizing: border-box;
 }
 
 
@@ -622,38 +675,68 @@
 
 .discord-stat-content {
   min-width: 0;
+  flex: 1;
+
+  overflow: hidden;
 }
 
 
 .discord-stat-label {
+  width: 100%;
+
   font-size: 11px;
   color: #777;
+
   margin-bottom: 3px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
 .discord-stat-value {
+  width: 100%;
+
   font-size: 18px;
   font-weight: 700;
+
   color: var(--text);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
 /* ==========================================
-   VOICE CHANNEL LIST
+   VOICE CHANNELS SECTION
 ========================================== */
 
 .discord-vc-list {
+  width: 100%;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
 
 
+/* ==========================================
+   VOICE CHANNEL CARD
+========================================== */
+
 .discord-vc {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
   display: flex;
   align-items: center;
-  justify-content: space-between;
+
+  gap: 12px;
 
   background: var(--surface);
 
@@ -673,26 +756,51 @@
 }
 
 
+/* ==========================================
+   VOICE CHANNEL NAME
+========================================== */
+
 .discord-vc-name {
+  min-width: 0;
+  flex: 1;
+
   display: flex;
   align-items: center;
+
   gap: 8px;
 
   font-size: 13px;
   font-weight: 600;
 
   color: var(--text);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+
+.discord-vc-name::first-letter {
+  flex-shrink: 0;
+}
+
+
+/* ==========================================
+   VOICE MEMBER COUNT
+========================================== */
 
 .discord-vc-count {
   min-width: 28px;
   height: 24px;
 
+  flex: 0 0 auto;
+
   display: grid;
   place-items: center;
 
   padding: 0 8px;
+
+  box-sizing: border-box;
 
   border-radius: 7px;
 
@@ -705,7 +813,14 @@
 }
 
 
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
 .discord-vc-empty {
+  width: 100%;
+  box-sizing: border-box;
+
   background: var(--surface);
 
   border: 1px solid var(--border);
@@ -716,7 +831,40 @@
   text-align: center;
 
   color: #777;
+
   font-size: 13px;
+
+  line-height: 1.4;
+}
+
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 800px) {
+
+  .discord-server-stats {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .discord-stat-card {
+    padding: 12px;
+    gap: 9px;
+  }
+
+  .discord-stat-icon {
+    width: 32px;
+    height: 32px;
+
+    flex-basis: 32px;
+  }
+
+  .discord-stat-value {
+    font-size: 17px;
+  }
+
 }
 
 
@@ -726,15 +874,100 @@
 
 @media (max-width: 600px) {
 
-  .discord-server-stats {
-    grid-template-columns: 1fr;
+  .discord-server-card {
+    padding: 15px;
   }
 
+
+  .discord-server-logo {
+    width: 52px;
+    height: 52px;
+
+    flex-basis: 52px;
+
+    border-radius: 12px;
+  }
+
+
+  .discord-server-name {
+    font-size: 16px;
+  }
+
+
+  .discord-server-stats {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+  }
+
+
   .discord-stat-card {
-    padding: 12px;
+    min-height: 58px;
+
+    padding: 11px 12px;
+  }
+
+
+  .discord-stat-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-basis: 34px;
+  }
+
+
+  .discord-stat-value {
+    font-size: 17px;
+  }
+
+
+  .discord-vc {
+    padding: 12px 13px;
   }
 
 }
+
+
+/* ==========================================
+   VERY SMALL SCREENS
+========================================== */
+
+@media (max-width: 380px) {
+
+  .discord-server-card {
+    padding: 12px;
+  }
+
+
+  .discord-server-header {
+    gap: 10px;
+  }
+
+
+  .discord-server-logo {
+    width: 46px;
+    height: 46px;
+
+    flex-basis: 46px;
+  }
+
+
+  .discord-server-name {
+    font-size: 15px;
+  }
+
+
+  .discord-stat-card {
+    gap: 9px;
+  }
+
+
+  .discord-vc {
+    padding: 11px 12px;
+  }
+
+}
+
 
   </style>
 </head>
