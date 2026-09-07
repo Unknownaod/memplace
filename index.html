@@ -505,12 +505,21 @@
     }
 
 
-    .discord-server-card {
+/* ==========================================
+   DISCORD SERVER
+========================================== */
+
+.discord-server-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 18px;
 }
+
+
+/* ==========================================
+   SERVER HEADER
+========================================== */
 
 .discord-server-header {
   display: flex;
@@ -518,14 +527,17 @@
   gap: 14px;
 }
 
+
 .discord-server-logo {
   width: 58px;
   height: 58px;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
   background: var(--gold);
+  border: 1px solid var(--border);
 }
+
 
 .discord-server-logo img {
   width: 100%;
@@ -534,27 +546,36 @@
   display: block;
 }
 
+
 .discord-server-name {
   font-size: 17px;
   font-weight: 700;
+  color: var(--text);
 }
+
 
 .discord-server-status {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   margin-top: 5px;
   font-size: 12px;
   color: #777;
 }
+
 
 .status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: #43b581;
-  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(67, 181, 129, 0.12);
 }
+
+
+/* ==========================================
+   STAT CARDS
+========================================== */
 
 .discord-server-stats {
   display: grid;
@@ -563,30 +584,158 @@
   margin-top: 18px;
 }
 
-.discord-stat {
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 10px;
-  padding: 12px;
+
+.discord-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  background: rgba(0, 0, 0, 0.025);
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  padding: 13px;
 }
+
+
+.discord-stat-icon {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+
+  background: rgba(0, 0, 0, 0.045);
+
+  font-size: 15px;
+}
+
+
+.online-icon {
+  color: #43b581;
+  font-size: 18px;
+}
+
+
+.discord-stat-content {
+  min-width: 0;
+}
+
 
 .discord-stat-label {
   font-size: 11px;
   color: #777;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
+
 
 .discord-stat-value {
   font-size: 18px;
   font-weight: 700;
+  color: var(--text);
 }
 
-.discord-vc-empty {
-  padding: 16px;
+
+/* ==========================================
+   VOICE CHANNEL LIST
+========================================== */
+
+.discord-vc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+.discord-vc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: var(--surface);
+
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
+
+  padding: 13px 15px;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+
+.discord-vc:hover {
+  background: rgba(0, 0, 0, 0.025);
+}
+
+
+.discord-vc-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: var(--text);
+}
+
+
+.discord-vc-count {
+  min-width: 28px;
+  height: 24px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0 8px;
+
+  border-radius: 7px;
+
+  background: rgba(0, 0, 0, 0.045);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  color: #777;
+}
+
+
+.discord-vc-empty {
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  padding: 15px;
+
+  text-align: center;
+
   color: #777;
   font-size: 13px;
 }
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 600px) {
+
+  .discord-server-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .discord-stat-card {
+    padding: 12px;
+  }
+
+}
+
   </style>
 </head>
 
@@ -773,6 +922,7 @@
     Discord Server
   </div>
 
+  <!-- SERVER CARD -->
   <div class="discord-server-card">
 
     <div class="discord-server-header">
@@ -785,6 +935,7 @@
       </div>
 
       <div class="discord-server-info">
+
         <div class="discord-server-name">
           Middle Eastern Mixing
         </div>
@@ -793,60 +944,103 @@
           <span class="status-dot"></span>
           <span>Live on Discord</span>
         </div>
+
       </div>
 
     </div>
 
+    <!-- STATS -->
     <div class="discord-server-stats">
 
-      <div class="discord-stat">
-        <div class="discord-stat-label">
-          Members
+      <div class="discord-stat-card">
+
+        <div class="discord-stat-icon">
+          👥
         </div>
 
-        <div
-          class="discord-stat-value"
-          id="discordMembers"
-        >
-          0
+        <div class="discord-stat-content">
+
+          <div class="discord-stat-label">
+            Members
+          </div>
+
+          <div
+            class="discord-stat-value"
+            id="discordMembers"
+          >
+            0
+          </div>
+
         </div>
+
       </div>
 
-      <div class="discord-stat">
-        <div class="discord-stat-label">
-          Online
+
+      <div class="discord-stat-card">
+
+        <div class="discord-stat-icon online-icon">
+          ●
         </div>
 
-        <div
-          class="discord-stat-value"
-          id="discordOnline"
-        >
-          0
+        <div class="discord-stat-content">
+
+          <div class="discord-stat-label">
+            Online
+          </div>
+
+          <div
+            class="discord-stat-value"
+            id="discordOnline"
+          >
+            0
+          </div>
+
         </div>
+
       </div>
 
-      <div class="discord-stat">
-        <div class="discord-stat-label">
-          In Voice
+
+      <div class="discord-stat-card">
+
+        <div class="discord-stat-icon">
+          🎙️
         </div>
 
-        <div
-          class="discord-stat-value"
-          id="discordVoice"
-        >
-          0
+        <div class="discord-stat-content">
+
+          <div class="discord-stat-label">
+            In Voice
+          </div>
+
+          <div
+            class="discord-stat-value"
+            id="discordVoice"
+          >
+            0
+          </div>
+
         </div>
+
       </div>
 
     </div>
 
   </div>
 
-  <div class="section-title" style="margin-top: 24px;">
+
+  <!-- VOICE CHANNELS -->
+  <div
+    class="section-title"
+    style="margin-top: 24px;"
+  >
     Live Voice Channels
   </div>
 
-  <div id="discord-vcs">
+
+  <div
+    id="discord-vcs"
+    class="discord-vc-list"
+  >
 
     <div class="discord-vc-empty">
       Nobody is currently in a voice channel.
