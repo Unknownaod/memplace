@@ -3285,39 +3285,116 @@ async function loadDiscordStatus() {
          ACTIVE VOICE CHANNELS
       ========================================== */
 
-      else {
+else {
 
-        vcs.innerHTML =
-          channels
-            .map(channel => {
+  vcs.innerHTML =
+    channels
+      .map(channel => {
 
-              const channelName =
+        const channelName =
+          escapeHtml(
+            channel.name ||
+            "Unknown Channel"
+          );
+
+        const memberCount =
+          Number(
+            channel.members || 0
+          );
+
+        const users =
+          Array.isArray(channel.users)
+            ? channel.users
+            : [];
+
+        const usersHtml =
+          users
+            .map(user => {
+
+              const displayName =
                 escapeHtml(
-                  channel.name ||
-                  "Unknown Channel"
+                  user.displayName ||
+                  user.username ||
+                  "Unknown User"
                 );
 
-              const memberCount =
-                Number(
-                  channel.members || 0
+              const username =
+                escapeHtml(
+                  user.username ||
+                  ""
                 );
 
+              const avatar =
+                user.avatar ||
+                "https://cdn.discordapp.com/embed/avatars/0.png";
+
+              const status =
+                user.status ||
+                "offline";
+
+              const statusClass =
+                ["online", "idle", "dnd", "offline"]
+                  .includes(status)
+                  ? status
+                  : "offline";
 
               return `
-                <div class="discord-vc">
+                <div class="discord-vc-member">
 
-                  <div class="discord-vc-name">
-                    <span aria-hidden="true"></span>
-                    <span>
-                      ${channelName}
-                    </span>
+                  <div class="discord-vc-member-avatar">
+
+                    <img
+                      src="${avatar}"
+                      alt="${displayName}"
+                      loading="lazy"
+                    >
+
+                    <span
+                      class="discord-vc-member-status ${statusClass}"
+                    ></span>
+
                   </div>
 
-                  <div
-                    class="discord-vc-count"
-                    title="${memberCount} member${memberCount === 1 ? "" : "s"}"
-                  >
-                    ${memberCount}
+                  <div class="discord-vc-member-info">
+
+                    <div class="discord-vc-member-name">
+                      ${displayName}
+                    </div>
+
+                    <div class="discord-vc-member-username">
+                      @${username}
+                    </div>
+
+                  </div>
+
+                  <div class="discord-vc-member-actions">
+
+                    ${
+                      user.muted
+                        ? `
+                          <span
+                            class="discord-vc-member-state muted"
+                            title="Muted"
+                          >
+                            🎙
+                          </span>
+                        `
+                        : ""
+                    }
+
+                    ${
+                      user.deafened
+                        ? `
+                          <span
+                            class="discord-vc-member-state deafened"
+                            title="Deafened"
+                          >
+                            🔇
+                          </span>
+                        `
+                        : ""
+                    }
+
                   </div>
 
                 </div>
@@ -3326,9 +3403,47 @@ async function loadDiscordStatus() {
             })
             .join("");
 
-      }
 
-    }
+        return `
+          <div class="discord-vc">
+
+            <div class="discord-vc-header">
+
+              <div class="discord-vc-name">
+
+                <span
+                  class="discord-vc-channel-icon"
+                  aria-hidden="true"
+                >
+                  🔊
+                </span>
+
+                <span>
+                  ${channelName}
+                </span>
+
+              </div>
+
+              <div
+                class="discord-vc-count"
+                title="${memberCount} member${memberCount === 1 ? "" : "s"}"
+              >
+                ${memberCount}
+              </div>
+
+            </div>
+
+            <div class="discord-vc-members">
+              ${usersHtml}
+            </div>
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+}
 
 
     /* ==========================================
