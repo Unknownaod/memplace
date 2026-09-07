@@ -2335,6 +2335,236 @@ function updateUserUI() {
     }
   }
 
+
+/* ==========================================
+   DISCORD LIVE SERVER
+========================================== */
+
+async function loadDiscordStatus() {
+
+  try {
+
+    const response = await fetch(
+      "/api/discord",
+      {
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "Discord status request failed"
+      );
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error ||
+        "Discord status unavailable"
+      );
+    }
+
+
+    /* ==========================================
+       SERVER NAME
+    ========================================== */
+
+    const serverName =
+      document.querySelector(
+        ".discord-server-name"
+      );
+
+    if (serverName) {
+
+      serverName.textContent =
+        data.server?.name ||
+        "Middle Eastern Mixing";
+
+    }
+
+
+    /* ==========================================
+       SERVER LOGO
+    ========================================== */
+
+    const serverLogo =
+      document.querySelector(
+        ".discord-server-logo img"
+      );
+
+    if (
+      serverLogo &&
+      data.server?.icon
+    ) {
+
+      serverLogo.src =
+        data.server.icon;
+
+    }
+
+
+    /* ==========================================
+       MEMBERS
+    ========================================== */
+
+    const members =
+      document.getElementById(
+        "discordMembers"
+      );
+
+    if (members) {
+
+      members.textContent =
+        Number(
+          data.members || 0
+        ).toLocaleString();
+
+    }
+
+
+    /* ==========================================
+       ONLINE
+    ========================================== */
+
+    const online =
+      document.getElementById(
+        "discordOnline"
+      );
+
+    if (online) {
+
+      online.textContent =
+        Number(
+          data.online || 0
+        ).toLocaleString();
+
+    }
+
+
+    /* ==========================================
+       VOICE
+    ========================================== */
+
+    const voice =
+      document.getElementById(
+        "discordVoice"
+      );
+
+    if (voice) {
+
+      voice.textContent =
+        Number(
+          data.voice || 0
+        ).toLocaleString();
+
+    }
+
+
+    /* ==========================================
+       VOICE CHANNELS
+    ========================================== */
+
+    const vcs =
+      document.getElementById(
+        "discord-vcs"
+      );
+
+    if (!vcs) {
+      return;
+    }
+
+
+    const channels =
+      Array.isArray(
+        data.voiceChannels
+      )
+        ? data.voiceChannels
+        : [];
+
+
+    if (!channels.length) {
+
+      vcs.innerHTML = `
+        <div class="discord-vc-empty">
+          Nobody is currently in a voice channel.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    vcs.innerHTML =
+      channels
+        .map(channel => {
+
+          return `
+            <div class="discord-vc">
+
+              <div class="discord-vc-name">
+                🔊 ${escapeHtml(channel.name)}
+              </div>
+
+              <div class="discord-vc-count">
+                ${Number(channel.members || 0)}
+              </div>
+
+            </div>
+          `;
+
+        })
+        .join("");
+
+
+  } catch (error) {
+
+    console.error(
+      "Discord live status error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==========================================
+   HTML ESCAPE
+========================================== */
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* ==========================================
+   INITIAL LOAD
+========================================== */
+
+loadDiscordStatus();
+
+
+/* ==========================================
+   LIVE REFRESH
+   Every 5 seconds
+========================================== */
+
+setInterval(() => {
+
+  loadDiscordStatus();
+
+}, 5000);
+
+  
   initialize();
 </script>
 
