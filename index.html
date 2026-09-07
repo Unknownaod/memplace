@@ -587,8 +587,9 @@
 
   font-size: 17px;
   font-weight: 700;
+  line-height: 1.2;
 
-  color: var(--text);
+  color: var(--text) !important;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -604,10 +605,12 @@
   max-width: 100%;
 
   gap: 7px;
-  margin-top: 5px;
+  margin-top: 6px;
 
   font-size: 12px;
-  color: #777;
+  line-height: 1.2;
+
+  color: var(--text-muted);
 
   white-space: nowrap;
 }
@@ -660,7 +663,7 @@
 
   padding: 13px;
 
-  background: rgba(0, 0, 0, 0.025);
+  background: rgba(255, 255, 255, 0.025);
 
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -686,7 +689,9 @@
 
   border-radius: 9px;
 
-  background: rgba(0, 0, 0, 0.045);
+  background: rgba(200, 164, 93, 0.08);
+
+  color: var(--gold);
 
   font-size: 15px;
 }
@@ -706,6 +711,9 @@
   min-width: 0;
   flex: 1;
 
+  display: flex;
+  flex-direction: column;
+
   overflow: hidden;
 }
 
@@ -718,8 +726,9 @@
 
   font-size: 11px;
   font-weight: 500;
+  line-height: 1.2;
 
-  color: #777;
+  color: var(--text-muted) !important;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -728,17 +737,25 @@
 
 
 .discord-stat-value {
+  display: block;
+
   width: 100%;
   min-width: 0;
 
+  margin: 0;
+  padding: 0;
+
   font-size: 18px;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
 
-  color: var(--text);
+  color: var(--text) !important;
 
-  overflow: hidden;
-  text-overflow: ellipsis;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -797,7 +814,10 @@
 
 
 .discord-vc:hover {
-  background: rgba(0, 0, 0, 0.025);
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(200, 164, 93, 0.4);
+
+  transform: translateY(-1px);
 }
 
 
@@ -816,8 +836,9 @@
 
   font-size: 13px;
   font-weight: 600;
+  line-height: 1.2;
 
-  color: var(--text);
+  color: var(--text) !important;
 
   overflow: hidden;
 }
@@ -851,12 +872,13 @@
 
   border-radius: 7px;
 
-  background: rgba(0, 0, 0, 0.045);
+  background: rgba(200, 164, 93, 0.08);
 
   font-size: 12px;
   font-weight: 700;
+  line-height: 1;
 
-  color: #777;
+  color: var(--text) !important;
 }
 
 
@@ -879,7 +901,7 @@
 
   text-align: center;
 
-  color: #777;
+  color: var(--text-muted) !important;
 
   font-size: 13px;
   line-height: 1.4;
@@ -925,7 +947,6 @@
     padding: 15px;
   }
 
-
   .discord-server-logo {
     width: 52px;
     height: 52px;
@@ -935,16 +956,13 @@
     border-radius: 12px;
   }
 
-
   .discord-server-header {
     gap: 12px;
   }
 
-
   .discord-server-name {
     font-size: 16px;
   }
-
 
   .discord-server-stats {
     grid-template-columns: 1fr;
@@ -954,7 +972,6 @@
     margin-top: 16px;
   }
 
-
   .discord-stat-card {
     min-height: 58px;
 
@@ -963,7 +980,6 @@
     gap: 10px;
   }
 
-
   .discord-stat-icon {
     width: 34px;
     height: 34px;
@@ -971,16 +987,13 @@
     flex-basis: 34px;
   }
 
-
   .discord-stat-value {
     font-size: 17px;
   }
 
-
   .discord-vc-title {
     margin-top: 20px;
   }
-
 
   .discord-vc {
     padding: 12px 13px;
@@ -999,11 +1012,9 @@
     padding: 12px;
   }
 
-
   .discord-server-header {
     gap: 10px;
   }
-
 
   .discord-server-logo {
     width: 46px;
@@ -1014,16 +1025,13 @@
     border-radius: 11px;
   }
 
-
   .discord-server-name {
     font-size: 15px;
   }
 
-
   .discord-server-status {
     font-size: 11px;
   }
-
 
   .discord-stat-card {
     min-height: 54px;
@@ -1031,13 +1039,15 @@
     padding: 10px;
   }
 
+  .discord-stat-value {
+    font-size: 16px;
+  }
 
   .discord-vc {
     padding: 11px 12px;
   }
 
 }
-
 
   </style>
 </head>
@@ -1279,7 +1289,7 @@
           class="discord-stat-icon"
           aria-hidden="true"
         >
-          👥
+          
         </div>
 
         <div class="discord-stat-content">
@@ -1337,7 +1347,7 @@
           class="discord-stat-icon"
           aria-hidden="true"
         >
-          🎙️
+          
         </div>
 
         <div class="discord-stat-content">
@@ -3116,7 +3126,7 @@ async function loadDiscordStatus() {
                 <div class="discord-vc">
 
                   <div class="discord-vc-name">
-                    <span aria-hidden="true">🔊</span>
+                    <span aria-hidden="true"></span>
                     <span>
                       ${channelName}
                     </span>
