@@ -300,13 +300,16 @@
 
     /* CANVAS AREA */
 
-  .canvas-area {
-  background: #ffffff;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
+    .canvas-area {
+      background:
+        radial-gradient(circle at center, rgba(200,164,93,.06), transparent 45%),
+        #0e0c09;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
     .canvas-toolbar {
       height: 52px;
       border-bottom: 1px solid var(--border);
@@ -360,7 +363,7 @@
     canvas {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      background: #f1e5cb;
+      background: #fffff;
       box-shadow:
         0 0 0 1px rgba(200,164,93,.35),
         0 20px 70px rgba(0,0,0,.5);
