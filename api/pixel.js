@@ -3,6 +3,12 @@ import { MongoClient } from "mongodb";
 let client;
 
 const BOARD_SIZE = 200;
+
+/*
+  Pixel economy
+*/
+const MAX_BALANCE = 100;
+const PIXEL_REGEN_TIME = 60 * 1000;
 const PIXEL_COOLDOWN = 60 * 1000;
 
 const ALLOWED_COLORS = new Set([
@@ -28,86 +34,266 @@ const ALLOWED_COLORS = new Set([
   "#383632"
 ]);
 
+
+/* ==========================================
+   DATABASE
+========================================== */
+
 async function getDb() {
+
   if (!process.env.MONGODB_URI) {
-    throw new Error("MONGODB_URI is missing");
+    throw new Error(
+      "MONGODB_URI is missing"
+    );
   }
 
   if (!client) {
-    client = new MongoClient(process.env.MONGODB_URI);
+    client =
+      new MongoClient(
+        process.env.MONGODB_URI
+      );
+
     await client.connect();
   }
 
   return client.db(
-    process.env.MONGODB_DB || "middle_eastern_mixing"
+    process.env.MONGODB_DB ||
+    "middle_eastern_mixing"
   );
 }
 
+
+/* ==========================================
+   COOKIE
+========================================== */
+
 function getCookie(req, name) {
-  const cookieHeader = req.headers.cookie;
+
+  const cookieHeader =
+    req.headers.cookie;
 
   if (!cookieHeader) {
     return null;
   }
 
-  const cookies = cookieHeader.split(";");
+  const cookies =
+    cookieHeader.split(";");
 
   for (const cookie of cookies) {
-    const [key, ...valueParts] = cookie.trim().split("=");
+
+    const [
+      key,
+      ...valueParts
+    ] =
+      cookie
+        .trim()
+        .split("=");
 
     if (key === name) {
-      return decodeURIComponent(valueParts.join("="));
+
+      return decodeURIComponent(
+        valueParts.join("=")
+      );
+
     }
   }
 
   return null;
 }
 
-export default async function handler(req, res) {
+
+/* ==========================================
+   REGENERATE PIXELS
+========================================== */
+
+function calculateRegeneratedBalance(user) {
+
+  let balance =
+    Number(user.balance) || 0;
+
+  let lastPlacement =
+    user.lastPlacement
+      ? new Date(user.lastPlacement).getTime()
+      : null;
+
+  /*
+    If the user has never placed a pixel,
+    they simply keep their current balance.
+  */
+
+  if (!lastPlacement) {
+
+    return {
+      balance: Math.min(
+        MAX_BALANCE,
+        balance
+      ),
+      lastPlacement:
+        user.lastPlacement || null
+    };
+
+  }
+
+
+  /*
+    How many complete 60-second periods
+    have passed since the last placement.
+  */
+
+  const elapsed =
+    Date.now() - lastPlacement;
+
+  if (elapsed < PIXEL_REGEN_TIME) {
+
+    return {
+      balance,
+      lastPlacement:
+        user.lastPlacement
+    };
+
+  }
+
+
+  const pixelsToRegenerate =
+    Math.floor(
+      elapsed / PIXEL_REGEN_TIME
+    );
+
+
+  /*
+    Never allow the balance above 100.
+  */
+
+  const newBalance =
+    Math.min(
+      MAX_BALANCE,
+      balance + pixelsToRegenerate
+    );
+
+
+  /*
+    If we reached 100, we don't need to
+    preserve all the old regeneration time.
+  */
+
+  if (newBalance >= MAX_BALANCE) {
+
+    return {
+      balance: MAX_BALANCE,
+      lastPlacement: null
+    };
+
+  }
+
+
+  /*
+    Move lastPlacement forward by the
+    amount of time that was actually used
+    to regenerate pixels.
+  */
+
+  const newLastPlacement =
+    new Date(
+      lastPlacement +
+      pixelsToRegenerate *
+      PIXEL_REGEN_TIME
+    );
+
+
+  return {
+    balance: newBalance,
+    lastPlacement: newLastPlacement
+  };
+
+}
+
+
+/* ==========================================
+   HANDLER
+========================================== */
+
+export default async function handler(
+  req,
+  res
+) {
+
   if (req.method !== "POST") {
+
     return res.status(405).json({
       error: "Method not allowed"
     });
+
   }
 
-  try {
-    /* -----------------------------
-       AUTHENTICATION
-    ----------------------------- */
 
-    const sessionId = getCookie(req, "mem_session");
+  try {
+
+    /* ======================================
+       AUTHENTICATION
+    ====================================== */
+
+    const sessionId =
+      getCookie(
+        req,
+        "mem_session"
+      );
 
     if (!sessionId) {
+
       return res.status(401).json({
-        error: "You must connect Discord before placing pixels."
+        error:
+          "You must connect Discord before placing pixels."
       });
+
     }
 
-    const db = await getDb();
 
-    const sessions = db.collection("sessions");
-    const users = db.collection("users");
-    const pixels = db.collection("pixels");
-    const bans = db.collection("bans");
+    const db =
+      await getDb();
 
-    const session = await sessions.findOne({
-      _id: sessionId
-    });
+    const sessions =
+      db.collection("sessions");
+
+    const users =
+      db.collection("users");
+
+    const pixels =
+      db.collection("pixels");
+
+    const bans =
+      db.collection("bans");
+
+
+    /* ======================================
+       SESSION
+    ====================================== */
+
+    const session =
+      await sessions.findOne({
+        _id: sessionId
+      });
 
     if (!session) {
+
       return res.status(401).json({
-        error: "Your session is invalid. Please reconnect Discord."
+        error:
+          "Your session is invalid. Please reconnect Discord."
       });
+
     }
 
-    /* -----------------------------
+
+    /* ======================================
        SESSION EXPIRATION
-    ----------------------------- */
+    ====================================== */
 
     if (
       session.expiresAt &&
-      new Date(session.expiresAt).getTime() < Date.now()
+      new Date(
+        session.expiresAt
+      ).getTime() < Date.now()
     ) {
+
       await sessions.deleteOne({
         _id: sessionId
       });
@@ -118,27 +304,40 @@ export default async function handler(req, res) {
       );
 
       return res.status(401).json({
-        error: "Your session has expired. Please reconnect Discord."
+        error:
+          "Your session has expired. Please reconnect Discord."
       });
+
     }
 
-    const userId = session.userId;
+
+    const userId =
+      session.userId;
 
     if (!userId) {
+
       return res.status(401).json({
         error: "Invalid session."
       });
+
     }
 
-    /* -----------------------------
-       VALIDATE REQUEST
-    ----------------------------- */
+
+    /* ======================================
+       REQUEST
+    ====================================== */
 
     const {
       x,
       y,
       color
-    } = req.body || {};
+    } =
+      req.body || {};
+
+
+    /* ======================================
+       COORDINATES
+    ====================================== */
 
     if (
       !Number.isInteger(x) ||
@@ -148,196 +347,424 @@ export default async function handler(req, res) {
       y < 0 ||
       y >= BOARD_SIZE
     ) {
+
       return res.status(400).json({
-        error: "Invalid coordinates"
+        error:
+          "Invalid coordinates"
       });
+
     }
+
+
+    /* ======================================
+       COLOR
+    ====================================== */
 
     if (
       typeof color !== "string" ||
-      !ALLOWED_COLORS.has(color.toLowerCase())
+      !ALLOWED_COLORS.has(
+        color.toLowerCase()
+      )
     ) {
+
       return res.status(400).json({
-        error: "Invalid color"
+        error:
+          "Invalid color"
       });
+
     }
 
-    const normalizedColor = color.toLowerCase();
+    const normalizedColor =
+      color.toLowerCase();
 
-    /* -----------------------------
+
+    /* ======================================
        FIND USER
-    ----------------------------- */
+    ====================================== */
 
-    const user = await users.findOne({
-      _id: userId
-    });
+    const user =
+      await users.findOne({
+        _id: userId
+      });
 
     if (!user) {
+
       return res.status(404).json({
-        error: "User account not found."
+        error:
+          "User account not found."
       });
+
     }
 
-    /* -----------------------------
-       CHECK BAN
-    ----------------------------- */
 
-    const ban = await bans.findOne({
-      userId,
-      active: true
-    });
+    /* ======================================
+       REGENERATE BALANCE
+    ====================================== */
+
+    const regenerated =
+      calculateRegeneratedBalance(
+        user
+      );
+
+
+    /*
+      Save regenerated balance if
+      anything changed.
+    */
+
+    if (
+      regenerated.balance !==
+      (Number(user.balance) || 0)
+      ||
+      String(
+        regenerated.lastPlacement || ""
+      ) !==
+      String(
+        user.lastPlacement || ""
+      )
+    ) {
+
+      await users.updateOne(
+        {
+          _id: userId
+        },
+        {
+          $set: {
+            balance:
+              regenerated.balance,
+
+            lastPlacement:
+              regenerated.lastPlacement,
+
+            updatedAt:
+              new Date()
+          }
+        }
+      );
+
+      user.balance =
+        regenerated.balance;
+
+      user.lastPlacement =
+        regenerated.lastPlacement;
+
+    }
+
+
+    /* ======================================
+       BAN
+    ====================================== */
+
+    const ban =
+      await bans.findOne({
+        userId,
+        active: true
+      });
 
     if (ban) {
+
       return res.status(403).json({
-        error: "You are banned from drawing."
+        error:
+          "You are banned from drawing."
       });
+
     }
 
-    /* -----------------------------
+
+    /* ======================================
        BALANCE
-    ----------------------------- */
+    ====================================== */
 
-    if ((user.balance || 0) <= 0) {
+    if (
+      (user.balance || 0) <= 0
+    ) {
+
       return res.status(400).json({
-        error: "You don't have any pixels available."
+        error:
+          "You don't have any pixels available."
       });
+
     }
 
-    /* -----------------------------
-       COOLDOWN
-    ----------------------------- */
+
+    /* ======================================
+       PLACEMENT COOLDOWN
+    ====================================== */
 
     if (user.lastPlacement) {
+
       const elapsed =
         Date.now() -
-        new Date(user.lastPlacement).getTime();
+        new Date(
+          user.lastPlacement
+        ).getTime();
 
-      if (elapsed < PIXEL_COOLDOWN) {
-        const remaining = Math.ceil(
-          (PIXEL_COOLDOWN - elapsed) / 1000
-        );
+      if (
+        elapsed <
+        PIXEL_COOLDOWN
+      ) {
+
+        const remaining =
+          Math.ceil(
+            (
+              PIXEL_COOLDOWN -
+              elapsed
+            ) / 1000
+          );
 
         return res.status(429).json({
-          error: "Pixel cooldown active",
+          error:
+            "Pixel cooldown active",
+
           remaining
         });
+
       }
+
     }
 
-    /* -----------------------------
+
+    /* ======================================
        EXISTING PIXEL
-    ----------------------------- */
+    ====================================== */
 
-    const pixelId = `${x}:${y}`;
+    const pixelId =
+      `${x}:${y}`;
 
-    const existingPixel = await pixels.findOne({
-      _id: pixelId
-    });
+    const existingPixel =
+      await pixels.findOne({
+        _id: pixelId
+      });
 
-    /* -----------------------------
+
+    /* ======================================
        CLAN PROTECTION
-    ----------------------------- */
+    ====================================== */
 
     if (
       existingPixel &&
       existingPixel.clanId &&
       user.clanId &&
-      existingPixel.clanId === user.clanId
+      existingPixel.clanId ===
+        user.clanId
     ) {
+
       return res.status(403).json({
         error:
           "Your clan cannot paint over its own pixels."
       });
+
     }
 
-    const now = new Date();
 
-    /* -----------------------------
-       SAVE PIXEL
-    ----------------------------- */
+    const now =
+      new Date();
 
-    await pixels.updateOne(
-      {
-        _id: pixelId
-      },
-      {
-        $set: {
-          x,
-          y,
-          color: normalizedColor,
-          userId,
-          username: user.username || "Discord User",
-          clanId: user.clanId || null,
-          placedAt: now
-        }
-      },
-      {
-        upsert: true
-      }
-    );
 
-    /* -----------------------------
-       REMOVE PIXEL FROM BALANCE
-    ----------------------------- */
+    /* ======================================
+       REMOVE PIXEL FIRST
+    ====================================== */
 
-    const updatedUser = await users.findOneAndUpdate(
-      {
-        _id: userId,
-        balance: {
-          $gt: 0
-        }
-      },
-      {
-        $inc: {
-          balance: -1,
-          pixelsPlaced: 1
+    const updatedUser =
+      await users.findOneAndUpdate(
+        {
+          _id: userId,
+
+          balance: {
+            $gt: 0
+          },
+
+          /*
+            Prevent two simultaneous
+            placement requests.
+          */
+
+          $or: [
+            {
+              lastPlacement: null
+            },
+            {
+              lastPlacement: {
+                $exists: false
+              }
+            },
+            {
+              lastPlacement: {
+                $lte:
+                  new Date(
+                    Date.now() -
+                    PIXEL_COOLDOWN
+                  )
+              }
+            }
+          ]
         },
-        $set: {
-          lastPlacement: now,
-          updatedAt: now
+
+        {
+          $inc: {
+            balance: -1,
+            pixelsPlaced: 1
+          },
+
+          $set: {
+            lastPlacement: now,
+            updatedAt: now
+          }
+        },
+
+        {
+          returnDocument:
+            "after"
         }
-      },
-      {
-        returnDocument: "after"
-      }
-    );
+      );
+
+
+    /*
+      If this fails, don't place the pixel.
+    */
 
     if (!updatedUser) {
-      return res.status(400).json({
-        error: "Unable to update pixel balance."
+
+      return res.status(429).json({
+        error:
+          "Pixel cooldown active or balance unavailable.",
+        remaining:
+          PIXEL_COOLDOWN / 1000
       });
+
     }
 
+
+    /* ======================================
+       SAVE PIXEL
+    ====================================== */
+
+    try {
+
+      await pixels.updateOne(
+        {
+          _id: pixelId
+        },
+
+        {
+          $set: {
+            x,
+            y,
+            color:
+              normalizedColor,
+
+            userId,
+
+            username:
+              user.username ||
+              "Discord User",
+
+            clanId:
+              user.clanId ||
+              null,
+
+            placedAt:
+              now
+          }
+        },
+
+        {
+          upsert: true
+        }
+      );
+
+    } catch (pixelError) {
+
+      /*
+        If saving the pixel fails,
+        refund the pixel.
+      */
+
+      await users.updateOne(
+        {
+          _id: userId
+        },
+
+        {
+          $inc: {
+            balance: 1,
+            pixelsPlaced: -1
+          },
+
+          $set: {
+            updatedAt:
+              new Date()
+          }
+        }
+      );
+
+      throw pixelError;
+    }
+
+
+    /* ======================================
+       RESPONSE
+    ====================================== */
+
     return res.status(200).json({
+
       success: true,
 
       pixel: {
         x,
         y,
-        color: normalizedColor,
+
+        color:
+          normalizedColor,
+
         userId,
-        username: user.username || "Discord User",
-        clanId: user.clanId || null,
-        placedAt: now
+
+        username:
+          user.username ||
+          "Discord User",
+
+        clanId:
+          user.clanId ||
+          null,
+
+        placedAt:
+          now
       },
 
-      balance: updatedUser.balance ?? 0,
+      balance:
+        updatedUser.balance ??
+        0,
 
       pixelsPlaced:
-        updatedUser.pixelsPlaced ?? 0,
+        updatedUser.pixelsPlaced ??
+        0,
 
-      cooldown: PIXEL_COOLDOWN
+      cooldown:
+        PIXEL_COOLDOWN,
+
+      regeneration: {
+        amount: 1,
+        every: PIXEL_REGEN_TIME,
+        maximum: MAX_BALANCE
+      }
+
     });
 
   } catch (error) {
+
     console.error(
       "Pixel placement error:",
       error
     );
 
     return res.status(500).json({
-      error: "Failed to place pixel",
-      message: error.message
+      error:
+        "Failed to place pixel",
+
+      message:
+        error.message
     });
+
   }
+
 }
