@@ -1209,40 +1209,48 @@
     </section>
 
 
-    <!-- ADMIN LOGS -->
+<!-- ADMIN LOGS -->
 
-    <section class="panel">
+<section class="panel">
 
-      <div class="panel-header">
+  <div class="panel-header">
 
-        <h2>
-          Admin Logs
-        </h2>
+    <h2>
+      Admin Logs
+    </h2>
 
-        <span>
-          Latest 100
-        </span>
+    <div style="display: flex; align-items: center; gap: 10px;">
 
-      </div>
+      <span>
+        Latest 100
+      </span>
 
-      <div class="panel-body">
+      <button
+        class="btn red"
+        type="button"
+        onclick="clearLocalLogs()"
+      >
+        Clear
+      </button>
 
-        <div
-          class="logs"
-          id="logsList"
-        >
-          <div class="loading">
-            Loading logs...
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
+    </div>
 
   </div>
 
+  <div class="panel-body">
+
+    <div
+      class="logs"
+      id="logsList"
+    >
+      <div class="loading">
+        Loading logs...
+      </div>
+    </div>
+
+  </div>
+
+</section>
 
   <!-- ========================================
        RIGHT COLUMN
@@ -3149,7 +3157,27 @@ document.addEventListener("click", (event) => {
 
 });
 
+    
+/* ==========================================
+   CLEAR LOGS LOCALLY
+========================================== */
 
+function clearLocalLogs() {
+
+  const list =
+    document.getElementById(
+      "logsList"
+    );
+
+  if (!list) {
+    return;
+  }
+
+  list.innerHTML =
+    '<div class="empty">Logs cleared locally.</div>';
+
+}
+    
 /* ==========================================
    INITIALIZE
 ========================================== */
