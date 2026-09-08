@@ -8,7 +8,8 @@ const BOARD_SIZE = 200;
   Pixel economy
 */
 const MAX_BALANCE = 100;
-const PIXEL_REGEN_TIME = 60 * 1000;
+const DAILY_PIXEL_AMOUNT = 100;
+const DAILY_RESET_TIME = 24 * 60 * 60 * 1000;
 const PIXEL_COOLDOWN = 60 * 1000;
 
 const ALLOWED_COLORS = new Set([
@@ -103,106 +104,151 @@ function getCookie(req, name) {
 
 
 /* ==========================================
-   REGENERATE PIXELS
+   DAILY PIXEL REFILL
 ========================================== */
 
-function calculateRegeneratedBalance(user) {
+function calculateDailyRefill(user) {
+
+  const now =
+    Date.now();
 
   let balance =
     Number(user.balance) || 0;
 
-  let lastPlacement =
-    user.lastPlacement
-      ? new Date(user.lastPlacement).getTime()
+  const lastDailyRefill =
+    user.lastDailyRefill
+      ? new Date(
+          user.lastDailyRefill
+        ).getTime()
       : null;
 
+
   /*
-    If the user has never placed a pixel,
-    they simply keep their current balance.
+    If the user doesn't have a
+    refill timestamp yet, initialize it.
+
+    This prevents an existing user from
+    suddenly receiving a large amount
+    of pixels when this system is first
+    enabled.
   */
 
-  if (!lastPlacement) {
+  if (!lastDailyRefill) {
 
     return {
-      balance: Math.min(
-        MAX_BALANCE,
-        balance
-      ),
-      lastPlacement:
-        user.lastPlacement || null
+      balance:
+        Math.min(
+          MAX_BALANCE,
+          balance
+        ),
+
+      lastDailyRefill:
+        new Date()
     };
 
   }
 
 
   /*
-    How many complete 60-second periods
-    have passed since the last placement.
+    Check whether 24 hours have passed.
   */
 
   const elapsed =
-    Date.now() - lastPlacement;
+    now -
+    lastDailyRefill;
 
-  if (elapsed < PIXEL_REGEN_TIME) {
+
+  if (
+    elapsed <
+    DAILY_RESET_TIME
+  ) {
 
     return {
       balance,
-      lastPlacement:
-        user.lastPlacement
+
+      lastDailyRefill:
+        user.lastDailyRefill
     };
 
   }
 
 
-  const pixelsToRegenerate =
+  /*
+    Calculate how many complete
+    24-hour periods have passed.
+  */
+
+  const daysPassed =
     Math.floor(
-      elapsed / PIXEL_REGEN_TIME
+      elapsed /
+      DAILY_RESET_TIME
     );
 
 
   /*
-    Never allow the balance above 100.
+    Give 100 pixels per day.
+
+    Balance can never exceed 100.
   */
 
   const newBalance =
     Math.min(
       MAX_BALANCE,
-      balance + pixelsToRegenerate
+
+      balance +
+      (
+        daysPassed *
+        DAILY_PIXEL_AMOUNT
+      )
     );
 
 
   /*
-    If we reached 100, we don't need to
-    preserve all the old regeneration time.
+    Move the refill timestamp forward
+    by the number of complete days.
   */
 
-  if (newBalance >= MAX_BALANCE) {
+  const newLastDailyRefill =
+    new Date(
+      lastDailyRefill +
+      (
+        daysPassed *
+        DAILY_RESET_TIME
+      )
+    );
+
+
+  /*
+    If the user reached 100,
+    don't allow old unused refill time
+    to build up indefinitely.
+
+    The next refill will happen
+    24 hours from this point.
+  */
+
+  if (
+    newBalance >=
+    MAX_BALANCE
+  ) {
 
     return {
-      balance: MAX_BALANCE,
-      lastPlacement: null
+      balance:
+        MAX_BALANCE,
+
+      lastDailyRefill:
+        new Date()
     };
 
   }
 
 
-  /*
-    Move lastPlacement forward by the
-    amount of time that was actually used
-    to regenerate pixels.
-  */
-
-  const newLastPlacement =
-    new Date(
-      lastPlacement +
-      pixelsToRegenerate *
-      PIXEL_REGEN_TIME
-    );
-
-
   return {
-    balance: newBalance,
-    lastPlacement: newLastPlacement
+    balance:
+      newBalance,
+
+    lastDailyRefill:
+      newLastDailyRefill
   };
 
 }
@@ -220,7 +266,8 @@ export default async function handler(
   if (req.method !== "POST") {
 
     return res.status(405).json({
-      error: "Method not allowed"
+      error:
+        "Method not allowed"
     });
 
   }
@@ -317,7 +364,8 @@ export default async function handler(
     if (!userId) {
 
       return res.status(401).json({
-        error: "Invalid session."
+        error:
+          "Invalid session."
       });
 
     }
@@ -398,29 +446,29 @@ export default async function handler(
 
 
     /* ======================================
-       REGENERATE BALANCE
+       DAILY PIXEL REFILL
     ====================================== */
 
     const regenerated =
-      calculateRegeneratedBalance(
+      calculateDailyRefill(
         user
       );
 
 
     /*
-      Save regenerated balance if
-      anything changed.
+      Save the new balance/refill time
+      if anything changed.
     */
 
     if (
       regenerated.balance !==
-      (Number(user.balance) || 0)
+        (Number(user.balance) || 0)
       ||
       String(
-        regenerated.lastPlacement || ""
+        regenerated.lastDailyRefill || ""
       ) !==
       String(
-        user.lastPlacement || ""
+        user.lastDailyRefill || ""
       )
     ) {
 
@@ -428,16 +476,19 @@ export default async function handler(
         {
           _id: userId
         },
+
         {
           $set: {
+
             balance:
               regenerated.balance,
 
-            lastPlacement:
-              regenerated.lastPlacement,
+            lastDailyRefill:
+              regenerated.lastDailyRefill,
 
             updatedAt:
               new Date()
+
           }
         }
       );
@@ -445,8 +496,8 @@ export default async function handler(
       user.balance =
         regenerated.balance;
 
-      user.lastPlacement =
-        regenerated.lastPlacement;
+      user.lastDailyRefill =
+        regenerated.lastDailyRefill;
 
     }
 
@@ -513,10 +564,12 @@ export default async function handler(
           );
 
         return res.status(429).json({
+
           error:
             "Pixel cooldown active",
 
           remaining
+
         });
 
       }
@@ -562,13 +615,15 @@ export default async function handler(
 
 
     /* ======================================
-       REMOVE PIXEL FIRST
+       REMOVE PIXEL FROM BALANCE
     ====================================== */
 
     const updatedUser =
       await users.findOneAndUpdate(
+
         {
-          _id: userId,
+          _id:
+            userId,
 
           balance: {
             $gt: 0
@@ -580,14 +635,19 @@ export default async function handler(
           */
 
           $or: [
+
             {
-              lastPlacement: null
+              lastPlacement:
+                null
             },
+
             {
               lastPlacement: {
-                $exists: false
+                $exists:
+                  false
               }
             },
+
             {
               lastPlacement: {
                 $lte:
@@ -597,39 +657,57 @@ export default async function handler(
                   )
               }
             }
+
           ]
+
         },
 
         {
           $inc: {
-            balance: -1,
-            pixelsPlaced: 1
+
+            balance:
+              -1,
+
+            pixelsPlaced:
+              1
+
           },
 
           $set: {
-            lastPlacement: now,
-            updatedAt: now
+
+            lastPlacement:
+              now,
+
+            updatedAt:
+              now
+
           }
+
         },
 
         {
           returnDocument:
             "after"
         }
+
       );
 
 
     /*
-      If this fails, don't place the pixel.
+      If this fails, don't place
+      the pixel.
     */
 
     if (!updatedUser) {
 
       return res.status(429).json({
+
         error:
           "Pixel cooldown active or balance unavailable.",
+
         remaining:
           PIXEL_COOLDOWN / 1000
+
       });
 
     }
@@ -642,14 +720,18 @@ export default async function handler(
     try {
 
       await pixels.updateOne(
+
         {
-          _id: pixelId
+          _id:
+            pixelId
         },
 
         {
           $set: {
+
             x,
             y,
+
             color:
               normalizedColor,
 
@@ -665,12 +747,15 @@ export default async function handler(
 
             placedAt:
               now
+
           }
         },
 
         {
-          upsert: true
+          upsert:
+            true
         }
+
       );
 
     } catch (pixelError) {
@@ -681,24 +766,36 @@ export default async function handler(
       */
 
       await users.updateOne(
+
         {
-          _id: userId
+          _id:
+            userId
         },
 
         {
           $inc: {
-            balance: 1,
-            pixelsPlaced: -1
+
+            balance:
+              1,
+
+            pixelsPlaced:
+              -1
+
           },
 
           $set: {
+
             updatedAt:
               new Date()
+
           }
+
         }
+
       );
 
       throw pixelError;
+
     }
 
 
@@ -708,9 +805,11 @@ export default async function handler(
 
     return res.status(200).json({
 
-      success: true,
+      success:
+        true,
 
       pixel: {
+
         x,
         y,
 
@@ -729,6 +828,7 @@ export default async function handler(
 
         placedAt:
           now
+
       },
 
       balance:
@@ -743,9 +843,16 @@ export default async function handler(
         PIXEL_COOLDOWN,
 
       regeneration: {
-        amount: 1,
-        every: PIXEL_REGEN_TIME,
-        maximum: MAX_BALANCE
+
+        amount:
+          DAILY_PIXEL_AMOUNT,
+
+        every:
+          DAILY_RESET_TIME,
+
+        maximum:
+          MAX_BALANCE
+
       }
 
     });
@@ -758,11 +865,13 @@ export default async function handler(
     );
 
     return res.status(500).json({
+
       error:
         "Failed to place pixel",
 
       message:
         error.message
+
     });
 
   }
