@@ -3680,6 +3680,128 @@ loadDiscordStatus();
 setInterval(
   loadDiscordStatus,
   5000
+
+/* ==========================================
+   VOICE CHANNEL JOIN MODAL
+========================================== */
+
+function openVoiceChannelModal(channelName) {
+
+  // Prevent duplicate modals
+  const existing =
+    document.querySelector(".discord-vc-join-overlay");
+
+  if (existing) {
+    existing.remove();
+  }
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.className =
+    "discord-vc-join-overlay";
+
+  overlay.innerHTML = `
+    <div
+      class="discord-vc-join-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="discordVcJoinTitle"
+    >
+
+      <div class="discord-vc-join-icon">
+        🔊
+      </div>
+
+      <h2
+        id="discordVcJoinTitle"
+        class="discord-vc-join-title"
+      >
+        Join ${escapeHtml(channelName)}
+      </h2>
+
+      <p class="discord-vc-join-text">
+        You are about to join this voice channel on Discord.
+      </p>
+
+      <div class="discord-vc-join-actions">
+
+        <button
+          class="discord-vc-join-button discord-vc-join-discord"
+          type="button"
+          onclick="joinDiscordVoiceChannel('${escapeHtml(channelName).replace(/'/g, "\\'")}')"
+        >
+          Join on Discord
+        </button>
+
+        <button
+          class="discord-vc-join-button discord-vc-join-cancel"
+          type="button"
+          onclick="closeVoiceChannelModal()"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  /*
+    Clicking the dark background closes the modal.
+  */
+  overlay.addEventListener("click", event => {
+
+    if (event.target === overlay) {
+      closeVoiceChannelModal();
+    }
+
+  });
+
+  document.body.appendChild(overlay);
+
+}
+
+
+/* ==========================================
+   CLOSE VOICE CHANNEL MODAL
+========================================== */
+
+function closeVoiceChannelModal() {
+
+  const modal =
+    document.querySelector(
+      ".discord-vc-join-overlay"
+    );
+
+  if (modal) {
+    modal.remove();
+  }
+
+}
+
+
+/* ==========================================
+   JOIN DISCORD VOICE CHANNEL
+========================================== */
+
+function joinDiscordVoiceChannel(channelName) {
+
+
+  closeVoiceChannelModal();
+
+
+  window.open(
+    "https://discord.com/channels/@me",
+    "_blank"
+  );
+
+  showToast(
+    `Opening Discord for ${channelName}...`
+  );
+
+}  
+  
 );
 
   
