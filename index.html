@@ -1246,6 +1246,154 @@
 
 }
 
+/* ==========================================
+   VOICE CHANNEL JOIN MODAL
+========================================== */
+
+.discord-vc {
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.discord-vc:hover {
+  transform: translateY(-1px);
+}
+
+.discord-vc-join-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+
+  animation: discordVcFadeIn 0.18s ease;
+}
+
+.discord-vc-join-modal {
+  width: min(420px, 100%);
+
+  padding: 30px;
+
+  border-radius: 18px;
+
+  background: var(--surface, #191611);
+  color: var(--text, #fff);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.55);
+
+  text-align: center;
+
+  animation: discordVcModalIn 0.22s ease;
+}
+
+.discord-vc-join-icon {
+  width: 64px;
+  height: 64px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(88, 101, 242, 0.15);
+
+  font-size: 28px;
+}
+
+.discord-vc-join-title {
+  margin: 0 0 10px;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.discord-vc-join-text {
+  margin: 0 auto 24px;
+
+  max-width: 340px;
+
+  color: rgba(255, 255, 255, 0.65);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.discord-vc-join-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.discord-vc-join-button {
+  flex: 1;
+
+  border: 0;
+  border-radius: 10px;
+
+  padding: 12px 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.discord-vc-join-button:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.discord-vc-join-discord {
+  background: #5865f2;
+  color: white;
+}
+
+.discord-vc-join-cancel {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+@keyframes discordVcFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes discordVcModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+    
   </style>
 </head>
 
@@ -1562,11 +1710,6 @@
     id="discord-vcs"
     class="discord-vc-list"
   >
-
-    <!--
-      JavaScript will dynamically create
-      the voice channels and their members here.
-    -->
 
     <div class="discord-vc-empty">
       Nobody is currently in a voice channel.
@@ -3406,7 +3549,12 @@ if (vcs) {
 
 
           return `
-            <div class="discord-vc">
+            <div
+              class="discord-vc"
+              onclick="openVoiceChannelModal('${channelName.replace(/'/g, "\\'")}')"
+              role="button"
+              tabindex="0"
+            >
 
               <div class="discord-vc-header">
 
