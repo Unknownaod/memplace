@@ -1250,18 +1250,6 @@
    VOICE CHANNEL JOIN MODAL
 ========================================== */
 
-.discord-vc {
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.discord-vc:hover {
-  transform: translateY(-1px);
-}
-
 .discord-vc-join-overlay {
   position: fixed;
   inset: 0;
@@ -1273,66 +1261,170 @@
 
   padding: 20px;
 
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(5, 4, 3, 0.78);
 
-  animation: discordVcFadeIn 0.18s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  animation: discordVcFadeIn 0.18s ease-out;
 }
 
 .discord-vc-join-modal {
-  width: min(420px, 100%);
+  width: min(430px, 100%);
 
-  padding: 30px;
+  padding: 32px;
 
-  border-radius: 18px;
+  border-radius: 20px;
 
-  background: var(--surface, #191611);
-  color: var(--text, #fff);
+  background:
+    linear-gradient(
+      145deg,
+      #211d17 0%,
+      #171410 100%
+    );
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text, #f3e8cf);
+
+  border: 1px solid
+    rgba(200, 164, 93, 0.28);
 
   box-shadow:
-    0 25px 80px rgba(0, 0, 0, 0.55);
+    0 30px 80px rgba(0, 0, 0, 0.65),
+    0 0 45px rgba(200, 164, 93, 0.08);
 
   text-align: center;
 
-  animation: discordVcModalIn 0.22s ease;
+  animation: discordVcModalIn 0.22s ease-out;
 }
 
-.discord-vc-join-icon {
-  width: 64px;
-  height: 64px;
+/* Icon */
 
-  margin: 0 auto 18px;
+.discord-vc-join-icon {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 20px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 50%;
+  border-radius: 18px;
 
-  background: rgba(88, 101, 242, 0.15);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(200, 164, 93, 0.20),
+      rgba(200, 164, 93, 0.06)
+    );
 
-  font-size: 28px;
+  border: 1px solid
+    rgba(200, 164, 93, 0.28);
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.25);
+
+  font-size: 30px;
 }
+
+/* Title */
 
 .discord-vc-join-title {
   margin: 0 0 10px;
 
+  color: var(--beige-light, #f3e8cf);
+
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
+
+  letter-spacing: -0.3px;
 }
 
+/* Description */
+
 .discord-vc-join-text {
-  margin: 0 auto 24px;
+  margin: 0 auto 22px;
 
-  max-width: 340px;
+  max-width: 350px;
 
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--text-muted, #a99d87);
 
   font-size: 14px;
   line-height: 1.6;
 }
+
+/* Discord invite */
+
+.discord-vc-join-server {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 24px;
+  padding: 13px 15px;
+
+  text-align: left;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  border: 1px solid
+    rgba(200, 164, 93, 0.16);
+
+  border-radius: 13px;
+}
+
+.discord-vc-join-server-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: rgba(200, 164, 93, 0.12);
+
+  font-size: 19px;
+}
+
+.discord-vc-join-server-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.discord-vc-join-server-label {
+  margin-bottom: 3px;
+
+  color: var(--text-muted, #a99d87);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.discord-vc-join-server-link {
+  color: var(--gold-light, #dfc27b);
+
+  font-size: 14px;
+  font-weight: 750;
+
+  text-decoration: none;
+
+  transition: color 0.15s ease;
+}
+
+.discord-vc-join-server-link:hover {
+  color: var(--beige-light, #f3e8cf);
+  text-decoration: underline;
+}
+
+/* Buttons */
 
 .discord-vc-join-actions {
   display: flex;
@@ -1342,35 +1434,75 @@
 .discord-vc-join-button {
   flex: 1;
 
-  border: 0;
-  border-radius: 10px;
+  min-height: 45px;
 
-  padding: 12px 16px;
+  padding: 0 18px;
 
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 11px;
+  border: 1px solid transparent;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 750;
 
   cursor: pointer;
 
   transition:
     transform 0.15s ease,
-    opacity 0.15s ease;
+    background 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .discord-vc-join-button:hover {
   transform: translateY(-1px);
-  opacity: 0.9;
 }
+
+.discord-vc-join-button:active {
+  transform: translateY(0);
+}
+
+/* Join */
 
 .discord-vc-join-discord {
-  background: #5865f2;
-  color: white;
+  color: #17130d;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-light, #dfc27b),
+      var(--gold, #c8a45d)
+    );
+
+  border-color:
+    rgba(223, 194, 123, 0.35);
+
+  box-shadow:
+    0 8px 22px rgba(200, 164, 93, 0.16);
 }
 
-.discord-vc-join-cancel {
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.8);
+.discord-vc-join-discord:hover {
+  box-shadow:
+    0 10px 28px rgba(200, 164, 93, 0.28);
 }
+
+/* Cancel */
+
+.discord-vc-join-cancel {
+  color: var(--text-muted, #a99d87);
+
+  background: rgba(255, 255, 255, 0.035);
+
+  border-color:
+    rgba(255, 255, 255, 0.08);
+}
+
+.discord-vc-join-cancel:hover {
+  color: var(--text, #f3e8cf);
+
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Animations */
 
 @keyframes discordVcFadeIn {
   from {
@@ -1385,12 +1517,28 @@
 @keyframes discordVcModalIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.97);
+    transform: translateY(12px) scale(0.97);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 500px) {
+  .discord-vc-join-modal {
+    padding: 26px 20px;
+  }
+
+  .discord-vc-join-actions {
+    flex-direction: column;
+  }
+
+  .discord-vc-join-button {
+    width: 100%;
   }
 }
     
@@ -3724,8 +3872,34 @@ function openVoiceChannelModal(channelName) {
       </h2>
 
       <p class="discord-vc-join-text">
-        You are about to join this voice channel on Discord.
+        This voice channel is hosted on our Discord server.
+        Join the server to connect with everyone.
       </p>
+
+      <div class="discord-vc-join-server">
+
+        <div class="discord-vc-join-server-icon">
+          💬
+        </div>
+
+        <div class="discord-vc-join-server-info">
+
+          <div class="discord-vc-join-server-label">
+            Middle Eastern Mixing
+          </div>
+
+          <a
+            class="discord-vc-join-server-link"
+            href="https://discord.gg/middleeast"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            discord.gg/middleeast
+          </a>
+
+        </div>
+
+      </div>
 
       <div class="discord-vc-join-actions">
 
@@ -3734,7 +3908,7 @@ function openVoiceChannelModal(channelName) {
           type="button"
           onclick="joinDiscordVoiceChannel()"
         >
-          Join on Discord
+          Join Discord Server
         </button>
 
         <button
@@ -3784,7 +3958,7 @@ function closeVoiceChannelModal() {
 
 
 /* ==========================================
-   JOIN DISCORD VOICE CHANNEL
+   JOIN DISCORD
 ========================================== */
 
 function joinDiscordVoiceChannel() {
@@ -3792,12 +3966,13 @@ function joinDiscordVoiceChannel() {
   closeVoiceChannelModal();
 
   window.open(
-    "https://discord.com/channels/@me",
-    "_blank"
+    "https://discord.gg/middleeast",
+    "_blank",
+    "noopener,noreferrer"
   );
 
   showToast(
-    "Opening Discord..."
+    "Opening Middle Eastern Mixing Discord..."
   );
 
 }
