@@ -649,9 +649,9 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 8px;
+  gap: 12px;
 
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 
@@ -665,14 +665,29 @@
   align-items: center;
   justify-content: center;
 
-  padding: 10px 6px;
+  min-height: 68px;
+
+  padding: 12px 10px;
 
   background: var(--black-2);
 
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
 
   overflow: hidden;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+
+.discord-stat-card:hover {
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  border-color:
+    rgba(200, 164, 93, 0.25);
 }
 
 
@@ -691,6 +706,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  gap: 5px;
 }
 
 
@@ -701,14 +718,14 @@
 
   text-align: center;
 
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   line-height: 1.2;
 
   color: var(--text-muted) !important;
 
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 
   white-space: nowrap;
   overflow: hidden;
@@ -721,12 +738,12 @@
 
   width: 100%;
 
-  margin: 4px 0 0;
+  margin: 0;
   padding: 0;
 
   text-align: center;
 
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   line-height: 1;
 
@@ -1122,11 +1139,12 @@
   }
 
   .discord-stat-card {
-    padding: 10px 6px;
+    min-height: 64px;
+    padding: 11px 9px;
   }
 
   .discord-stat-value {
-    font-size: 17px;
+    font-size: 19px;
   }
 
   .discord-vc {
@@ -1164,11 +1182,12 @@
   }
 
   .discord-server-stats {
-    gap: 6px;
+    gap: 9px;
   }
 
   .discord-stat-card {
-    padding: 9px 4px;
+    min-height: 60px;
+    padding: 10px 7px;
   }
 
   .discord-stat-label {
@@ -1176,7 +1195,7 @@
   }
 
   .discord-stat-value {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .discord-vc-title {
@@ -1185,13 +1204,6 @@
 
   .discord-vc {
     padding: 11px 12px;
-  }
-
-  .discord-vc-member-avatar {
-    width: 30px;
-    height: 30px;
-
-    flex-basis: 30px;
   }
 
 }
@@ -1228,12 +1240,21 @@
     font-size: 11px;
   }
 
+  .discord-server-stats {
+    gap: 7px;
+  }
+
+  .discord-stat-card {
+    min-height: 56px;
+    padding: 9px 5px;
+  }
+
   .discord-stat-label {
     font-size: 7px;
   }
 
   .discord-stat-value {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .discord-vc {
@@ -1245,7 +1266,7 @@
   }
 
 }
-
+    
 /* ==========================================
    VOICE CHANNEL JOIN MODAL
 ========================================== */
