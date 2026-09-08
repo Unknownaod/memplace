@@ -3680,6 +3680,8 @@ loadDiscordStatus();
 setInterval(
   loadDiscordStatus,
   5000
+);
+
 
 /* ==========================================
    VOICE CHANNEL JOIN MODAL
@@ -3687,9 +3689,10 @@ setInterval(
 
 function openVoiceChannelModal(channelName) {
 
-  // Prevent duplicate modals
   const existing =
-    document.querySelector(".discord-vc-join-overlay");
+    document.querySelector(
+      ".discord-vc-join-overlay"
+    );
 
   if (existing) {
     existing.remove();
@@ -3729,7 +3732,7 @@ function openVoiceChannelModal(channelName) {
         <button
           class="discord-vc-join-button discord-vc-join-discord"
           type="button"
-          onclick="joinDiscordVoiceChannel('${escapeHtml(channelName).replace(/'/g, "\\'")}')"
+          onclick="joinDiscordVoiceChannel()"
         >
           Join on Discord
         </button>
@@ -3747,19 +3750,18 @@ function openVoiceChannelModal(channelName) {
     </div>
   `;
 
-  /*
-    Clicking the dark background closes the modal.
-  */
-  overlay.addEventListener("click", event => {
+  overlay.addEventListener(
+    "click",
+    event => {
 
-    if (event.target === overlay) {
-      closeVoiceChannelModal();
+      if (event.target === overlay) {
+        closeVoiceChannelModal();
+      }
+
     }
-
-  });
+  );
 
   document.body.appendChild(overlay);
-
 }
 
 
@@ -3785,11 +3787,9 @@ function closeVoiceChannelModal() {
    JOIN DISCORD VOICE CHANNEL
 ========================================== */
 
-function joinDiscordVoiceChannel(channelName) {
-
+function joinDiscordVoiceChannel() {
 
   closeVoiceChannelModal();
-
 
   window.open(
     "https://discord.com/channels/@me",
@@ -3797,12 +3797,10 @@ function joinDiscordVoiceChannel(channelName) {
   );
 
   showToast(
-    `Opening Discord for ${channelName}...`
+    "Opening Discord..."
   );
 
-}  
-  
-);
+}
 
   
   initialize();
