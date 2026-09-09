@@ -137,14 +137,15 @@ export default async function handler(req, res) {
     });
 
     // Secure HttpOnly cookie
-    const cookie = [
-      `mem_session=${sessionId}`,
-      "Path=/",
-      "HttpOnly",
-      "Secure",
-      "SameSite=Lax",
-      "Max-Age=2592000"
-    ].join("; ");
+const cookie = [
+  `mem_session=${sessionId}`,
+  "Path=/",
+  "Domain=.memplace.xyz",
+  "HttpOnly",
+  "Secure",
+  "SameSite=Lax",
+  "Max-Age=2592000"
+].join("; ");
 
     res.setHeader("Set-Cookie", cookie);
 
