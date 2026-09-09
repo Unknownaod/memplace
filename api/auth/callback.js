@@ -140,7 +140,6 @@ export default async function handler(req, res) {
 const cookie = [
   `mem_session=${sessionId}`,
   "Path=/",
-  "Domain=.memplace.xyz",
   "HttpOnly",
   "Secure",
   "SameSite=Lax",
